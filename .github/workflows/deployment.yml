@@ -40,7 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy Frontend to Railway
-        run: railway up --service=${{ secrets.RAILWAY_FRONTEND_SERVICE_ID }} --detach
+        run: railway up --service=${{ secrets.RAILWAY_FRONTEND_SERVICE_ID }} --ci
 
   deploy-backend:
     name: Deploy Backend
@@ -57,7 +57,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy Backend to Railway
-        run: railway up --service=${{ secrets.RAILWAY_BACKEND_SERVICE_ID }} --detach
+        run: railway up --service=${{ secrets.RAILWAY_BACKEND_SERVICE_ID }} --ci
 
   deploy-adminpanel:
     name: Deploy Admin Panel
@@ -74,4 +74,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy Admin Panel to Railway
-        run: railway up --service=${{ secrets.RAILWAY_ADMINPANEL_SERVICE_ID }} --detach
+        run: railway up --service=${{ secrets.RAILWAY_ADMINPANEL_SERVICE_ID }} --ci
