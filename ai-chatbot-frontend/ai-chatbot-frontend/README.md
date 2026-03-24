@@ -2,7 +2,6 @@
 
 A React + Next.js + Tailwind CSS frontend application for the AI Chatbot SaaS platform, featuring an embeddable chatbot widget that tenants can integrate into their websites.
 
-
 ## 🌟 Features
 
 - **Embeddable Chatbot Widget**: Easy-to-integrate chat widget for any website
