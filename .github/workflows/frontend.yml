@@ -10,16 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
+      - run: npm install -g @railway/cli
 
       - name: Deploy Frontend
         run: |
           cd ai-chatbot-frontend/ai-chatbot-frontend
-          railway login --token $RAILWAY_TOKEN
           railway link --project $RAILWAY_FRONTEND_PROJECT
           railway up --service=frontend
         env:
