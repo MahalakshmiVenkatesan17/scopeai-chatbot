@@ -1,0 +1,65 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'ai-chatbot-frontend/ai-chatbot-frontend/**'
+      - 'ai-chatbot-backend/ai-chatbot-backend/**'
+      - 'ai-chatbot-adminpanel/ai-chatbot-admin/**'
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    if: |
+      contains(join(github.event.commits.*.modified, ','), 'ai-chatbot-frontend/') ||
+      contains(join(github.event.commits.*.added, ','), 'ai-chatbot-frontend/')
+    defaults:
+      run:
+        working-directory: ai-chatbot-frontend/ai-chatbot-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Frontend to Railway
+        run: railway up --service=${{ secrets.RAILWAY_FRONTEND_SERVICE_ID }} --detach
+
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    if: |
+      contains(join(github.event.commits.*.modified, ','), 'ai-chatbot-backend/') ||
+      contains(join(github.event.commits.*.added, ','), 'ai-chatbot-backend/')
+    defaults:
+      run:
+        working-directory: ai-chatbot-backend/ai-chatbot-backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Backend to Railway
+        run: railway up --service=${{ secrets.RAILWAY_BACKEND_SERVICE_ID }} --detach
+
+  deploy-adminpanel:
+    name: Deploy Admin Panel
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    if: |
+      contains(join(github.event.commits.*.modified, ','), 'ai-chatbot-adminpanel/') ||
+      contains(join(github.event.commits.*.added, ','), 'ai-chatbot-adminpanel/')
+    defaults:
+      run:
+        working-directory: ai-chatbot-adminpanel/ai-chatbot-admin
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy Admin Panel to Railway
+        run: railway up --service=${{ secrets.RAILWAY_ADMINPANEL_SERVICE_ID }} --detach
