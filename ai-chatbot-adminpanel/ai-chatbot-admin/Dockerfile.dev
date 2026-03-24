@@ -1,0 +1,36 @@
+# Development Dockerfile for AI Chatbot Admin
+FROM node:20-alpine AS base
+
+# Install security updates and essential packages
+RUN apk update && apk upgrade && apk add --no-cache \
+    libc6-compat \
+    dumb-init \
+    curl
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including devDependencies)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+RUN mkdir -p /app/.next && chown -R nextjs:nodejs /app
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start development server with hot reload
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,31 @@
+image: node:20
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Build & Deploy AI Chat Frontend
+          deployment: production
+          caches:
+            - node
+          script:
+            # ── Install dependencies ──
+            - npm ci
+
+            # ── Build static export (output → out/) ──
+            - NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL npm run build
+
+            # ── Verify export output ──
+            - ls -la out/
+
+            # ── Install rsync + sshpass ──
+            - apt-get update && apt-get install -y rsync sshpass
+
+            # ── Deploy to server ──
+            - sshpass -p "$SSH_PASSWORD" rsync -avz --delete
+                -e "ssh -o StrictHostKeyChecking=no -p ${SSH_PORT:-22}"
+                out/
+                ${SSH_USER}@${SSH_HOST}:/var/www/ai-chat/
+
+          artifacts:
+            - out/**

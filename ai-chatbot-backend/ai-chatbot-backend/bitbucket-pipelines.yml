@@ -1,0 +1,11 @@
+image: python:3.12-slim
+
+pipelines:
+  branches:
+    Railway-Deployment:
+      - step:
+          name: Deploy to Railway
+          script:
+            - apt-get update && apt-get install -y curl
+            - curl -fsSL https://railway.app/install.sh | bash
+            - RAILWAY_TOKEN=14cecd84-4ef6-455f-9ac7-28876b33b5b0 railway up --service=0d7ead7a-d590-45f2-8b45-ddc4a5b593ac
