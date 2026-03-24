@@ -1,61 +1,39 @@
-# Multi-stage Next.js production-ready Dockerfile
 FROM node:20-alpine AS base
-
-# Install security updates and essential packages
-RUN apk update && apk upgrade && apk add --no-cache \
-    libc6-compat \
-    dumb-init \
-    curl
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-# Dependencies stage
+# 1. Install dependencies only when needed
 FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-RUN npm ci --only=production --ignore-scripts && npm cache clean --force
-
-# Build stage
+COPY package.json package-lock.json* ./
+RUN npm ci
+# 2. Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --ignore-scripts
-
-# Copy source code
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Next.js collects completely anonymous telemetry about general usage.
+# Learn more here: https://nextjs.org
+ENV NEXT_TELEMETRY_DISABLED 1
 RUN npm run build
-
-# Production stage
-FROM base AS production
+# 3. Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
-
-ENV NODE_ENV=production
-
-# Copy node_modules from deps stage
-COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
-
-# Copy built application
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
-COPY --from=builder --chown=nextjs:nodejs /app/next.config.ts ./
-
-# Switch to non-root user
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+COPY --from=builder /app/public ./public
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 USER nextjs
-
-# Expose port
 EXPOSE 3001
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:3001/api/health || curl -f http://localhost:3001/ || exit 1
-
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
-
-# Start the application
-CMD ["npm", "start"]
+ENV PORT 3001
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
+# server.js is created by next build from the standalone output
+# https://nextjs.org
+CMD ["node", "server.js"]
