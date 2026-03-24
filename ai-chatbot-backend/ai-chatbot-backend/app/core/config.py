@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 from urllib.parse import quote_plus
 
 from pydantic import Field
@@ -52,6 +52,10 @@ class Settings(BaseSettings):
     # Weaviate
     WEAVIATE_URL: str = Field(default="http://localhost:8080")
     WEAVIATE_API_KEY: Optional[str] = Field(default=None)
+    # Optional gRPC overrides for cloud/Railway where gRPC is on a separate
+    # host/port or not exposed at all. Leave unset to use the HTTP host.
+    WEAVIATE_GRPC_HOST: Optional[str] = Field(default=None)
+    WEAVIATE_GRPC_PORT: Optional[int] = Field(default=None)
 
     # LangSmith
     LANGCHAIN_TRACING_V2: bool = Field(default=False)
@@ -124,7 +128,8 @@ class Settings(BaseSettings):
     @property
     def database_url(self) -> str:
         if self.DATABASE_URL:
-            return self.DATABASE_URL
+            # We cast to str because self.DATABASE_URL is Optional[str] but we know it's not None here
+            return cast(str, self.DATABASE_URL)
         password = quote_plus(self.DB_PASSWORD)
         return (
             f"mysql+aiomysql://{self.DB_USER}:{password}"
@@ -145,7 +150,8 @@ class Settings(BaseSettings):
     @property
     def redis_connection_url(self) -> str:
         if self.REDIS_URL:
-            return self.REDIS_URL
+            # We cast to str because self.REDIS_URL is Optional[str] but we know it's not None here
+            return cast(str, self.REDIS_URL)
         password_part = f":{self.REDIS_PASSWORD}@" if self.REDIS_PASSWORD else ""
         return f"redis://{password_part}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 

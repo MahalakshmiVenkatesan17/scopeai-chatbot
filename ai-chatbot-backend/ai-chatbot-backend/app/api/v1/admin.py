@@ -910,20 +910,22 @@ async def get_system_health(
             import asyncio
             t0 = time.time()
             weaviate_svc = WeaviateService.get_instance()
-            wv_client = weaviate_svc._get_client()
-            is_ready = await asyncio.to_thread(lambda: wv_client.is_ready())
+            
+            # Use the service's own health_check instead of is_ready()
+            result = await asyncio.to_thread(weaviate_svc.health_check)
             weaviate_rt = int((time.time() - t0) * 1000)
 
+            is_healthy = result["status"] == "healthy"
             services["weaviate_vector_db"] = {
-                "status": "healthy" if is_ready else "unhealthy",
-                "responseTime": weaviate_rt,
-                "errorMessage": None if is_ready else "Weaviate not ready",
+                "status": "healthy" if is_healthy else "unhealthy",
+                "responseTime": result["details"].get("responseTime", weaviate_rt),
+                "errorMessage": None if is_healthy else result["details"].get("error", "Weaviate not ready"),
                 "lastChecked": now.isoformat().replace("+00:00", "Z"),
                 "disk_usage": "N/A",
                 "memory_usage": "N/A",
                 "vectors_count": 0,
             }
-            if not is_ready:
+            if not is_healthy:
                 overall_status = "degraded"
         except Exception as e:
             overall_status = "degraded"
@@ -936,7 +938,6 @@ async def get_system_health(
                 "memory_usage": "N/A",
                 "vectors_count": 0,
             }
-
         # --- OpenAI API ---
         try:
             from app.core.config import settings as _settings

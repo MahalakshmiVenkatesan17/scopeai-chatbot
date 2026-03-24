@@ -1,7 +1,9 @@
 import json
 import time
+import urllib.request
+import urllib.error
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Dict, Optional, Tuple, cast
 
 import weaviate
 from weaviate.classes.config import Configure, DataType, Property
@@ -48,49 +50,72 @@ class WeaviateService:
     def get_instance(cls) -> "WeaviateService":
         if cls._instance is None:
             cls._instance = cls()
+        assert cls._instance is not None
         return cls._instance
 
     # ------------------------------------------------------------------
     # Connection lifecycle
     # ------------------------------------------------------------------
+    @staticmethod
+    def _parse_url(url: str) -> Tuple[str, int, bool]:
+        """Return (host, port, is_secure) from a Weaviate URL."""
+        is_secure = url.startswith("https")
+        host_part = url.replace("http://", "").replace("https://", "").split("/")[0]
+        if ":" in host_part:
+            host, port_str = host_part.rsplit(":", 1)
+            try:
+                port = int(port_str)
+            except ValueError:
+                port = 443 if is_secure else 8080
+        else:
+            host = host_part
+            port = 443 if is_secure else 8080
+        return host, port, is_secure
+
+    def _reset_client(self) -> None:
+        """Close and clear the existing client so it will be recreated."""
+        try:
+            if self._client:
+                self._client.close()
+        except Exception:
+            pass
+        self._client = None
+
     def _get_client(self) -> weaviate.WeaviateClient:
         if self._client is None:
             url = settings.WEAVIATE_URL
-            # Parse scheme/host from URL
-            host = url.replace("http://", "").replace("https://", "").split(":")[0]
-            port = 8080
-            if ":" in url.split("//")[-1]:
-                try:
-                    port = int(url.split("//")[-1].split(":")[1].split("/")[0])
-                except (ValueError, IndexError):
-                    pass
-            grpc_port = 50051
+            host, port, is_secure = self._parse_url(url)
 
+            # Allow separate gRPC host/port override via env vars for Railway/cloud
+            # where gRPC may be on a different host or disabled entirely.
+            # If WEAVIATE_GRPC_HOST is not set, fall back to the HTTP host.
+            grpc_host = getattr(settings, "WEAVIATE_GRPC_HOST", None) or host
+            grpc_port_raw = getattr(settings, "WEAVIATE_GRPC_PORT", None)
+            grpc_port = int(grpc_port_raw) if grpc_port_raw else 50051
+
+            connect_kwargs: Dict[str, Any] = {
+                "http_host": host,
+                "http_port": port,
+                "http_secure": is_secure,
+                "grpc_host": grpc_host,
+                "grpc_port": grpc_port,
+                "grpc_secure": is_secure,
+                "skip_init_checks": True,
+            }
             if settings.WEAVIATE_API_KEY:
-                self._client = weaviate.connect_to_custom(
-                    http_host=host,
-                    http_port=port,
-                    http_secure=url.startswith("https"),
-                    grpc_host=host,
-                    grpc_port=grpc_port,
-                    grpc_secure=url.startswith("https"),
-                    auth_credentials=weaviate.auth.AuthApiKey(settings.WEAVIATE_API_KEY),
-                    skip_init_checks=True,
+                connect_kwargs["auth_credentials"] = weaviate.auth.AuthApiKey(
+                    settings.WEAVIATE_API_KEY
                 )
-            else:
-                self._client = weaviate.connect_to_custom(
-                    http_host=host,
-                    http_port=port,
-                    http_secure=url.startswith("https"),
-                    grpc_host=host,
-                    grpc_port=grpc_port,
-                    grpc_secure=url.startswith("https"),
-                    skip_init_checks=True,
-                )
+
+            self._client = weaviate.connect_to_custom(**connect_kwargs)
 
             logger.info(
                 "Weaviate client initialized",
-                url=settings.WEAVIATE_URL,
+                url=url,
+                host=host,
+                port=port,
+                grpc_host=grpc_host,
+                grpc_port=grpc_port,
                 has_api_key=bool(settings.WEAVIATE_API_KEY),
             )
 
@@ -231,8 +256,10 @@ class WeaviateService:
         )
 
         results: list[SearchResult] = []
-        for obj in response.objects:
-            score = obj.metadata.certainty if obj.metadata.certainty is not None else 0.0
+        # Cast to Any to avoid Pyre errors about missing library stubs
+        objects = cast(Any, response.objects)
+        for obj in objects:
+            score = cast(Any, obj).metadata.certainty if cast(Any, obj).metadata.certainty is not None else 0.0
 
             if options.threshold and score < options.threshold:
                 continue
@@ -370,26 +397,53 @@ class WeaviateService:
     # Health
     # ------------------------------------------------------------------
     def health_check(self) -> dict[str, Any]:
-        start = time.time()
-        try:
-            client = self._get_client()
-            meta = client.get_meta()
-            response_time = int((time.time() - start) * 1000)
+        """Check Weaviate health via plain HTTP REST (avoids gRPC issues on Railway).
 
+        The Weaviate v4 Python client's ``is_ready()`` internally uses gRPC,
+        which is not exposed on Railway-managed Weaviate instances (only the
+        HTTP port is publicly accessible). We therefore bypass the client and
+        call the standard REST readiness endpoint directly.
+        """
+        start = time.time()
+        url = settings.WEAVIATE_URL.rstrip("/")
+        ready_url = f"{url}/v1/.well-known/ready"
+        try:
+            req = urllib.request.Request(ready_url, method="GET")
+            if settings.WEAVIATE_API_KEY:
+                req.add_header("Authorization", f"Bearer {settings.WEAVIATE_API_KEY}")
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                is_ready = resp.status == 200
+            response_time = int((time.time() - start) * 1000)
             return {
-                "status": "healthy",
+                "status": "healthy" if is_ready else "unhealthy",
                 "details": {
-                    "connected": True,
+                    "connected": is_ready,
                     "responseTime": response_time,
-                    "version": meta.get("version", "unknown") if isinstance(meta, dict) else "unknown",
+                    "error": None if is_ready else "Weaviate returned non-200",
                 },
             }
-        except Exception:
+        except urllib.error.HTTPError as e:
             response_time = int((time.time() - start) * 1000)
+            error_msg = f"HTTP {e.code}: {e.reason}"
+            logger.warning("Weaviate health check HTTP error", url=ready_url, error=error_msg)
             return {
                 "status": "unhealthy",
                 "details": {
                     "connected": False,
                     "responseTime": response_time,
+                    "error": error_msg,
+                },
+            }
+        except Exception as e:
+            response_time = int((time.time() - start) * 1000)
+            # Reset the client so a stale connection is not reused
+            self._reset_client()
+            logger.warning("Weaviate health check failed", url=ready_url, error=str(e))
+            return {
+                "status": "unhealthy",
+                "details": {
+                    "connected": False,
+                    "responseTime": response_time,
+                    "error": str(e),
                 },
             }
