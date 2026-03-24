@@ -16,7 +16,7 @@ jobs:
 
       - run: |
           cd ai-chatbot-frontend/ai-chatbot-frontend
-          railway link ${{ secrets.RAILWAY_FRONTEND_PROJECT }}
+          railway link --project ${{ secrets.RAILWAY_FRONTEND_PROJECT }}
           railway up --service=frontend
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
