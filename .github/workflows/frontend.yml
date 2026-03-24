@@ -17,7 +17,10 @@ jobs:
       - name: Deploy Frontend
         run: |
           cd ai-chatbot-frontend/ai-chatbot-frontend
-          railway up --project $RAILWAY_FRONTEND_PROJECT --service frontend
+          railway up \
+            --project $RAILWAY_FRONTEND_PROJECT \
+            --environment production \
+            --service frontend
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_FRONTEND_PROJECT: ${{ secrets.RAILWAY_FRONTEND_PROJECT }}
