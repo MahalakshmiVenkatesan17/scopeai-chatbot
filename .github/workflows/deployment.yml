@@ -4,22 +4,36 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'ai-chatbot-frontend/ai-chatbot-frontend/**'
-      - 'ai-chatbot-backend/ai-chatbot-backend/**'
-      - 'ai-chatbot-adminpanel/ai-chatbot-admin/**'
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      adminpanel: ${{ steps.filter.outputs.adminpanel }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'ai-chatbot-frontend/ai-chatbot-frontend/**'
+            backend:
+              - 'ai-chatbot-backend/ai-chatbot-backend/**'
+            adminpanel:
+              - 'ai-chatbot-adminpanel/ai-chatbot-admin/**'
+
   deploy-frontend:
     name: Deploy Frontend
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/railwayapp/cli:latest
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-    if: |
-      contains(join(github.event.commits.*.modified, ','), 'ai-chatbot-frontend/') ||
-      contains(join(github.event.commits.*.added, ','), 'ai-chatbot-frontend/')
     defaults:
       run:
         working-directory: ai-chatbot-frontend/ai-chatbot-frontend
@@ -30,14 +44,13 @@ jobs:
 
   deploy-backend:
     name: Deploy Backend
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/railwayapp/cli:latest
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-    if: |
-      contains(join(github.event.commits.*.modified, ','), 'ai-chatbot-backend/') ||
-      contains(join(github.event.commits.*.added, ','), 'ai-chatbot-backend/')
     defaults:
       run:
         working-directory: ai-chatbot-backend/ai-chatbot-backend
@@ -48,14 +61,13 @@ jobs:
 
   deploy-adminpanel:
     name: Deploy Admin Panel
+    needs: changes
+    if: needs.changes.outputs.adminpanel == 'true'
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/railwayapp/cli:latest
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-    if: |
-      contains(join(github.event.commits.*.modified, ','), 'ai-chatbot-adminpanel/') ||
-      contains(join(github.event.commits.*.added, ','), 'ai-chatbot-adminpanel/')
     defaults:
       run:
         working-directory: ai-chatbot-adminpanel/ai-chatbot-admin
