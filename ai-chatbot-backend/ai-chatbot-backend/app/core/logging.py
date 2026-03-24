@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 from loguru import logger
 
@@ -9,6 +10,17 @@ def setup_logging() -> None:
     """Configure loguru to match Winston logging from Node.js project."""
     # Remove default handler
     logger.remove()
+
+    # Ensure log directory exists
+    log_file_path = Path(settings.LOG_FILE)
+    try:
+        log_file_path.parent.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        logger.remove()
+        logger.add(sys.stdout, level=settings.LOG_LEVEL)
+        logger.warning(f"Could not create log directory {log_file_path.parent}: {e}")
+        logger.warning("Logging will continue to stdout only.")
+        return
 
     # Console handler (use utf-8 wrapper on Windows to avoid cp1252 encoding errors)
     sink = sys.stdout
@@ -28,27 +40,34 @@ def setup_logging() -> None:
     )
 
     # File handler with rotation (matches Winston file transport)
-    logger.add(
-        settings.LOG_FILE,
-        level=settings.LOG_LEVEL,
-        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | {message}",
-        rotation=settings.LOG_MAX_SIZE,
-        retention=settings.LOG_MAX_FILES,
-        compression="gz",
-        serialize=False,
-        enqueue=True,  # Thread-safe
-    )
+    try:
+        logger.add(
+            settings.LOG_FILE,
+            level=settings.LOG_LEVEL,
+            format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | {message}",
+            rotation=settings.LOG_MAX_SIZE,
+            retention=settings.LOG_MAX_FILES,
+            compression="gz",
+            serialize=False,
+            enqueue=True,  # Thread-safe
+        )
+    except Exception as e:
+        logger.warning(f"Could not add log file sink {settings.LOG_FILE}: {e}")
+        logger.warning("Continuing with console logging only.")
 
     # Error-specific file
-    logger.add(
-        settings.LOG_FILE.replace(".log", ".error.log"),
-        level="ERROR",
-        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | {message}",
-        rotation=settings.LOG_MAX_SIZE,
-        retention=settings.LOG_MAX_FILES,
-        compression="gz",
-        enqueue=True,
-    )
+    try:
+        logger.add(
+            settings.LOG_FILE.replace(".log", ".error.log"),
+            level="ERROR",
+            format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} | {message}",
+            rotation=settings.LOG_MAX_SIZE,
+            retention=settings.LOG_MAX_FILES,
+            compression="gz",
+            enqueue=True,
+        )
+    except Exception as e:
+        logger.warning(f"Could not add error log file sink {settings.LOG_FILE.replace('.log', '.error.log')}: {e}")
 
 
 # Export logger for use across the app

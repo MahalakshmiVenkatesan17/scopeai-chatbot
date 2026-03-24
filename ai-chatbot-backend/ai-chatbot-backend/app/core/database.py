@@ -15,12 +15,12 @@ class Base(DeclarativeBase):
 
 engine = create_async_engine(
     settings.database_url,
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=10,
+    pool_size=min(settings.DB_POOL_SIZE, 5),
+    max_overflow=5,
     pool_timeout=settings.DB_POOL_TIMEOUT,
-    pool_recycle=3600,
+    pool_recycle=1800,
     pool_pre_ping=True,
-    echo=settings.DEBUG and settings.is_development,
+    echo=False,
 )
 
 async_session_factory = async_sessionmaker(

@@ -31,10 +31,8 @@ class Tenant(Base):
         Enum("active", "inactive", "suspended", name="tenant_status"),
         default="active",
     )
-    subscription_plan: Mapped[str] = mapped_column(
-        Enum("free", "basic", "pro", "enterprise", name="subscription_plan_type"),
-        default="free",
-    )
+    # Make plans flexible (Free/Basic/Pro/Enterprise/Platinum/Gold/Silver/custom names)
+    subscription_plan: Mapped[str] = mapped_column(String(50), default="free")
     max_users: Mapped[int] = mapped_column(Integer, default=5)
     max_chat_sessions: Mapped[int] = mapped_column(Integer, default=100)
     max_storage_mb: Mapped[int] = mapped_column(Integer, default=500)

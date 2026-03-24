@@ -1,0 +1,200 @@
+﻿2026-03-18 10:19:23,634 INFO sqlalchemy.engine.Engine INSERT INTO api_usage_logs (tenant_id, user_id, session_id, endpoint, method, request_size, response_size, response_time_ms, status_code, ip_address, user_agent, error_message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2026-03-18 10:19:23,634 INFO sqlalchemy.engine.Engine [cached since 1.099e+04s ago] (20, 43, None, '/api/v1/admin/subscription-plans', 'GET', None, None, 14, 200, '172.18.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', None)
+2026-03-18 10:19:23,635 INFO sqlalchemy.engine.Engine COMMIT
+[32m2026-03-18 10:19:23.636[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- GET /api/v1/subscriptions/details 200 28ms[0m
+2026-03-18 10:19:23,637 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:19:23,638 INFO sqlalchemy.engine.Engine INSERT INTO api_usage_logs (tenant_id, user_id, session_id, endpoint, method, request_size, response_size, response_time_ms, status_code, ip_address, user_agent, error_message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2026-03-18 10:19:23,638 INFO sqlalchemy.engine.Engine [cached since 1.099e+04s ago] (20, 43, None, '/api/v1/subscriptions/details', 'GET', None, None, 28, 200, '172.18.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', None)
+2026-03-18 10:19:23,639 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     172.18.0.1:56066 - "GET /api/v1/admin/subscription-plans HTTP/1.1" 200 OK
+INFO:     172.18.0.1:56078 - "GET /api/v1/subscriptions/details HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:23.647[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> GET /api/v1/subscriptions/details[0m
+2026-03-18 10:19:23,649 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:19:23,650 INFO sqlalchemy.engine.Engine SELECT user_sessions.id, user_sessions.user_id, user_sessions.tenant_id, user_sessions.ip_address, user_sessions.user_agent, user_sessions.expires_at, user_sessions.created_at 
+FROM user_sessions 
+WHERE user_sessions.id = %s AND user_sessions.user_id = %s
+2026-03-18 10:19:23,650 INFO sqlalchemy.engine.Engine [cached since 1.099e+04s ago] ('sess_1cd26549515c42c4aec2', 43)
+2026-03-18 10:19:23,651 INFO sqlalchemy.engine.Engine SELECT users.id, users.tenant_id, users.email, users.password_hash, users.first_name, users.last_name, users.`role`, users.status, users.email_verified, users.email_verification_token, users.password_reset_token, users.password_reset_expires, users.last_login, users.login_attempts, users.locked_until, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = %s
+2026-03-18 10:19:23,651 INFO sqlalchemy.engine.Engine [cached since 1.099e+04s ago] (43,)
+2026-03-18 10:19:23,653 INFO sqlalchemy.engine.Engine SELECT s.*, t.name AS tenant_name FROM subscriptions s JOIN tenants t ON t.id = s.tenant_id WHERE s.tenant_id = %s ORDER BY s.created_at DESC
+2026-03-18 10:19:23,653 INFO sqlalchemy.engine.Engine [cached since 1.099e+04s ago] (20,)
+2026-03-18 10:19:23,668 INFO sqlalchemy.engine.Engine ROLLBACK
+[32m2026-03-18 10:19:23.669[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- GET /api/v1/subscriptions/details 200 21ms[0m
+2026-03-18 10:19:23,670 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:19:23,671 INFO sqlalchemy.engine.Engine INSERT INTO api_usage_logs (tenant_id, user_id, session_id, endpoint, method, request_size, response_size, response_time_ms, status_code, ip_address, user_agent, error_message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2026-03-18 10:19:23,671 INFO sqlalchemy.engine.Engine [cached since 1.099e+04s ago] (20, 43, None, '/api/v1/subscriptions/details', 'GET', None, None, 21, 200, '172.18.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', None)
+2026-03-18 10:19:23,672 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     172.18.0.1:56078 - "GET /api/v1/subscriptions/details HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:43.469[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:43.471[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:43.472[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_payment_method_attached[0m:[36m724[0m | [1mpayment_method.attached: pm_1TCHCVHuChFl80mncD0x5McV[0m
+[32m2026-03-18 10:19:43.473[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 4ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:43.525[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:43.528[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:43.529[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_customer_created[0m:[36m716[0m | [1mcustomer.created: cus_UAcRHOBezZ1Gsx[0m
+[32m2026-03-18 10:19:43.530[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 5ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:43.926[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:43.929[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:43.930[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36mhandle[0m:[36m88[0m | [1mStripeWebhookService: no handler for product.created[0m
+[32m2026-03-18 10:19:43.931[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 4ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:44.424[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:44.426[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:44.426[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36mhandle[0m:[36m88[0m | [1mStripeWebhookService: no handler for plan.created[0m
+[32m2026-03-18 10:19:44.428[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 4ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:44.502[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:44.505[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:44.505[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36mhandle[0m:[36m88[0m | [1mStripeWebhookService: no handler for price.created[0m
+[32m2026-03-18 10:19:44.507[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 4ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.307[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:48.348[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:48.349[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_charge_succeeded[0m:[36m712[0m | [1mcharge.succeeded: ch_3TCHCXHuChFl80mn1zQhcBuP[0m
+[32m2026-03-18 10:19:48.350[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 43ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.366[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:48.369[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:48.370[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_customer_updated[0m:[36m720[0m | [1mcustomer.updated: cus_UAcRHOBezZ1Gsx[0m
+[32m2026-03-18 10:19:48.371[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 4ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.470[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:48.518[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:48.518[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_subscription_created[0m:[36m615[0m | [1mcustomer.subscription.created: sub_1TCHCXHuChFl80mncJSQ143F, tenant: None[0m
+[32m2026-03-18 10:19:48.520[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 49ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.534[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:48.536[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:48.536[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_payment_intent_succeeded[0m:[36m704[0m | [1mpayment_intent.succeeded: pi_3TCHCXHuChFl80mn1qPi4m5a[0m
+[32m2026-03-18 10:19:48.537[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 3ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.623[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:48.626[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:48.627[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_payment_intent_created[0m:[36m708[0m | [1mpayment_intent.created: pi_3TCHCXHuChFl80mn1qPi4m5a[0m
+[32m2026-03-18 10:19:48.628[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 5ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.774[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:48.818[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:48.819[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_created[0m:[36m561[0m | [1minvoice.created: in_1TCHCXHuChFl80mnrFYY75oQ[0m
+[32m2026-03-18 10:19:48.821[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 46ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.878[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:48.928[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:48.929[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_finalized[0m:[36m565[0m | [1minvoice.finalized: in_1TCHCXHuChFl80mnrFYY75oQ[0m
+[32m2026-03-18 10:19:48.930[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 51ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:48.980[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:49.028[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:49.029[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m423[0m | [1minvoice.paid: id=in_1TCHCXHuChFl80mnrFYY75oQ, sub=sub_1TCHCXHuChFl80mncJSQ143F, customer=cus_UAcRHOBezZ1Gsx, url=https://invoice.stripe.com/i/acct_1SV70tHuChFl80mn/test_YWNjdF8xU1Y3MHRIdUNoRmw4MG1uLF9VQWNSaXpReERoc2VobkZDMWw4TlpmRXNoeWxkU1dELDE2NDM2OTk4OQ0200Zmcw4vnd?s=ap[0m
+[32m2026-03-18 10:19:49.030[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m429[0m | [1mDEBUG invoice_paid full object: {"id": "in_1TCHCXHuChFl80mnrFYY75oQ", "object": "invoice", "account_country": "PL", "account_name": "AI-Chatbot", "account_tax_ids": null, "amount_due": 1500, "amount_overpaid": 0, "amount_paid": 1500, "amount_remaining": 0, "amount_shipping": 0, "application": null, "attempt_count": 1, "attempted": true, "auto_advance": false, "automatic_tax": {"disabled_reason": null, "enabled": false, "liability": null, "provider": null, "status": null}, "automatically_finalizes_at": null, "billing_reason": "subscription_create", "collection_method": "charge_automatically", "created": 1773829185, "currency": "usd", "custom_fields": null, "customer": "cus_UAcRHOBezZ1Gsx", "customer_account": null, "customer_address": null, "customer_email": null, "customer_name": null, "customer_phone": null, "customer_shipping": null, "customer_tax_exempt": "none", "customer_tax_ids": [], "default_payment_method": null, "default_source": null, "default_tax_rates": [], "description": null, "discounts": [], "due_date": null, "effective_at": 1773829185, "ending_balance": 0, "footer": null, "from_invoice": null, "hosted_invoice_url": "https://invoice.stripe.com/i/acct_1SV70tHuChFl80mn/test_YWNjdF8xU1Y3MHRIdUNoRmw4MG1uLF9VQWNSaXpReERoc2VobkZDMWw4TlpmRXNoeWxkU1dELDE2NDM2OTk4OQ0200Zmcw4vnd?s=ap", "invoice_pdf": "https://pay.stripe.com/invoice/acct_1SV70tHuChFl80mn/test_YWNjdF8xU1Y3MHRIdUNoRmw4MG1uLF9VQWNSaXpReERoc2VobkZDMWw4TlpmRXNoeWxkU1dELDE2NDM2OTk4OQ0200Zmcw4vnd/pdf?s=ap", "issuer": {"type": "self"}, "last_finalization_error": null, "latest_revision": null, "lines": {"object": "list", "data": [{"id": "il_1TCHCXHuChFl80mnhVqFQNBu", "object": "line_item", "amount": 1500, "currency": "usd", "description": "1 \u00d7 myproduct (at $15.00 / month)", "discount_amounts": [], "discountable": true, "discounts": [], "invoice": "in_1TCHCXHuChFl80mnrFYY75oQ", "livemode": false, "metadata": {}, "parent": {"invoice_item_details": null, "license_fee_subscription_details": null, "subscription_item_details": {"invoice_item": null, "proration": false, "proration_details": {"credited_items": null}, "subscription": "sub_1TCHCXHuChFl80mncJSQ143F", "subscription_item": "si_UAcRrMMmK0m3z8"}, "type": "subscription_item_details"}, "period": {"end": 1776507585, "start": 1773829185}, "pretax_credit_amounts": [], "pricing": {"price_details": {"price": "price_1TCHCWHuChFl80mnESscMgAN", "product": "prod_UAcRuYwyx5SY18"}, "type": "price_details", "unit_amount_decimal": "1500"}, "quantity": 1, "quantity_decimal": "1", "subtotal": 1500, "taxes": []}], "has_more": false, "total_count": 1, "url": "/v1/invoices/in_1TCHCXHuChFl80mnrFYY75oQ/lines"}, "livemode": false, "metadata": {}, "next_payment_attempt": null, "number": "QVNLGMYG-0023", "on_behalf_of": null, "parent": {"quote_details": null, "subscription_details": {"metadata": {}, "subscription": "sub_1TCHCXHuChFl80mncJSQ143F"}, "type": "subscription_details"}, "payment_settings": {"default_mandate": null, "payment_method_options": null, "payment_method_types": null}, "period_end": 1773829185, "period_start": 1773829185, "post_payment_credit_notes_amount": 0, "pre_payment_credit_notes_amount": 0, "receipt_number": null, "rendering": null, "shipping_cost": null, "shipping_details": null, "starting_balance": 0, "statement_descriptor": null, "status": "paid", "status_transitions": {"finalized_at": 1773829185, "marked_uncollectible_at": null, "paid_at": 1773829185, "voided_at": null}, "subtotal": 1500, "subtotal_excluding_tax": 1500, "test_clock": null, "total": 1500, "total_discount_amounts": [], "total_excluding_tax": 1500, "total_pretax_credit_amounts": [], "total_taxes": [], "webhooks_delivered_at": null}[0m
+2026-03-18 10:19:49,031 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:19:49,032 INFO sqlalchemy.engine.Engine SELECT id, invoice_data, subscription_status, subscription_id FROM subscriptions WHERE subscription_id = %s ORDER BY created_at DESC LIMIT 1
+2026-03-18 10:19:49,032 INFO sqlalchemy.engine.Engine [cached since 1.07e+04s ago] ('sub_1TCHCXHuChFl80mncJSQ143F',)
+[32m2026-03-18 10:19:49.033[0m | [33m[1mWARNING [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m477[0m | [33m[1minvoice.paid: no row found for invoice=in_1TCHCXHuChFl80mnrFYY75oQ, sub=sub_1TCHCXHuChFl80mncJSQ143F, customer=cus_UAcRHOBezZ1Gsx, email=None[0m
+2026-03-18 10:19:49,033 INFO sqlalchemy.engine.Engine ROLLBACK
+[32m2026-03-18 10:19:49.034[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 54ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:19:49.079[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:19:49.128[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:19:49.129[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m423[0m | [1minvoice.paid: id=in_1TCHCXHuChFl80mnrFYY75oQ, sub=sub_1TCHCXHuChFl80mncJSQ143F, customer=cus_UAcRHOBezZ1Gsx, url=https://invoice.stripe.com/i/acct_1SV70tHuChFl80mn/test_YWNjdF8xU1Y3MHRIdUNoRmw4MG1uLF9VQWNSaXpReERoc2VobkZDMWw4TlpmRXNoeWxkU1dELDE2NDM2OTk4OQ0200Zmcw4vnd?s=ap[0m
+[32m2026-03-18 10:19:49.129[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m429[0m | [1mDEBUG invoice_paid full object: {"id": "in_1TCHCXHuChFl80mnrFYY75oQ", "object": "invoice", "account_country": "PL", "account_name": "AI-Chatbot", "account_tax_ids": null, "amount_due": 1500, "amount_overpaid": 0, "amount_paid": 1500, "amount_remaining": 0, "amount_shipping": 0, "application": null, "attempt_count": 1, "attempted": true, "auto_advance": false, "automatic_tax": {"disabled_reason": null, "enabled": false, "liability": null, "provider": null, "status": null}, "automatically_finalizes_at": null, "billing_reason": "subscription_create", "collection_method": "charge_automatically", "created": 1773829185, "currency": "usd", "custom_fields": null, "customer": "cus_UAcRHOBezZ1Gsx", "customer_account": null, "customer_address": null, "customer_email": null, "customer_name": null, "customer_phone": null, "customer_shipping": null, "customer_tax_exempt": "none", "customer_tax_ids": [], "default_payment_method": null, "default_source": null, "default_tax_rates": [], "description": null, "discounts": [], "due_date": null, "effective_at": 1773829185, "ending_balance": 0, "footer": null, "from_invoice": null, "hosted_invoice_url": "https://invoice.stripe.com/i/acct_1SV70tHuChFl80mn/test_YWNjdF8xU1Y3MHRIdUNoRmw4MG1uLF9VQWNSaXpReERoc2VobkZDMWw4TlpmRXNoeWxkU1dELDE2NDM2OTk4OQ0200Zmcw4vnd?s=ap", "invoice_pdf": "https://pay.stripe.com/invoice/acct_1SV70tHuChFl80mn/test_YWNjdF8xU1Y3MHRIdUNoRmw4MG1uLF9VQWNSaXpReERoc2VobkZDMWw4TlpmRXNoeWxkU1dELDE2NDM2OTk4OQ0200Zmcw4vnd/pdf?s=ap", "issuer": {"type": "self"}, "last_finalization_error": null, "latest_revision": null, "lines": {"object": "list", "data": [{"id": "il_1TCHCXHuChFl80mnhVqFQNBu", "object": "line_item", "amount": 1500, "currency": "usd", "description": "1 \u00d7 myproduct (at $15.00 / month)", "discount_amounts": [], "discountable": true, "discounts": [], "invoice": "in_1TCHCXHuChFl80mnrFYY75oQ", "livemode": false, "metadata": {}, "parent": {"invoice_item_details": null, "license_fee_subscription_details": null, "subscription_item_details": {"invoice_item": null, "proration": false, "proration_details": {"credited_items": null}, "subscription": "sub_1TCHCXHuChFl80mncJSQ143F", "subscription_item": "si_UAcRrMMmK0m3z8"}, "type": "subscription_item_details"}, "period": {"end": 1776507585, "start": 1773829185}, "pretax_credit_amounts": [], "pricing": {"price_details": {"price": "price_1TCHCWHuChFl80mnESscMgAN", "product": "prod_UAcRuYwyx5SY18"}, "type": "price_details", "unit_amount_decimal": "1500"}, "quantity": 1, "quantity_decimal": "1", "subtotal": 1500, "taxes": []}], "has_more": false, "total_count": 1, "url": "/v1/invoices/in_1TCHCXHuChFl80mnrFYY75oQ/lines"}, "livemode": false, "metadata": {}, "next_payment_attempt": null, "number": "QVNLGMYG-0023", "on_behalf_of": null, "parent": {"quote_details": null, "subscription_details": {"metadata": {}, "subscription": "sub_1TCHCXHuChFl80mncJSQ143F"}, "type": "subscription_details"}, "payment_settings": {"default_mandate": null, "payment_method_options": null, "payment_method_types": null}, "period_end": 1773829185, "period_start": 1773829185, "post_payment_credit_notes_amount": 0, "pre_payment_credit_notes_amount": 0, "receipt_number": null, "rendering": null, "shipping_cost": null, "shipping_details": null, "starting_balance": 0, "statement_descriptor": null, "status": "paid", "status_transitions": {"finalized_at": 1773829185, "marked_uncollectible_at": null, "paid_at": 1773829185, "voided_at": null}, "subtotal": 1500, "subtotal_excluding_tax": 1500, "test_clock": null, "total": 1500, "total_discount_amounts": [], "total_excluding_tax": 1500, "total_pretax_credit_amounts": [], "total_taxes": [], "webhooks_delivered_at": null}[0m
+2026-03-18 10:19:49,131 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:19:49,131 INFO sqlalchemy.engine.Engine SELECT id, invoice_data, subscription_status, subscription_id FROM subscriptions WHERE subscription_id = %s ORDER BY created_at DESC LIMIT 1
+2026-03-18 10:19:49,131 INFO sqlalchemy.engine.Engine [cached since 1.07e+04s ago] ('sub_1TCHCXHuChFl80mncJSQ143F',)
+[32m2026-03-18 10:19:49.132[0m | [33m[1mWARNING [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m477[0m | [33m[1minvoice.paid: no row found for invoice=in_1TCHCXHuChFl80mnrFYY75oQ, sub=sub_1TCHCXHuChFl80mncJSQ143F, customer=cus_UAcRHOBezZ1Gsx, email=None[0m
+2026-03-18 10:19:49,133 INFO sqlalchemy.engine.Engine ROLLBACK
+[32m2026-03-18 10:19:49.134[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 54ms[0m
+INFO:     172.18.0.1:50344 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+[32m2026-03-18 10:20:32.434[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> POST /api/v1/stripe/webhook[0m
+[32m2026-03-18 10:20:32.436[0m | [33m[1mWARNING [0m | [36mapp.api.v1.stripe[0m:[36mstripe_webhook[0m:[36m95[0m | [33m[1mDevelopment mode: skipping Stripe signature verification for webhook.[0m
+[32m2026-03-18 10:20:32.437[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_payment_paid_new[0m:[36m760[0m | [1minvoice_payment.paid: inpay_id=inpay_1TCHCXHuChFl80mnYcAFmvKI, invoice_ref=str=in_1TCHCXHuChFl80mnrFYY75oQ[0m
+[32m2026-03-18 10:20:32.754[0m | [33m[1mWARNING [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_payment_paid_new[0m:[36m773[0m | [33m[1minvoice_payment.paid: could not fetch invoice in_1TCHCXHuChFl80mnrFYY75oQ: Request req_gRJgZasTWmUnZW: No such invoice: 'in_1TCHCXHuChFl80mnrFYY75oQ'[0m
+[32m2026-03-18 10:20:32.755[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_payment_paid_new[0m:[36m815[0m | [1minvoice_payment.paid: using synthetic invoice, sub=None, url=None[0m
+[32m2026-03-18 10:20:32.755[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m423[0m | [1minvoice.paid: id=in_1TCHCXHuChFl80mnrFYY75oQ, sub=None, customer=None, url=None[0m
+[32m2026-03-18 10:20:32.756[0m | [1mINFO    [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m429[0m | [1mDEBUG invoice_paid full object: {"id": "in_1TCHCXHuChFl80mnrFYY75oQ", "object": "invoice", "subscription": null, "parent": {}, "hosted_invoice_url": null, "invoice_pdf": null, "number": null, "amount_paid": 1500, "amount_due": 1500, "currency": "usd", "status": "paid", "status_transitions": {"canceled_at": null, "paid_at": 1773829186}, "customer": null, "customer_email": null, "customer_name": null, "metadata": {}, "billing_reason": "subscription_cycle", "created": 1773829185, "lines": {"data": []}}[0m
+[32m2026-03-18 10:20:32.756[0m | [33m[1mWARNING [0m | [36mapp.services.stripe_webhook_service[0m:[36m_handle_invoice_paid[0m:[36m477[0m | [33m[1minvoice.paid: no row found for invoice=in_1TCHCXHuChFl80mnrFYY75oQ, sub=None, customer=None, email=None[0m
+[32m2026-03-18 10:20:32.757[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- POST /api/v1/stripe/webhook 200 323ms[0m
+INFO:     172.18.0.1:57120 - "POST /api/v1/stripe/webhook HTTP/1.1" 200 OK
+INFO:     172.18.0.1:34814 - "OPTIONS /api/v1/subscriptions/details HTTP/1.1" 204 No Content
+INFO:     172.18.0.1:34830 - "OPTIONS /api/v1/subscriptions/details HTTP/1.1" 204 No Content
+[32m2026-03-18 10:30:01.397[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> GET /api/v1/subscriptions/details[0m
+2026-03-18 10:30:01,401 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,402 INFO sqlalchemy.engine.Engine SELECT user_sessions.id, user_sessions.user_id, user_sessions.tenant_id, user_sessions.ip_address, user_sessions.user_agent, user_sessions.expires_at, user_sessions.created_at 
+FROM user_sessions 
+WHERE user_sessions.id = %s AND user_sessions.user_id = %s
+2026-03-18 10:30:01,402 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] ('sess_1cd26549515c42c4aec2', 43)
+2026-03-18 10:30:01,403 INFO sqlalchemy.engine.Engine SELECT users.id, users.tenant_id, users.email, users.password_hash, users.first_name, users.last_name, users.`role`, users.status, users.email_verified, users.email_verification_token, users.password_reset_token, users.password_reset_expires, users.last_login, users.login_attempts, users.locked_until, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = %s
+2026-03-18 10:30:01,403 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (43,)
+2026-03-18 10:30:01,404 INFO sqlalchemy.engine.Engine SELECT s.*, t.name AS tenant_name FROM subscriptions s JOIN tenants t ON t.id = s.tenant_id WHERE s.tenant_id = %s ORDER BY s.created_at DESC
+2026-03-18 10:30:01,405 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (20,)
+2026-03-18 10:30:01,421 INFO sqlalchemy.engine.Engine ROLLBACK
+[32m2026-03-18 10:30:01.422[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- GET /api/v1/subscriptions/details 200 24ms[0m
+2026-03-18 10:30:01,423 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,423 INFO sqlalchemy.engine.Engine INSERT INTO api_usage_logs (tenant_id, user_id, session_id, endpoint, method, request_size, response_size, response_time_ms, status_code, ip_address, user_agent, error_message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2026-03-18 10:30:01,424 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (20, 43, None, '/api/v1/subscriptions/details', 'GET', None, None, 24, 200, '172.18.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', None)
+2026-03-18 10:30:01,425 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     172.18.0.1:34830 - "GET /api/v1/subscriptions/details HTTP/1.1" 200 OK
+[32m2026-03-18 10:30:01.433[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> GET /api/v1/subscriptions/details[0m
+2026-03-18 10:30:01,437 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,437 INFO sqlalchemy.engine.Engine SELECT user_sessions.id, user_sessions.user_id, user_sessions.tenant_id, user_sessions.ip_address, user_sessions.user_agent, user_sessions.expires_at, user_sessions.created_at 
+FROM user_sessions 
+WHERE user_sessions.id = %s AND user_sessions.user_id = %s
+2026-03-18 10:30:01,437 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] ('sess_1cd26549515c42c4aec2', 43)
+2026-03-18 10:30:01,438 INFO sqlalchemy.engine.Engine SELECT users.id, users.tenant_id, users.email, users.password_hash, users.first_name, users.last_name, users.`role`, users.status, users.email_verified, users.email_verification_token, users.password_reset_token, users.password_reset_expires, users.last_login, users.login_attempts, users.locked_until, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = %s
+2026-03-18 10:30:01,438 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (43,)
+2026-03-18 10:30:01,440 INFO sqlalchemy.engine.Engine SELECT s.*, t.name AS tenant_name FROM subscriptions s JOIN tenants t ON t.id = s.tenant_id WHERE s.tenant_id = %s ORDER BY s.created_at DESC
+2026-03-18 10:30:01,440 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (20,)
+2026-03-18 10:30:01,455 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     172.18.0.1:34830 - "OPTIONS /api/v1/subscriptions/invoices?page=1&limit=20 HTTP/1.1" 204 No Content
+[32m2026-03-18 10:30:01.457[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- GET /api/v1/subscriptions/details 200 24ms[0m
+[32m2026-03-18 10:30:01.458[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> GET /api/v1/subscriptions/invoices[0m
+2026-03-18 10:30:01,461 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,461 INFO sqlalchemy.engine.Engine SELECT user_sessions.id, user_sessions.user_id, user_sessions.tenant_id, user_sessions.ip_address, user_sessions.user_agent, user_sessions.expires_at, user_sessions.created_at 
+FROM user_sessions 
+WHERE user_sessions.id = %s AND user_sessions.user_id = %s
+2026-03-18 10:30:01,461 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] ('sess_1cd26549515c42c4aec2', 43)
+2026-03-18 10:30:01,463 INFO sqlalchemy.engine.Engine SELECT users.id, users.tenant_id, users.email, users.password_hash, users.first_name, users.last_name, users.`role`, users.status, users.email_verified, users.email_verification_token, users.password_reset_token, users.password_reset_expires, users.last_login, users.login_attempts, users.locked_until, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = %s
+2026-03-18 10:30:01,464 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (43,)
+2026-03-18 10:30:01,464 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,464 INFO sqlalchemy.engine.Engine INSERT INTO api_usage_logs (tenant_id, user_id, session_id, endpoint, method, request_size, response_size, response_time_ms, status_code, ip_address, user_agent, error_message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2026-03-18 10:30:01,464 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (20, 43, None, '/api/v1/subscriptions/details', 'GET', None, None, 24, 200, '172.18.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', None)
+2026-03-18 10:30:01,465 INFO sqlalchemy.engine.Engine SELECT id, plan_name, billing_cycle, invoice_data FROM subscriptions WHERE tenant_id = %s
+2026-03-18 10:30:01,466 INFO sqlalchemy.engine.Engine [cached since 1.121e+04s ago] (20,)
+2026-03-18 10:30:01,466 INFO sqlalchemy.engine.Engine COMMIT
+2026-03-18 10:30:01,470 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     172.18.0.1:34814 - "GET /api/v1/subscriptions/details HTTP/1.1" 200 OK
+[32m2026-03-18 10:30:01.471[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- GET /api/v1/subscriptions/invoices 200 12ms[0m
+2026-03-18 10:30:01,472 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,472 INFO sqlalchemy.engine.Engine INSERT INTO api_usage_logs (tenant_id, user_id, session_id, endpoint, method, request_size, response_size, response_time_ms, status_code, ip_address, user_agent, error_message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2026-03-18 10:30:01,473 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (20, 43, None, '/api/v1/subscriptions/invoices', 'GET', None, None, 12, 200, '172.18.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', None)
+2026-03-18 10:30:01,473 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     172.18.0.1:34830 - "GET /api/v1/subscriptions/invoices?page=1&limit=20 HTTP/1.1" 200 OK
+[32m2026-03-18 10:30:01.480[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m20[0m | [1m--> GET /api/v1/subscriptions/invoices[0m
+2026-03-18 10:30:01,482 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,483 INFO sqlalchemy.engine.Engine SELECT user_sessions.id, user_sessions.user_id, user_sessions.tenant_id, user_sessions.ip_address, user_sessions.user_agent, user_sessions.expires_at, user_sessions.created_at 
+FROM user_sessions 
+WHERE user_sessions.id = %s AND user_sessions.user_id = %s
+2026-03-18 10:30:01,483 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] ('sess_1cd26549515c42c4aec2', 43)
+2026-03-18 10:30:01,484 INFO sqlalchemy.engine.Engine SELECT users.id, users.tenant_id, users.email, users.password_hash, users.first_name, users.last_name, users.`role`, users.status, users.email_verified, users.email_verification_token, users.password_reset_token, users.password_reset_expires, users.last_login, users.login_attempts, users.locked_until, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = %s
+2026-03-18 10:30:01,484 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (43,)
+2026-03-18 10:30:01,486 INFO sqlalchemy.engine.Engine SELECT id, plan_name, billing_cycle, invoice_data FROM subscriptions WHERE tenant_id = %s
+2026-03-18 10:30:01,486 INFO sqlalchemy.engine.Engine [cached since 1.121e+04s ago] (20,)
+2026-03-18 10:30:01,489 INFO sqlalchemy.engine.Engine ROLLBACK
+[32m2026-03-18 10:30:01.490[0m | [1mINFO    [0m | [36mapp.middleware.request_logging[0m:[36mdispatch[0m:[36m37[0m | [1m<-- GET /api/v1/subscriptions/invoices 200 10ms[0m
+2026-03-18 10:30:01,491 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-03-18 10:30:01,491 INFO sqlalchemy.engine.Engine INSERT INTO api_usage_logs (tenant_id, user_id, session_id, endpoint, method, request_size, response_size, response_time_ms, status_code, ip_address, user_agent, error_message) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+2026-03-18 10:30:01,491 INFO sqlalchemy.engine.Engine [cached since 1.162e+04s ago] (20, 43, None, '/api/v1/subscriptions/invoices', 'GET', None, None, 10, 200, '172.18.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', None)
+2026-03-18 10:30:01,492 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     172.18.0.1:34830 - "GET /api/v1/subscriptions/invoices?page=1&limit=20 HTTP/1.1" 200 OK

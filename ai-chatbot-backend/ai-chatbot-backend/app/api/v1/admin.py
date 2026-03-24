@@ -369,6 +369,11 @@ async def list_users(
         """
         params["search"] = f"%{search}%"
 
+    # Count total (before pagination)
+    count_query = f"SELECT COUNT(*) FROM ({query}) AS total"
+    total_result = await db.execute(text(count_query), params)
+    total = total_result.scalar() or 0
+
     # Pagination
     offset = (page - 1) * limit
     query += " ORDER BY u.created_at DESC LIMIT :limit OFFSET :offset"
@@ -380,8 +385,19 @@ async def list_users(
 
     users = [_row_to_user(r) for r in rows]
 
-    return {"success": True, "data": {"users": users}}
-
+    return {
+        "success": True, 
+        "data": {
+            # "items": users,
+            "users": users,  # For backward compatibility
+            "pagination": {
+                "page": page,
+                "limit": limit,
+                "total": total,
+                "pages": -(-total // limit) if limit > 0 else 0
+            }
+        }
+    }
 
 @router.get("/users/{user_id}")
 async def get_user(
@@ -1029,7 +1045,7 @@ async def get_usage_metrics(
     db: AsyncSession = Depends(get_db),
 ):
     """Platform-wide usage metrics."""
-    days_map = {"7d": 7, "30d": 30, "90d": 90, "12m": 365}
+    days_map = {"24h": 1, "7d": 7, "30d": 30, "90d": 90, "12m": 365}
     days = days_map.get(period, 30)
 
     tid_filter = ""

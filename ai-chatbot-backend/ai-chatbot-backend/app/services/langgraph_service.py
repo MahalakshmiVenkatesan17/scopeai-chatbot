@@ -211,22 +211,18 @@ class LangGraphService:
                     "has_relevant_context": False,
                 }
 
-            # NEW: Only treat context as relevant if best score clears the bar
-            RELEVANCE_THRESHOLD = 0.55  # tune as needed (0.0–1.0 cosine similarity)
+            # Use a modest relevance threshold, but keep context available when results exist.
+            RELEVANCE_THRESHOLD = 0.35  # tune as needed (0.0–1.0 cosine similarity)
             top_score = search_results[0].score if search_results else 0.0
 
             if top_score < RELEVANCE_THRESHOLD:
                 logger.info(
-                    "Retrieved chunks below relevance threshold",
+                    "Retrieved chunks below relevance threshold -- still using best available results",
                     top_score=top_score,
                     threshold=RELEVANCE_THRESHOLD,
                     tenant_id=state["tenant_id"],
                 )
-                return {
-                    "context_chunks": [],
-                    "context_text": "",
-                    "has_relevant_context": False,
-                }
+                # Continue to use context chunks rather than dropping all context.
 
             chunks = [
                 {
@@ -271,21 +267,20 @@ class LangGraphService:
         try:
             system_prompt = state.get("system_prompt", "You are a helpful AI assistant.")
 
-            # Append document context if available
             if state.get("has_relevant_context") and state.get("context_text"):
+                # ✅ Has relevant docs — use them
                 system_prompt += (
                     "\n\nUse the following context from the knowledge base to answer the user's question:\n\n"
                     + state["context_text"]
                 )
-            elif state.get("use_documents", True):
-                # Had documents turned on but found nothing relevant
-                return {
-                    "ai_response": "No relevant document context found for your query.",
-                    "token_count": 0,
-                    "model": "none",
-                    "usage": {"promptTokens": 0, "completionTokens": 0, "totalTokens": 0},
-                    "cost": 0.0,
-                }
+            else:
+                # ✅ No relevant docs found — still answer using system prompt only
+                # Let the model use its background knowledge and point users to add docs if needed.
+                system_prompt += (
+                    "\n\nNo specific document context was found for this query. "
+                    "Please answer from your general knowledge and be clear that details may not be backed by tenant docs. "
+                    "If the question depends on tenant files, encourage the user to upload documents or provide more precise context."
+                )
 
             messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
             messages.extend(state.get("conversation_history", []))
@@ -323,7 +318,6 @@ class LangGraphService:
                 "cost": 0.0,
                 "error": str(e),
             }
-
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
@@ -361,17 +355,36 @@ class LangGraphService:
     async def _load_conversation_history(
         self, session_id: str, db: AsyncSession, limit: int = 10
     ) -> list[dict[str, str]]:
-        """Load recent conversation messages for context."""
         try:
             result = await db.execute(
                 text(
-                    "SELECT role, content FROM chat_messages "
+                    "SELECT message_type, content FROM chat_messages "
                     "WHERE session_id = :sid ORDER BY created_at ASC LIMIT :lim"
                 ),
                 {"sid": session_id, "lim": limit},
             )
             rows = result.mappings().all()
-            return [{"role": str(r["role"]), "content": str(r["content"])} for r in rows]
+            return [
+                {
+                    # ✅ Map message_type → OpenAI role format
+                    "role": "assistant" if str(r["message_type"]) == "assistant" else "user",
+                    "content": str(r["content"])
+                }
+                for r in rows
+            ]
         except Exception as e:
             logger.warning("Failed to load conversation history", session_id=session_id, error=str(e))
             return []
+
+
+# ------------------------------------------------------------------
+# Singleton accessor — avoids re-compiling the graph on every request
+# ------------------------------------------------------------------
+_langgraph_instance: LangGraphService | None = None
+
+
+def get_langgraph_service() -> LangGraphService:
+    global _langgraph_instance
+    if _langgraph_instance is None:
+        _langgraph_instance = LangGraphService()
+    return _langgraph_instance

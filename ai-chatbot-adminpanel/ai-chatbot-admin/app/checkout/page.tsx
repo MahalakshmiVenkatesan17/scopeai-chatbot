@@ -571,12 +571,21 @@ function CheckoutContent() {
                       Contact Number
                     </label>
                     <input
-                      type="tel"
+                      type="number"
                       name="contact"
                       value={formData.contact}
-                      onChange={handleChange}
+                        onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, ""); // allow only digits
+    if (value.length <= 10) {
+      setFormData((prev) => ({
+        ...prev,
+        contact: value,
+      }));
+    }
+  }}
                       className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-800/50 rounded-lg border-base text-gray-900 dark:text-gray-100 transition-colors"
-                      placeholder="+91 9876543210"
+                      placeholder="9876543210"
+                      
                     />
                     {errors.contact && (
                       <p className="text-red-500 text-xs mt-1">

@@ -40,6 +40,14 @@ from app.middleware.cors import DynamicCORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown — mirrors Node.js server.ts startup sequence."""
+    # Limit the default thread pool to prevent thread explosion from
+    # asyncio.to_thread() calls (Weaviate sync client, PDF extraction, etc.)
+    import asyncio
+    import concurrent.futures
+
+    loop = asyncio.get_running_loop()
+    loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=4))
+
     # Startup
     setup_logging()
     logger.info("Starting AI Chatbot Backend (Python/FastAPI)...")

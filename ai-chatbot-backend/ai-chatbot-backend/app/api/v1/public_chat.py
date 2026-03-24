@@ -233,10 +233,10 @@ async def send_public_message(
     import json
     import time
  
-    from app.services.langgraph_service import LangGraphService
- 
+    from app.services.langgraph_service import get_langgraph_service
+
     message_repo = MessageRepository(db)
- 
+
     # Save user message
     user_msg = await message_repo.create({
         "session_id": session_id,
@@ -244,9 +244,9 @@ async def send_public_message(
         "message_type": "user",
         "content": content,
     })
- 
-    # Run LangGraph RAG pipeline
-    langgraph = LangGraphService()
+
+    # Run LangGraph RAG pipeline (singleton)
+    langgraph = get_langgraph_service()
     start_time = time.time()
     ai_result = await langgraph.generate_response(
         message=content,
@@ -256,7 +256,9 @@ async def send_public_message(
         use_documents=True,
     )
     processing_time = int((time.time() - start_time) * 1000)
- 
+
+
+
     context_json = json.dumps(ai_result.context_chunks) if ai_result.context_chunks else None
     assistant_msg = await message_repo.create({
         "session_id": session_id,

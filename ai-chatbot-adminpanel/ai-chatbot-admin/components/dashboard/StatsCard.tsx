@@ -41,7 +41,7 @@ export function StatsCard({
   return (
     <Card className="border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0B1220] shadow-sm dark:shadow-2xl overflow-hidden">
       <CardContent
-        className={`p-6 border-t-[3px] ${borderColor} ${backgroundColor} dark:bg-[#0B1220] ${borderRadius} transition-colors rounded-lg`}
+        className={`p-6 border-t-[3px] ${borderColor} ${backgroundColor} dark:bg-[#0B1220] ${borderRadius} transition-colors rounded-lg h-full`}
       >
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">

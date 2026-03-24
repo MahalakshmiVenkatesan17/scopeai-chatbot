@@ -673,41 +673,99 @@ async def list_subscription_invoices(
 ):
     """List invoices for the authenticated user's subscriptions."""
     from sqlalchemy import text
+    import json
 
-    # Count total
-    r = await db.execute(
-        text("SELECT COUNT(*) FROM invoices WHERE tenant_id = :tid"),
+    # 1. Fetch all subscriptions for this tenant to handle Stripe JSON data & statuses
+    sub_result = await db.execute(
+        text(
+            "SELECT id, plan_name, billing_cycle, subscription_status, invoice_data, payment_type "
+            "FROM subscriptions WHERE tenant_id = :tid"
+        ),
         {"tid": current_user.tenant_id},
     )
-    total = r.scalar() or 0
-
-    offset = (page - 1) * limit
-    result = await db.execute(
-        text(
-            "SELECT i.*, s.plan_name, s.billing_cycle "
-            "FROM invoices i "
-            "LEFT JOIN subscriptions s ON i.subscription_id = s.id "
-            "WHERE i.tenant_id = :tid "
-            "ORDER BY i.created_at DESC LIMIT :lim OFFSET :off"
-        ),
-        {"tid": current_user.tenant_id, "lim": limit, "off": offset},
-    )
-    rows = result.mappings().all()
-
+    sub_rows = sub_result.mappings().all()
+    
+    # Map sub_id to status and other metadata for easy lookup
+    sub_map = {row["id"]: row for row in sub_rows}
+    
+    # 2. Extract "virtual" invoices from subscriptions with invoice_data (typically Stripe)
+    all_combined_invoices = []
+    
     def fmt_ts(val):
         if val is None:
             return None
         return val.isoformat() + ".000Z" if hasattr(val, "isoformat") else str(val)
 
-    invoices = []
-    for row in rows:
-        # Use safe lookups and support multiple possible column names
+    for sub in sub_rows:
+        inv_data = sub.get("invoice_data")
+        if inv_data:
+            try:
+                # Stripe stores it as a list of dicts stringified or a single dict
+                data_list = []
+                if isinstance(inv_data, str):
+                    parsed = json.loads(inv_data)
+                    data_list = parsed if isinstance(parsed, list) else [parsed]
+                elif isinstance(inv_data, list):
+                    data_list = inv_data
+                elif isinstance(inv_data, dict):
+                    data_list = [inv_data]
+                
+                for entry in data_list:
+                    # Map JSON fields to our common response format
+                    # Re-map amount/amount_due to be numeric/string appropriately
+                    amt = entry.get("amount") or entry.get("amount_paid") or 0
+                    all_combined_invoices.append({
+                        "id": entry.get("invoice_id") or f"sub_{sub['id']}_inv",
+                        "invoice_id": entry.get("invoice_id"),
+                        "tenant_id": current_user.tenant_id,
+                        "subscription_id": sub["id"],
+                        "subscription_status": sub["subscription_status"],
+                        "invoice_number": entry.get("invoice_number"),
+                        "status": entry.get("status") or "paid",
+                        "amount": str(amt),
+                        "amount_due": float(amt),
+                        "amount_paid": float(amt),
+                        "currency": entry.get("currency") or "USD",
+                        "method": entry.get("method") or sub["billing_cycle"] or "card",
+                        "plan_name": sub["plan_name"] or "",
+                        "short_url": entry.get("short_url") or "",
+                        "stripe_invoice_id": entry.get("invoice_id") if sub["payment_type"] == "stripe" else None,
+                        "due_date": entry.get("payment_date") or entry.get("paid_at"),
+                        "paid_at": entry.get("paid_at") or entry.get("payment_date"),
+                        "created_at": entry.get("paid_at") or entry.get("payment_date"),
+                    })
+            except Exception as e:
+                logger.warning(f"Error parsing invoice_data for subscription {sub['id']}: {e}")
+
+    # 3. Fetch from the dedicated invoices table (typically Razorpay)
+    result = await db.execute(
+        text(
+            "SELECT i.*, s.plan_name, s.billing_cycle, s.subscription_status "
+            "FROM invoices i "
+            "LEFT JOIN subscriptions s ON i.subscription_id = s.id "
+            "WHERE i.tenant_id = :tid "
+            "ORDER BY i.created_at DESC"
+        ),
+        {"tid": current_user.tenant_id},
+    )
+    db_invoice_rows = result.mappings().all()
+    
+    for row in db_invoice_rows:
+        # Avoid duplicates if the subscription already used invoice_data (Stripe)
+        # But usually Razorpay doesn't use invoice_data, it uses the table.
+        # We can check if the invoice number already exists in all_combined_invoices
+        if any(inv["invoice_number"] == row.get("invoice_number") for inv in all_combined_invoices if inv.get("invoice_number")):
+            continue
+            
         amount_due_raw = row.get("amount_due") if row.get("amount_due") is not None else row.get("amount")
         amount_paid_raw = row.get("amount_paid") if row.get("amount_paid") is not None else 0
-        invoices.append({
+        
+        all_combined_invoices.append({
             "id": row.get("id"),
+            "invoice_id": row.get("id"),
             "tenant_id": row.get("tenant_id"),
             "subscription_id": row.get("subscription_id"),
+            "subscription_status": row.get("subscription_status") or "active",
             "invoice_number": row.get("invoice_number"),
             "status": row.get("status"),
             "amount": str(amount_due_raw) if amount_due_raw is not None else "0.00",
@@ -716,16 +774,26 @@ async def list_subscription_invoices(
             "currency": row.get("currency") or "USD",
             "method": row.get("method") or row.get("billing_cycle") or "monthly",
             "plan_name": row.get("plan_name") or "",
+            "short_url": "", # Razorpay doesn't typically store hosted URL in our table
             "stripe_invoice_id": row.get("stripe_invoice_id") or row.get("stripe_id") or None,
             "due_date": str(row.get("due_date")) if row.get("due_date") else None,
             "paid_at": fmt_ts(row.get("paid_at")),
             "created_at": fmt_ts(row.get("created_at")),
         })
 
+    # 4. Sort combined list by created_at descending
+    all_combined_invoices.sort(key=lambda x: x.get("created_at") or "", reverse=True)
+    
+    # 5. Manual pagination
+    total = len(all_combined_invoices)
+    offset = (page - 1) * limit
+    paginated_invoices = all_combined_invoices[offset : offset + limit]
+    
     total_pages = -(-total // limit) if total > 0 else 0
+    
     return {
         "success": True,
-        "data": invoices,
+        "data": paginated_invoices,
         "pagination": {"page": page, "limit": limit, "total": total, "totalPages": total_pages},
         "message": "Invoices retrieved",
     }
@@ -967,7 +1035,7 @@ async def cancel_subscription(
         logger.info(f"Tenant BEFORE cancel: {dict(before)}")
 
         # ----------------------------------------------------------------
-        # Step 2: Mark all active subscriptions as cancelled
+        # Step 2: Mark the SPECIFIC subscription as cancelled
         # ----------------------------------------------------------------
         sub_result = await db.execute(
             text(
@@ -975,48 +1043,63 @@ async def cancel_subscription(
                 "SET subscription_status = 'cancelled', "
                 "    cancelled_at = NOW(), "
                 "    updated_at   = NOW() "
-                "WHERE tenant_id = :tid "
+                "WHERE tenant_id = :tid AND subscription_id = :sub_id "
                 "  AND subscription_status NOT IN ('cancelled', 'expired')"
+            ),
+            {"tid": tid, "sub_id": subscription_id},
+        )
+        logger.info(f"Subscription {subscription_id} marked cancelled: {sub_result.rowcount} row(s)")
+
+        # ----------------------------------------------------------------
+        # Step 3: Check if there are ANY other active subscriptions left
+        # ----------------------------------------------------------------
+        other_active_result = await db.execute(
+            text(
+                "SELECT id, plan_name FROM subscriptions "
+                "WHERE tenant_id = :tid AND subscription_status = 'active' "
+                "ORDER BY created_at DESC LIMIT 1"
             ),
             {"tid": tid},
         )
-        logger.info(f"Subscriptions marked cancelled: {sub_result.rowcount} row(s)")
+        other_active = other_active_result.mappings().first()
+        
+        next_plan_name = "free"
+        
+        if other_active:
+            # Another active plan exists, use its name
+            next_plan_name = other_active["plan_name"]
+            logger.info(f"Another active plan found: {next_plan_name}. Skipping free plan insertion.")
+        else:
+            # No other active plans, insert/activate FREE plan
+            now = datetime.now(timezone.utc)
+            await db.execute(
+                text(
+                    "INSERT INTO subscriptions "
+                    "(tenant_id, plan_id, plan_name, subscription_status, billing_cycle, "
+                    " amount, currency, subscription_id, "
+                    " current_period_start, current_period_end, created_at, updated_at) "
+                    "VALUES "
+                    "(:tid, 'free', 'Free', 'active', 'monthly', "
+                    " 0, 'INR', :sub_id, "
+                    " :now, NULL, :now, :now)"
+                ),
+                {
+                    "tid": tid,
+                    "sub_id": f"free_{tid}_{int(now.timestamp())}",
+                    "now": now,
+                },
+            )
+            next_plan_name = "free"
+            logger.info(f"No other active plans found. Free plan subscription row inserted for tenant {tid}")
 
         # ----------------------------------------------------------------
-        # Step 3: Insert a new FREE plan row so the latest record = free
-        # ----------------------------------------------------------------
-        # ----------------------------------------------------------------
-# Step 3: Insert a new FREE plan row so the latest record = free
-# ----------------------------------------------------------------
-        now = datetime.now(timezone.utc)
-        await db.execute(
-            text(
-                "INSERT INTO subscriptions "
-                "(tenant_id, plan_id, plan_name, subscription_status, billing_cycle, "
-                " amount, currency, subscription_id, "
-                " current_period_start, current_period_end, created_at, updated_at) "
-                "VALUES "
-                "(:tid, 'free', 'Free', 'active', 'monthly', "
-                " 0, 'INR', :sub_id, "
-                " :now, NULL, :now, :now)"
-            ),
-            {
-                "tid": tid,
-                "sub_id": f"free_{tid}_{int(now.timestamp())}",
-                "now": now,
-            },
-        )
-        logger.info(f"Free plan subscription row inserted for tenant {tid}")
-
-        # ----------------------------------------------------------------
-        # Step 4: Update tenants.subscription_plan → 'free'
-        #         Use raw COMMIT-safe execute to guarantee persistence
+        # Step 4: Update tenants.subscription_plan → next_plan_name
         # ----------------------------------------------------------------
         tenant_update = await db.execute(
             text(
-                "UPDATE tenants SET subscription_plan = 'free' WHERE id = :id"
+                "UPDATE tenants SET subscription_plan = :plan WHERE id = :id"
             ),
-            {"id": tid},
+            {"plan": next_plan_name, "id": tid},
         )
         logger.info(f"tenants UPDATE rowcount: {tenant_update.rowcount}")
 
@@ -1058,10 +1141,10 @@ async def cancel_subscription(
 
         return {
             "success": True,
-            "message": "Subscription cancelled and plan downgraded to free.",
+            "message": f"Subscription cancelled successfully. Current plan: {next_plan_name}.",
             "data": {
                 "tenant_id": tid,
-                "subscription_plan": "free",
+                "next_plan": next_plan_name,
                 "subscriptions_cancelled": sub_result.rowcount,
             },
         }

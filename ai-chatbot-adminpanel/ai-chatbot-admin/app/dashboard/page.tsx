@@ -437,10 +437,13 @@ export default function DashboardPage() {
                       <Area
                         type="monotone"
                         dataKey="sessions"
-                        stroke="none"
+                        stroke="#5856d6"
                         fill="url(#sessionsGradient)"
                         style={{ cursor: "pointer" }}
+                        name="Chat Sessions"
                       />
+
+                   
 
                       {/* Primary Line */}
                       <Line
@@ -458,7 +461,7 @@ export default function DashboardPage() {
                       <Line
                         type="monotone"
                         dataKey="messages"
-                        stroke="#818CF8"
+                        stroke="#A5B4FC"
                         strokeWidth={2}
                         dot={false}
                         name="Messages"
@@ -468,7 +471,7 @@ export default function DashboardPage() {
                       <Line
                         type="monotone"
                         dataKey="documents"
-                        stroke="#A5B4FC"
+                        stroke="#818CF8"
                         strokeWidth={2}
                         dot={false}
                         name="Documents"

@@ -140,7 +140,7 @@ async def send_message(
     import json
     import time
 
-    from app.services.langgraph_service import LangGraphService
+    from app.services.langgraph_service import get_langgraph_service
 
     session_repo = ChatSessionRepository(db)
     session = await session_repo.get_by_id(session_id)
@@ -158,8 +158,8 @@ async def send_message(
         "content": body.content,
     })
 
-    # Run LangGraph RAG pipeline
-    langgraph = LangGraphService()
+    # Run LangGraph RAG pipeline (singleton — no graph recompilation)
+    langgraph = get_langgraph_service()
     ai_result = await langgraph.generate_response(
         message=body.content,
         tenant_id=current_user.tenant_id,
@@ -276,7 +276,7 @@ async def regenerate_message(
     import time
 
     from sqlalchemy import text as sa_text
-    from app.services.langgraph_service import LangGraphService
+    from app.services.langgraph_service import get_langgraph_service
 
     message_repo = MessageRepository(db)
     msg = await message_repo.get_by_id(message_id)
@@ -299,8 +299,8 @@ async def regenerate_message(
         raise NotFoundError("Could not find the original user message")
     user_content = str(row["content"])
 
-    # Run LangGraph RAG pipeline again
-    langgraph = LangGraphService()
+    # Run LangGraph RAG pipeline again (singleton)
+    langgraph = get_langgraph_service()
     start_time = time.time()
     ai_result = await langgraph.generate_response(
         message=user_content,

@@ -304,12 +304,8 @@ export default function BillingSettings() {
         );
 
         if (response.success) {
-          // Clear everything immediately - don't refresh from backend
-          setBillingInfo(null);
-          setInvoices([]);
-
-          localStorage.removeItem("current_plan_id");
-          localStorage.removeItem("current_subscription_id");
+          // Re-fetch latest plan data from backend
+          await refreshUserData();
 
           setCancelling(false);
           closeCancelModal();
@@ -328,12 +324,8 @@ export default function BillingSettings() {
         );
 
         if (response.success) {
-          // Clear everything immediately - don't refresh from backend
-          setBillingInfo(null);
-          setInvoices([]);
-
-          localStorage.removeItem("current_plan_id");
-          localStorage.removeItem("current_subscription_id");
+          // Re-fetch latest plan data from backend
+          await refreshUserData();
 
           setCancelling(false);
           closeCancelModal();

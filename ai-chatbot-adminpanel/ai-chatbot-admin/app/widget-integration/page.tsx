@@ -355,14 +355,14 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                 </div>
               </div>
 
-              <Button
+              {/* <Button
                 variant="secondary"
                 onClick={fetchTenants}
                 className="rounded-xl border border-gray-200 dark:border-white/10 dark:bg-white/[0.03]"
               >
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Refresh
-              </Button>
+              </Button> */}
             </div>
           </div>
 

@@ -373,7 +373,7 @@ export default function DocumentsPage() {
                   </div>
                 )}
 
-                <div className="xl:col-span-2">
+                {/* <div className="xl:col-span-2">
                   <Button
                     variant="main"
                     onClick={handleSearch}
@@ -381,7 +381,7 @@ export default function DocumentsPage() {
                   >
                     Search
                   </Button>
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>
@@ -755,19 +755,24 @@ export default function DocumentsPage() {
                     );
 
                     if (failures.length > 0) {
+                      const uniqueMsgs = Array.from(
+                        new Set(failures.map((f: any) => f.message)),
+                      );
+                      const combinedMsg = uniqueMsgs.join(", ");
+ 
                       if (failures.length === result.results.length) {
-                        showToast(`Upload failed: ${failures[0].message}`, "error");
+                        showToast(`Upload failed: ${combinedMsg}`, "error");
                       } else {
                         showToast(
-                          `Uploaded ${result.results.length - failures.length
-                          } files. ${failures.length} failed.`,
+                          `Uploaded ${
+                            result.results.length - failures.length
+                          } files. ${failures.length} failed: ${combinedMsg}`,
                           "warning",
                         );
                       }
                     } else {
                       showToast("All files uploaded successfully", "success");
                     }
-
                     setShowUploadModal(false);
                     await fetchDocuments();
 

@@ -61,6 +61,9 @@ class OpenAIService:
         self._default_client = AsyncOpenAI(api_key=settings.DEFAULT_OPENAI_API_KEY)
         self.default_model = settings.OPENAI_MODEL
         self.embedding_model = settings.OPENAI_EMBEDDING_MODEL
+        # Cache tenant-specific clients to avoid re-creating per request
+        self._tenant_clients: dict[int, tuple[AsyncOpenAI, float]] = {}
+        self._client_cache_ttl = 300  # 5 minutes
 
     # ------------------------------------------------------------------
     # Chat completion
@@ -349,7 +352,16 @@ class OpenAIService:
     # Private helpers
     # ------------------------------------------------------------------
     async def _get_client(self, tenant_id: int) -> AsyncOpenAI:
-        """Return tenant-specific OpenAI client, or default."""
+        """Return tenant-specific OpenAI client (cached), or default."""
+        # Check cache first to avoid DB round-trip + client creation per request
+        now = time.time()
+        if tenant_id in self._tenant_clients:
+            client, expires_at = self._tenant_clients[tenant_id]
+            if now < expires_at:
+                return client
+            # Expired — remove stale entry
+            del self._tenant_clients[tenant_id]
+
         from app.core.database import async_session_factory
 
         try:
@@ -367,7 +379,9 @@ class OpenAIService:
                 )
                 row = result.scalars().first()
                 if row:
-                    return AsyncOpenAI(api_key=row)
+                    client = AsyncOpenAI(api_key=row)
+                    self._tenant_clients[tenant_id] = (client, now + self._client_cache_ttl)
+                    return client
         except Exception as e:
             logger.warning(
                 "Failed to get tenant API key, using default",

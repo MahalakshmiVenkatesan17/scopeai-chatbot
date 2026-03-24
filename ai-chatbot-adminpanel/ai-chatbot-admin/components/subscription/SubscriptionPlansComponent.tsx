@@ -645,16 +645,36 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
     }
   }, [isSuperAdmin]);
 
-  const isActivePlan = (plan: SubscriptionPlan): boolean => {
-    if (isSuperAdmin || !activeSubscription) return false;
-    return (
-      (plan.razorPay_plan_id &&
-        activeSubscription.plan_id === plan.razorPay_plan_id) ||
-      activeSubscription.plan_name.toLowerCase() === plan.name.toLowerCase()
-    );
-  };
+//   const isActivePlan = (plan: SubscriptionPlan): boolean => {
+// console.log("Checking active plan:", { plan, activeSubscription });
 
-  const openDeleteModal = (plan: SubscriptionPlan) => {
+
+//     if (isSuperAdmin || !activeSubscription) return false;
+//     return (
+//       (plan.razorPay_plan_id &&
+//         activeSubscription.plan_id === plan.razorPay_plan_id) ||
+//       activeSubscription.plan_name.toLowerCase() === plan.name.toLowerCase()
+//     );
+//   };
+
+  const isActivePlan = (plan: SubscriptionPlan): boolean => {
+  // If super admin → no active plan
+  if (isSuperAdmin) return false;
+
+  // ✅ If NO subscription → FREE plan is active
+  if (!activeSubscription) {
+    return plan.price === 0; // or plan.name.toLowerCase() === "free"
+  }
+
+  // Normal logic
+  return (
+    (plan.razorPay_plan_id &&
+      activeSubscription.plan_id === plan.razorPay_plan_id) ||
+    activeSubscription.plan_name.toLowerCase() === plan.name.toLowerCase()
+  );
+};
+
+const openDeleteModal = (plan: SubscriptionPlan) => {
     setPlanToDelete(plan);
     setShowDeleteModal(true);
   };
@@ -986,7 +1006,7 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                                 >
                                   Not Available
                                 </button>
-                              ) : (
+                              ) : !isFree ?(
                                   <Link
                                     href={{
                                       pathname: "/checkout",
@@ -1004,7 +1024,7 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                                   >
                                     Get Started Now
                                   </Link>
-                              )}
+                              ):null}
                             </>
                           )}
 

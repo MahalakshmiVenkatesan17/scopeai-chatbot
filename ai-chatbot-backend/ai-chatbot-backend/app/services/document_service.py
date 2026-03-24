@@ -17,6 +17,11 @@ from app.services.openai_service import OpenAIService
 from app.services.pdf_service import PDFPreprocessor, estimate_token_count, extract_text_from_file
 from app.services.weaviate_service import WeaviateService
 
+# Limit concurrent background embedding jobs to prevent CPU/thread explosion
+_embedding_semaphore = asyncio.Semaphore(2)
+_EMBEDDING_BATCH_SIZE = 5
+_EMBEDDING_BATCH_DELAY = 0.5  # seconds between batches
+
 
 @dataclass
 class ProcessingResult:
@@ -61,9 +66,9 @@ class DocumentProcessingService:
             # Mark as processed
             await self._update_document_status(document_id, "processed", "completed")
 
-            # Fire-and-forget: generate embeddings in background
+            # Fire-and-forget: generate embeddings in background (rate-limited)
             asyncio.create_task(
-                self._generate_embeddings_async(chunk_ids, document_id, tenant_id)
+                self._rate_limited_embeddings(chunk_ids, document_id, tenant_id)
             )
 
             return ProcessingResult(
@@ -156,29 +161,27 @@ class DocumentProcessingService:
             return result
 
     # ------------------------------------------------------------------
-    # Background embedding generation
+    # Background embedding generation (rate-limited)
     # ------------------------------------------------------------------
+    async def _rate_limited_embeddings(
+        self, chunk_ids: list[int], document_id: int, tenant_id: int
+    ) -> None:
+        """Acquire semaphore before running embeddings to limit concurrency."""
+        async with _embedding_semaphore:
+            await self._generate_embeddings_async(chunk_ids, document_id, tenant_id)
+
     async def _generate_embeddings_async(
         self, chunk_ids: list[int], document_id: int, tenant_id: int
     ) -> None:
-        """Generate embeddings for all chunks and store in Weaviate."""
+        """Generate embeddings for all chunks in batches and store in Weaviate."""
         try:
-            for chunk_id in chunk_ids:
-                try:
-                    # Read chunk content from DB
-                    async with async_session_factory() as session:
-                        result = await session.execute(
-                            text(
-                                "SELECT id, content, chunk_index, token_count, metadata "
-                                "FROM document_chunks WHERE id = :cid"
-                            ),
-                            {"cid": chunk_id},
-                        )
-                        chunk_row = result.mappings().first()
-                        if not chunk_row:
-                            continue
+            # Process in batches to avoid thread/connection explosion
+            for batch_start in range(0, len(chunk_ids), _EMBEDDING_BATCH_SIZE):
+                batch = chunk_ids[batch_start:batch_start + _EMBEDDING_BATCH_SIZE]
 
-                        # Mark as processing
+                # Read all chunks in batch with a single session
+                async with async_session_factory() as session:
+                    for chunk_id in batch:
                         await session.execute(
                             text(
                                 "UPDATE document_chunks SET embedding_status = 'processing', "
@@ -186,63 +189,82 @@ class DocumentProcessingService:
                             ),
                             {"cid": chunk_id},
                         )
-                        await session.commit()
+                    await session.commit()
 
-                    content = str(chunk_row["content"])
+                for chunk_id in batch:
+                    try:
+                        # Read chunk content
+                        async with async_session_factory() as session:
+                            result = await session.execute(
+                                text(
+                                    "SELECT id, content, chunk_index, token_count, metadata "
+                                    "FROM document_chunks WHERE id = :cid"
+                                ),
+                                {"cid": chunk_id},
+                            )
+                            chunk_row = result.mappings().first()
+                            if not chunk_row:
+                                continue
 
-                    # Generate embedding
-                    emb_response = await self.openai_service.generate_embedding(content, tenant_id)
+                        content = str(chunk_row["content"])
 
-                    # Store in Weaviate (sync call via thread)
-                    weaviate_id = await asyncio.to_thread(
-                        self.weaviate_service.store_document_chunk,
-                        chunk_id,
-                        document_id,
-                        tenant_id,
-                        content,
-                        emb_response.embedding,
-                        int(chunk_row["chunk_index"]),
-                        "",  # document_title
-                        "",  # document_filename
-                        "",  # category_name
-                        int(chunk_row["token_count"] or 0),
-                        None,
-                    )
+                        # Generate embedding
+                        emb_response = await self.openai_service.generate_embedding(content, tenant_id)
 
-                    # Update chunk with weaviate_id
-                    async with async_session_factory() as session:
-                        await session.execute(
-                            text(
-                                "UPDATE document_chunks SET weaviate_id = :wid, "
-                                "embedding_status = 'completed', updated_at = NOW() "
-                                "WHERE id = :cid"
-                            ),
-                            {"wid": weaviate_id, "cid": chunk_id},
+                        # Store in Weaviate (sync call via thread)
+                        weaviate_id = await asyncio.to_thread(
+                            self.weaviate_service.store_document_chunk,
+                            chunk_id,
+                            document_id,
+                            tenant_id,
+                            content,
+                            emb_response.embedding,
+                            int(chunk_row["chunk_index"]),
+                            "",  # document_title
+                            "",  # document_filename
+                            "",  # category_name
+                            int(chunk_row["token_count"] or 0),
+                            None,
                         )
-                        await session.commit()
 
-                    logger.info(
-                        "Embedding generated",
-                        chunk_id=chunk_id,
-                        document_id=document_id,
-                    )
+                        # Update chunk with weaviate_id
+                        async with async_session_factory() as session:
+                            await session.execute(
+                                text(
+                                    "UPDATE document_chunks SET weaviate_id = :wid, "
+                                    "embedding_status = 'completed', updated_at = NOW() "
+                                    "WHERE id = :cid"
+                                ),
+                                {"wid": weaviate_id, "cid": chunk_id},
+                            )
+                            await session.commit()
 
-                except Exception as e:
-                    logger.error(
-                        "Failed to generate embedding for chunk",
-                        chunk_id=chunk_id,
-                        document_id=document_id,
-                        error=str(e),
-                    )
-                    async with async_session_factory() as session:
-                        await session.execute(
-                            text(
-                                "UPDATE document_chunks SET embedding_status = 'failed', "
-                                "updated_at = NOW() WHERE id = :cid"
-                            ),
-                            {"cid": chunk_id},
+                        logger.info(
+                            "Embedding generated",
+                            chunk_id=chunk_id,
+                            document_id=document_id,
                         )
-                        await session.commit()
+
+                    except Exception as e:
+                        logger.error(
+                            "Failed to generate embedding for chunk",
+                            chunk_id=chunk_id,
+                            document_id=document_id,
+                            error=str(e),
+                        )
+                        async with async_session_factory() as session:
+                            await session.execute(
+                                text(
+                                    "UPDATE document_chunks SET embedding_status = 'failed', "
+                                    "updated_at = NOW() WHERE id = :cid"
+                                ),
+                                {"cid": chunk_id},
+                            )
+                            await session.commit()
+
+                # Delay between batches to prevent CPU spikes
+                if batch_start + _EMBEDDING_BATCH_SIZE < len(chunk_ids):
+                    await asyncio.sleep(_EMBEDDING_BATCH_DELAY)
 
             # Update document embedding count
             async with async_session_factory() as session:

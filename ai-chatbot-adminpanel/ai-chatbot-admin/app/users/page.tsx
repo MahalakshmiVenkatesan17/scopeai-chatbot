@@ -395,7 +395,7 @@ export default function UsersPage() {
                   <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                   <input
                     type="text"
-                    placeholder="Search users by email or name..."
+                    placeholder="Search users by email"
                     className="w-full rounded-xl border border-gray-300 bg-white py-2.5 pl-10 pr-4 text-sm text-gray-900 transition-all placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-white/[0.03] dark:text-gray-100 dark:placeholder:text-gray-500"
                     value={searchTerm}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
@@ -457,7 +457,7 @@ export default function UsersPage() {
                     </option>
                   </select>
                 </div>
-
+{/* 
                 <div className="xl:col-span-2">
                   <Button
                     variant="main"
@@ -468,7 +468,7 @@ export default function UsersPage() {
                     <Search className="h-4 w-4 mr-2" />
                     Search
                   </Button>
-                </div>
+                </div> */}
               </div>
             </CardContent>
           </Card>

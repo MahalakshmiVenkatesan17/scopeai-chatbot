@@ -19,7 +19,7 @@ async def create_redis_client() -> aioredis.Redis:
         settings.redis_connection_url,
         encoding="utf-8",
         decode_responses=True,
-        max_connections=20,
+        max_connections=10,
         socket_connect_timeout=10,
         socket_timeout=5,
         retry_on_timeout=True,

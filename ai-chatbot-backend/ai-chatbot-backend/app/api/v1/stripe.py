@@ -260,7 +260,21 @@ async def cancel_stripe_subscription(
 
     try:
         # 1. Cancel on Stripe
-        stripe_response = stripe_service.cancel_subscription(subscription_id)
+        try:
+            if subscription_id.startswith("cs_"):
+                session = stripe_service.get_checkout_session(subscription_id)
+                if hasattr(session, 'subscription') and session.subscription:
+                    real_sub_id = session.subscription if isinstance(session.subscription, str) else session.subscription.id
+                    stripe_response = stripe_service.cancel_subscription(real_sub_id)
+                else:
+                    logger.warning(f"No subscription on checkout session {subscription_id}")
+                    stripe_response = {"id": subscription_id, "status": "canceled_in_db_only"}
+            else:
+                stripe_response = stripe_service.cancel_subscription(subscription_id)
+        except Exception as stripe_err:
+            logger.warning(f"Stripe cancellation failed for {subscription_id}: {stripe_err}")
+            # we allow it to proceed to db cancellation so the user isn't stuck forever
+            stripe_response = {"id": subscription_id, "status": "canceled_in_db_only", "error": str(stripe_err)}
 
         now = datetime.now(timezone.utc)
 
@@ -278,60 +292,85 @@ async def cancel_stripe_subscription(
             },
         )
 
-        # 3. Check if a free plan already exists for this tenant
-        existing_free = await db.execute(
+        # 3. Check if there are ANY other active subscriptions left for this tenant
+        other_active_result = await db.execute(
             text(
-                "SELECT id FROM subscriptions "
-                "WHERE tenant_id = :tid AND plan_name = 'Free' "
+                "SELECT id, plan_name FROM subscriptions "
+                "WHERE tenant_id = :tid AND subscription_status = 'active' "
                 "ORDER BY created_at DESC LIMIT 1"
             ),
             {"tid": current_user.tenant_id},
         )
-        free_row = existing_free.first()
-
-        if free_row:
-            # Re-activate existing free plan
-            await db.execute(
-                text(
-                    "UPDATE subscriptions "
-                    "SET subscription_status = 'active', cancelled_at = NULL, updated_at = NOW() "
-                    "WHERE id = :id"
-                ),
-                {"id": free_row[0]},
-            )
+        other_active = other_active_result.mappings().first()
+        
+        next_plan_name = "free"
+        
+        if other_active:
+            # Another active plan exists, use its name
+            next_plan_name = other_active["plan_name"]
+            logger.info(f"Another active plan found: {next_plan_name}. Skipping free plan activation.")
         else:
-            # Insert a new free plan record
-            await db.execute(
+            # No other active plans, activate/insert FREE plan
+            existing_free = await db.execute(
                 text(
-                    "INSERT INTO subscriptions "
-                    "(tenant_id, plan_id, plan_name, subscription_status, billing_cycle, "
-                    "amount, currency, payment_type, subscription_id, "
-                    "current_period_start, current_period_end, created_at, updated_at) "
-                    "VALUES (:tid, 'free', 'Free', 'active', 'monthly', "
-                    "0, 'USD', 'free', :free_sub_id, "
-                    ":period_start, NULL, NOW(), NOW())"
+                    "SELECT id FROM subscriptions "
+                    "WHERE tenant_id = :tid AND plan_name = 'Free' "
+                    "ORDER BY created_at DESC LIMIT 1"
                 ),
-                {
-                    "tid": current_user.tenant_id,
-                    "free_sub_id": f"free_{current_user.tenant_id}_{int(now.timestamp())}",
-                    "period_start": now,
-                },
+                {"tid": current_user.tenant_id},
             )
+            free_row = existing_free.first()
+
+            if free_row:
+                # Re-activate existing free plan
+                await db.execute(
+                    text(
+                        "UPDATE subscriptions "
+                        "SET subscription_status = 'active', cancelled_at = NULL, updated_at = NOW() "
+                        "WHERE id = :id"
+                    ),
+                    {"id": free_row[0]},
+                )
+            else:
+                # Insert a new free plan record
+                await db.execute(
+                    text(
+                        "INSERT INTO subscriptions "
+                        "(tenant_id, plan_id, plan_name, subscription_status, billing_cycle, "
+                        "amount, currency, payment_type, subscription_id, "
+                        "current_period_start, current_period_end, created_at, updated_at) "
+                        "VALUES (:tid, 'free', 'Free', 'active', 'monthly', "
+                        "0, 'USD', 'free', :free_sub_id, "
+                        ":period_start, NULL, NOW(), NOW())"
+                    ),
+                    {
+                        "tid": current_user.tenant_id,
+                        "free_sub_id": f"free_{current_user.tenant_id}_{int(now.timestamp())}",
+                        "period_start": now,
+                    },
+                )
+            next_plan_name = "free"
+
+        # 4. Update tenants.subscription_plan to reflections the current active plan
+        await db.execute(
+            text("UPDATE tenants SET subscription_plan = :plan WHERE id = :id"),
+            {"plan": next_plan_name, "id": current_user.tenant_id},
+        )
 
         await db.commit()
 
         logger.info(
-            f"Stripe subscription {subscription_id} cancelled, "
-            f"free plan activated for tenant {current_user.tenant_id}"
+            f"Stripe subscription {subscription_id} cancelled. "
+            f"Tenant {current_user.tenant_id} plan is now {next_plan_name}"
         )
 
         return {
             "success": True,
             "data": {
                 "cancelled_subscription": dict(stripe_response),
-                "free_plan_activated": True,
+                "next_plan": next_plan_name,
             },
-            "message": "Stripe subscription cancelled successfully. Free plan activated.",
+            "message": f"Stripe subscription cancelled successfully. Current plan: {next_plan_name}.",
         }
 
     except Exception as e:
@@ -357,6 +396,7 @@ async def verify_stripe_payment(
     from datetime import datetime, timedelta, timezone
     from app.services.stripe_service import stripe_service
     import stripe as stripe_lib
+    import json
     
     body = await request.json()
     session_id = body.get("session_id") or body.get("sessionId")
@@ -365,6 +405,7 @@ async def verify_stripe_payment(
     plan_name = body.get("planName")
     plan_id = body.get("plan_id") or body.get("priceId")
     amount = body.get("amount", 0)
+    currency = body.get("currency", "USD").upper()
     billing_cycle = body.get("billingCycle", "monthly")
 
     if not session_id and not subscription_id and not payment_intent_id:
@@ -381,6 +422,7 @@ async def verify_stripe_payment(
         returned_plan_id = plan_id
         customer_id = None
         returned_subscription_id = subscription_id
+        invoice_obj = None
         
         # Retrieve checkout session from Stripe to get plan_id if not provided
         if session_id:
@@ -388,6 +430,12 @@ async def verify_stripe_payment(
             payment_status = session.payment_status  # paid, unpaid, no_payment_required
             payment_intent_id = session.payment_intent
             customer_id = session.customer
+            
+            # Extract actual amount and currency from session
+            if hasattr(session, 'amount_total') and session.amount_total is not None:
+                amount = session.amount_total / 100.0
+            if hasattr(session, 'currency') and session.currency:
+                currency = session.currency.upper()
             
             # Extract plan_id and subscription_id from line items
             try:
@@ -404,6 +452,18 @@ async def verify_stripe_payment(
                                 plan_name = product.name
             except Exception as e:
                 logger.warning(f"Could not extract line items: {str(e)}")
+                
+            # Extract subscription ID if present
+            if hasattr(session, 'subscription') and session.subscription:
+                returned_subscription_id = session.subscription if isinstance(session.subscription, str) else session.subscription.id
+                
+            # Extract invoice if present
+            if hasattr(session, 'invoice') and session.invoice:
+                inv_id = session.invoice if isinstance(session.invoice, str) else session.invoice.id
+                try:
+                    invoice_obj = stripe_lib.Invoice.retrieve(inv_id)
+                except Exception as e:
+                    logger.warning(f"Could not retrieve invoice {inv_id}: {e}")
         
         # Retrieve subscription if subscription_id provided
         if subscription_id:
@@ -413,8 +473,22 @@ async def verify_stripe_payment(
             customer_id = stripe_subscription.customer
             
             # Extract plan_id from subscription if not already set
-            if not returned_plan_id and stripe_subscription.items and stripe_subscription.items.data:
-                returned_plan_id = stripe_subscription.items.data[0].price.id
+            if stripe_subscription.items and stripe_subscription.items.data:
+                item = stripe_subscription.items.data[0]
+                if not returned_plan_id:
+                    returned_plan_id = item.price.id
+                if not amount and item.price.unit_amount is not None:
+                    amount = item.price.unit_amount / 100.0
+                if item.price.currency:
+                    currency = item.price.currency.upper()
+                    
+            # Extract latest invoice if not already fetched
+            if hasattr(stripe_subscription, 'latest_invoice') and stripe_subscription.latest_invoice and not invoice_obj:
+                inv_id = stripe_subscription.latest_invoice if isinstance(stripe_subscription.latest_invoice, str) else stripe_subscription.latest_invoice.id
+                try:
+                    invoice_obj = stripe_lib.Invoice.retrieve(inv_id)
+                except Exception as e:
+                    logger.warning(f"Could not retrieve latest invoice {inv_id}: {e}")
         
         # Retrieve payment intent if needed
         if payment_intent_id and not payment_status:
@@ -443,41 +517,116 @@ async def verify_stripe_payment(
                 customer_obj = stripe_lib.Customer.retrieve(customer_id)
             except Exception as e:
                 logger.warning(f"Could not retrieve customer {customer_id}: {str(e)}")
+                
+        # Construct invoice_data JSON
+        invoice_data_json = None
+        if invoice_obj:
+            inv_amount_raw = invoice_obj.amount_paid or invoice_obj.total or 0
+            inv_amount = float(inv_amount_raw) / 100.0
+            inv_status = invoice_obj.status
+            inv_currency = (invoice_obj.currency or currency).upper()
+            inv_short_url = invoice_obj.hosted_invoice_url
+            inv_id = invoice_obj.id
+            inv_payment_id = invoice_obj.charge or invoice_obj.payment_intent or payment_intent_id
+            inv_desc = invoice_obj.description
+            inv_number = invoice_obj.number
+            
+            # Format dates to ISO
+            if hasattr(invoice_obj, 'status_transitions') and invoice_obj.status_transitions and invoice_obj.status_transitions.paid_at:
+                paid_at_dt = datetime.fromtimestamp(invoice_obj.status_transitions.paid_at, tz=timezone.utc)
+                paid_at_iso = paid_at_dt.isoformat().replace('+00:00', 'Z')
+            else:
+                paid_at_iso = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+                
+            cust_name = customer_obj.name if customer_obj and hasattr(customer_obj, 'name') else None
+            cust_email = customer_obj.email if customer_obj and hasattr(customer_obj, 'email') else None
+            if not cust_email and hasattr(invoice_obj, 'customer_email'):
+                cust_email = invoice_obj.customer_email
+            if not cust_name and hasattr(invoice_obj, 'customer_name'):
+                cust_name = invoice_obj.customer_name
+            
+            invoice_entry = {
+                "amount": inv_amount,
+                "method": "card", 
+                "status": inv_status,
+                "paid_at": paid_at_iso,
+                "currency": inv_currency,
+                "short_url": inv_short_url,
+                "invoice_id": inv_id,
+                "payment_id": inv_payment_id,
+                "description": inv_desc,
+                "payment_date": paid_at_iso,
+                "customer_name": cust_name,
+                "customer_email": cust_email,
+                "invoice_number": inv_number
+            }
+            invoice_data_json = json.dumps([invoice_entry])
         
-        # For checkout sessions, create a subscription record in our database
+        # Use ON DUPLICATE KEY UPDATE for robust de-duplication
+        # We target stripe_subscription_id or stripe_checkout_session_id which are UNIQUE
+        actual_sub_id = returned_subscription_id if returned_subscription_id and returned_subscription_id.startswith('sub_') else None
+        
         now = datetime.now(timezone.utc)
         period_end = now + timedelta(days=30 if billing_cycle == "monthly" else 365)
-
-        result = await db.execute(
-            text(
-                "INSERT INTO subscriptions "
-                "(tenant_id, plan_name, plan_id, subscription_status, billing_cycle, amount, currency, "
-                "payment_type, subscription_id, "
-                "current_period_start, current_period_end, created_at, updated_at) "
-                "VALUES (:tid, :plan_name, :plan_id, 'active', :billing_cycle, :amount, 'USD', "
-                "'stripe', :subscription_id, :period_start, :period_end, NOW(), NOW())"
-            ),
-            {
-                "tid": current_user.tenant_id,
-                "plan_name": plan_name,
-                "plan_id": returned_plan_id,
-                "billing_cycle": billing_cycle,
-                "amount": amount,
-                "subscription_id": returned_subscription_id or session_id or payment_intent_id,
-                "period_start": now,
-                "period_end": period_end,
-            },
-        )
-        await db.commit()
-        sub_id = result.lastrowid
         
-        logger.info(f"Subscription recorded for user {current_user.id}: {sub_id}")
+        upsert_query = """
+            INSERT INTO subscriptions 
+            (tenant_id, plan_name, plan_id, subscription_status, billing_cycle, amount, currency, 
+             payment_type, subscription_id, stripe_subscription_id, stripe_checkout_session_id, stripe_customer_id,
+             current_period_start, current_period_end, created_at, updated_at, invoice_data) 
+            VALUES 
+            (:tid, :plan_name, :plan_id, 'active', :billing_cycle, :amount, :currency, 
+             'stripe', :sub_id, :stripe_sub_id, :session_id, :cust_id,
+             :period_start, :period_end, NOW(), NOW(), :invoice_data)
+            ON DUPLICATE KEY UPDATE 
+            subscription_status = 'active',
+            plan_name = VALUES(plan_name),
+            plan_id = VALUES(plan_id),
+            amount = VALUES(amount),
+            currency = VALUES(currency),
+            invoice_data = VALUES(invoice_data),
+            updated_at = NOW()
+        """
+        
+        params = {
+            "tid": current_user.tenant_id,
+            "plan_name": plan_name,
+            "plan_id": returned_plan_id,
+            "billing_cycle": billing_cycle,
+            "amount": amount,
+            "currency": currency,
+            "sub_id": returned_subscription_id or session_id or payment_intent_id,
+            "stripe_sub_id": actual_sub_id,
+            "session_id": session_id,
+            "cust_id": customer_id,
+            "period_start": now,
+            "period_end": period_end,
+            "invoice_data": invoice_data_json,
+        }
+        
+        result = await db.execute(text(upsert_query), params)
+        await db.commit()
+        
+        # Determine the affected ID (either inserted or updated)
+        # Note: lastrowid might be 0 on update in some drivers, 
+        # so we fetch the id if we want to be sure for the response
+        if result.lastrowid:
+            sub_db_id = result.lastrowid
+        else:
+            # Re-fetch the ID if it was an update
+            check_q = await db.execute(
+                text("SELECT id FROM subscriptions WHERE (stripe_subscription_id = :ssid AND :ssid IS NOT NULL) OR (stripe_checkout_session_id = :sid AND :sid IS NOT NULL) LIMIT 1"),
+                {"ssid": actual_sub_id, "sid": session_id}
+            )
+            sub_db_id = check_q.scalar()
+
+        logger.info(f"Subscription processed for user {current_user.id}: {sub_db_id}")
         
         # Return response in the format requested by frontend
         return {
             "success": True,
             "data": {
-                "subscription_id": returned_subscription_id or session_id or sub_id,
+                "subscription_id": returned_subscription_id or session_id or sub_db_id,
                 "customer_id": customer_obj if customer_obj else {"id": customer_id} if customer_id else None,
                 "plan_id": returned_plan_id,
                 "status": "active",

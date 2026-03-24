@@ -1,6 +1,7 @@
 import hashlib
 import os
 import uuid
+import tempfile
 from pathlib import Path
  
 from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
@@ -83,7 +84,7 @@ async def upload_document(
                 results.append({
                     "filename": f.filename,
                     "status": "failed",
-                    "message": "Duplicate file content",
+                    "message": "A file with identical content already exists",
                     "documentId": existing.id
                 })
                 continue
@@ -91,11 +92,63 @@ async def upload_document(
             # Save file to disk
             stored_filename = f"doc_{uuid.uuid4().hex[:6]}_{f.filename}"
             upload_dir = Path(settings.UPLOAD_DIR) / "documents" / f"tenant_{current_user.tenant_id}"
-            upload_dir.mkdir(parents=True, exist_ok=True)
+            try:
+                upload_dir.mkdir(parents=True, exist_ok=True)
+            except PermissionError:
+                # Fallback to temp dir if configured upload dir is not writable
+                upload_dir = Path(tempfile.gettempdir()) / "ai_chatbot_uploads" / f"tenant_{current_user.tenant_id}"
+                try:
+                    upload_dir.mkdir(parents=True, exist_ok=True)
+                except Exception as e:
+                    logger.error(f"Failed to create fallback upload directory {upload_dir}: {e}")
+                    if len(file) == 1:
+                        raise BadRequestError(
+                            message="Upload directory is not writable. Check server permissions.",
+                            code="UPLOAD_DIR_NOT_WRITABLE"
+                        )
+                    results.append({
+                        "filename": f.filename,
+                        "status": "failed",
+                        "message": "Upload directory is not writable",
+                    })
+                    continue
+            except Exception as e:
+                logger.error(f"Failed to create upload directory {upload_dir}: {e}")
+                if len(file) == 1:
+                    raise BadRequestError("Could not prepare upload directory")
+                results.append({
+                    "filename": f.filename,
+                    "status": "failed",
+                    "message": "Could not prepare upload directory",
+                })
+                continue
+
             file_path = upload_dir / stored_filename
- 
-            with open(file_path, "wb") as w:
-                w.write(content)
+            try:
+                with open(file_path, "wb") as w:
+                    w.write(content)
+            except PermissionError as e:
+                if len(file) == 1:
+                    raise BadRequestError(
+                        message="Upload directory is not writable. Check server permissions.",
+                        code="UPLOAD_DIR_NOT_WRITABLE"
+                    )
+                results.append({
+                    "filename": f.filename,
+                    "status": "failed",
+                    "message": "Upload directory is not writable",
+                })
+                continue
+            except Exception as e:
+                logger.error(f"Failed writing upload file {file_path}: {e}")
+                if len(file) == 1:
+                    raise BadRequestError("Could not save uploaded file")
+                results.append({
+                    "filename": f.filename,
+                    "status": "failed",
+                    "message": "Could not save uploaded file",
+                })
+                continue
  
             # Create document record
             doc = await repo.create({

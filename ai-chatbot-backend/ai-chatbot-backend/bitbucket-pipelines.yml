@@ -1,11 +1,75 @@
-image: python:3.12-slim
+image: atlassian/default-image:4
 
 pipelines:
   branches:
-    Railway-Deployment:
+    main:
       - step:
-          name: Deploy to Railway
+          name: Deploy AI Chatbot Backend
+          deployment: production
           script:
-            - apt-get update && apt-get install -y curl
-            - curl -fsSL https://railway.app/install.sh | bash
-            - RAILWAY_TOKEN=14cecd84-4ef6-455f-9ac7-28876b33b5b0 railway up --service=0d7ead7a-d590-45f2-8b45-ddc4a5b593ac
+            - apt-get update && apt-get install -y sshpass rsync
+
+            - DEPLOY_DIR="/home/ubuntu/STPL-AI-ChatBot/AI-ChatBot-Backend"
+
+            # ── Sync code to server via rsync ──
+            - >-
+              sshpass -p "$SSH_PASSWORD" rsync -avz --delete
+              --exclude='.git'
+              --exclude='__pycache__'
+              --exclude='.venv'
+              --exclude='uploads/documents/*'
+              --exclude='logs/*'
+              -e "ssh -o StrictHostKeyChecking=no -p ${SSH_PORT:-22}"
+              ./
+              ${SSH_USER}@${SSH_HOST}:${DEPLOY_DIR}/
+
+            # ── SSH into server: build & restart Docker stack ──
+            - >-
+              sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no -p ${SSH_PORT:-22}
+              ${SSH_USER}@${SSH_HOST}
+              "set -e &&
+              DEPLOY_DIR=/home/ubuntu/STPL-AI-ChatBot/AI-ChatBot-Backend &&
+              cd \"\$DEPLOY_DIR\" &&
+
+              echo '══════ Deploying AI Chatbot Backend ══════' &&
+
+              if [ -f .env.production ]; then
+                cp .env.production .env &&
+                echo '→ Using .env.production';
+              fi &&
+
+              echo '→ Building Docker images (cached)...' &&
+              docker compose build --no-cache backend &&
+              # DOCKER_BUILDKIT=1 docker compose build backend &&
+
+              echo '→ Starting services...' &&
+              docker compose up -d &&
+
+              echo '→ Waiting for backend to start...' &&
+              sleep 15 &&
+              echo '→ Backend container logs (early):' &&
+              docker compose logs --tail=20 backend &&
+
+              echo '→ Running Alembic migrations...' &&
+              (docker compose exec -T backend alembic upgrade head || echo '⚠ Migrations skipped (non-blocking)') &&
+
+              echo '→ Health check (retrying up to 60s)...' &&
+              HEALTHY=false &&
+              for i in 1 2 3 4 5 6; do
+                if curl -sf http://localhost:4001/health > /dev/null 2>&1; then
+                  HEALTHY=true && break;
+                fi;
+                echo \"  attempt \$i/6 failed, waiting 10s...\";
+                sleep 10;
+              done &&
+              if [ \"\$HEALTHY\" = true ]; then
+                echo '✅ Backend is healthy!';
+              else
+                echo '❌ Health check failed after 60s' &&
+                docker compose logs --tail=50 backend &&
+                exit 1;
+              fi &&
+
+              docker image prune -f &&
+              echo '══════ Deployment complete ══════'"
+

@@ -102,7 +102,7 @@ export default function HomePage() {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-3xl font-bold gradient-text mb-4">
-                    Welcome to Techcorp
+                    Welcome to TechCorp
                   </h2>
                   <p className="text-gray-600 mb-6 text-lg leading-relaxed">
                     We&apos;re a leading technology company providing innovative solutions

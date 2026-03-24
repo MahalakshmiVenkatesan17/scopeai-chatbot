@@ -274,6 +274,11 @@ export default function MastersPage() {
     setShowDeleteModal(true);
   };
 
+  const handleResetFilters = () => {
+    setTenantFilter("");
+    setPage(1);
+  };
+
   /* ---------------- TENANT DISPLAY NAME ---------------- */
 
   const getTenantName = (tenantId: number) =>
@@ -358,10 +363,10 @@ export default function MastersPage() {
 
               <Button
                 variant="secondary"
-                onClick={fetchCategories}
+                onClick={handleResetFilters}
                 className="rounded-xl border border-gray-200 dark:border-white/10 dark:bg-white/[0.03]"
               >
-                <RotateCw className="mr-2 h-4 w-4" /> Refresh
+                <RotateCw className="mr-2 h-4 w-4" /> Reset
               </Button>
             </div>
           </div>

@@ -316,7 +316,7 @@ export default function TenantsPage() {
         ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
         : plan === "pro"
           ? "bg-blue-500/15 text-blue-400 border border-blue-500/20"
-          : "bg-slate-500/15 text-slate-300 border border-slate-500/20";
+          : "bg-slate-500/15 text-gray-700 dark:text-slate-300 border border-slate-500/20";
 
     return (
       <span
@@ -354,8 +354,7 @@ export default function TenantsPage() {
                   Tenants Management
                 </h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
-                  Manage all tenants and their subscriptions with a cleaner dark
-                  experience
+                  Manage all tenants and their subscriptions
                 </p>
               </div>
             </div>
@@ -411,13 +410,13 @@ export default function TenantsPage() {
                   </option>
                 </select>
 
-                <Button
+                {/* <Button
                   variant="main"
                   onClick={handleSearch}
                   className="bg-[#635BDF] hover:bg-[#726AF0] text-white min-w-[140px] shadow-[0_0_24px_rgba(99,91,223,0.18)]"
                 >
                   Search
-                </Button>
+                </Button> */}
               </div>
             </CardContent>
           </Card>

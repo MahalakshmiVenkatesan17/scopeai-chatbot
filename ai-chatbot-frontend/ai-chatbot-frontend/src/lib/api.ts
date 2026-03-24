@@ -15,16 +15,18 @@ const getApiUrl = () => {
     return envApiUrl + '/api/v1';
   }
 
+  console.log('No API URL found in environment variables, determining based on hostname...', process?.env?.NEXT_PUBLIC_API_URL);
+
   // Check if we're running on localhost for development
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
     if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
-      return 'http://localhost:3001/api/v1'; // Local development backend
+      return  'http://localhost:3001/api/v1'; // Local development backend
     }
   }
   
   // Default to production URL
-  return process.env.NEXT_PUBLIC_API_URL || 'https://python-api-production-bab7.up.railway.app/api/v1';
+  return process.env.NEXT_PUBLIC_API_URL || 'https://ai-api.scopethinkers.ai/api/v1';
 };
 
 class ChatbotAPI {
@@ -47,13 +49,13 @@ class ChatbotAPI {
     }
     
     // Default to production URL
-    return process.env.NEXT_PUBLIC_API_URL || 'https://python-api-production-bab7.up.railway.app/api/v1';
+    return process.env.NEXT_PUBLIC_API_URL || 'https://ai-api.scopethinkers.ai/api/v1';
   }
 
   constructor(baseURL?: string) {
     this.baseURL = baseURL || this.getDefaultApiUrl();
     this.client = axios.create({
-      baseURL,
+      baseURL: this.baseURL,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
