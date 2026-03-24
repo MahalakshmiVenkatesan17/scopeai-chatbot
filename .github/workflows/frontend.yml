@@ -1,24 +1,29 @@
-name: Deploy Frontend
+name: Deploy Next.js to Railway
 
 on:
   push:
+    branches:
+      - master
     paths:
-      - 'ai-chatbot-frontend/**'
+      - 'ai-chatbot-frontend/ai-chatbot-frontend/**'  # Only trigger on frontend changes
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/railwayapp/cli:latest
+
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      SVC_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+
+    defaults:
+      run:
+        working-directory: ai-chatbot-frontend/ai-chatbot-frontend
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy Frontend
-        run: |
-          cd ai-chatbot-frontend/ai-chatbot-frontend
-          RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }} railway up \
-            --project ${{ secrets.RAILWAY_FRONTEND_PROJECT }} \
-            --environment production \
-            --service frontend
+      - name: Deploy to Railway
+        run: railway up --service=${{ env.SVC_ID }} --detach
