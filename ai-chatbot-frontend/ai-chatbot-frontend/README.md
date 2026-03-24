@@ -15,6 +15,7 @@ A React + Next.js + Tailwind CSS frontend application for the AI Chatbot SaaS pl
 
 ## 🏗 Architecture
 
+
 The frontend consists of three main parts:
 
 1. **Demo Application** (`/`): A showcase of the chatbot widget and integration guide
