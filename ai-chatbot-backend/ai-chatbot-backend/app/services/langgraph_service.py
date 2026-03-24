@@ -211,18 +211,22 @@ class LangGraphService:
                     "has_relevant_context": False,
                 }
 
-            # Use a modest relevance threshold, but keep context available when results exist.
-            RELEVANCE_THRESHOLD = 0.35  # tune as needed (0.0–1.0 cosine similarity)
+            # NEW: Only treat context as relevant if best score clears the bar
+            RELEVANCE_THRESHOLD = 0.55  # tune as needed (0.0–1.0 cosine similarity)
             top_score = search_results[0].score if search_results else 0.0
 
             if top_score < RELEVANCE_THRESHOLD:
                 logger.info(
-                    "Retrieved chunks below relevance threshold -- still using best available results",
+                    "Retrieved chunks below relevance threshold",
                     top_score=top_score,
                     threshold=RELEVANCE_THRESHOLD,
                     tenant_id=state["tenant_id"],
                 )
-                # Continue to use context chunks rather than dropping all context.
+                return {
+                    "context_chunks": [],
+                    "context_text": "",
+                    "has_relevant_context": False,
+                }
 
             chunks = [
                 {
@@ -275,11 +279,12 @@ class LangGraphService:
                 )
             else:
                 # ✅ No relevant docs found — still answer using system prompt only
-                # Let the model use its background knowledge and point users to add docs if needed.
+                # Don't hard-fail. Let the model respond naturally (greetings, small talk, etc.)
                 system_prompt += (
                     "\n\nNo specific document context was found for this query. "
-                    "Please answer from your general knowledge and be clear that details may not be backed by tenant docs. "
-                    "If the question depends on tenant files, encourage the user to upload documents or provide more precise context."
+                    "If the user is greeting you or asking something general, respond warmly and helpfully. "
+                    "If the user is asking a specific question that requires document knowledge, politely let them know "
+                    "you can only answer based on the available documents and ask them to rephrase or be more specific."
                 )
 
             messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
