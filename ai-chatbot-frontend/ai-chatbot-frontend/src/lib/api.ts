@@ -14,22 +14,24 @@ class ChatbotAPI {
   private baseURL: string;
 
   private getDefaultApiUrl(): string {
-    // Try to get from environment first
-    const envApiUrl = (globalThis as any).process?.env?.NEXT_PUBLIC_API_URL;
+    const envApiUrl = (globalThis as any).process?.env?.NEXT_PUBLIC_API_URL
+      || process.env.NEXT_PUBLIC_API_URL;
+
     if (envApiUrl) {
-      return envApiUrl; // Already contains /api/v1 from Railway env var
+      // Normalize: strip trailing slash, then ensure /api/v1 is present exactly once
+      const base = envApiUrl.replace(/\/+$/, '');
+      return base.endsWith('/api/v1') ? base : `${base}/api/v1`;
     }
 
-    // Check if we're running on localhost for development
+    // Localhost fallback
     if (typeof window !== 'undefined') {
       const hostname = window.location.hostname;
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
-        return 'http://localhost:3001/api/v1'; // Local development backend
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:3001/api/v1';
       }
     }
-    
-    // Default to production URL
-    return process.env.NEXT_PUBLIC_API_URL || 'https://api-scopeaichat.scopethinkers.ai/api/v1';
+
+    return 'https://api-scopeaichat.scopethinkers.ai/api/v1';
   }
 
   constructor(baseURL?: string) {
