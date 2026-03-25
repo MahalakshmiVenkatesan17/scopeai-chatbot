@@ -5,12 +5,17 @@ Mirrors Node.js Socket.IO setup with rooms and broadcast helpers.
 
 import socketio
 
+from app.core.config import settings
 from app.core.logging import logger
 from app.core.security import decode_access_token
+
+# Redis manager — shares socket state (rooms, sessions) across all Uvicorn workers
+mgr = socketio.AsyncRedisManager(settings.redis_connection_url)
 
 # Create async Socket.IO server
 sio = socketio.AsyncServer(
     async_mode="asgi",
+    client_manager=mgr,
     cors_allowed_origins="*",
     logger=False,
     engineio_logger=False,
