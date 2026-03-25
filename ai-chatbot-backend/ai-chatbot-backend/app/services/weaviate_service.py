@@ -319,6 +319,46 @@ class WeaviateService:
         )
         return deleted
 
+    def update_document_metadata(
+        self,
+        document_id: int,
+        tenant_id: int,
+        properties_to_update: dict[str, Any]
+    ) -> int:
+        """Update properties for all chunks belonging to a document."""
+        client = self._get_client()
+        collection = client.collections.get(COLLECTION_NAME)
+
+        # Weaviate's update_many doesn't support a filter directly for batch updates in the same way delete_many does
+        # Instead, we fetch the IDs and then update them, or use a batch update if available.
+        # For simplicity and reliability, we fetch the UUIDs first.
+        
+        response = collection.query.fetch_objects(
+            filters=(
+                Filter.by_property("tenantId").equal(tenant_id)
+                & Filter.by_property("documentId").equal(document_id)
+            ),
+            return_properties=[] # Just need UUIDs
+        )
+
+        count = 0
+        with collection.batch.dynamic() as batch:
+            for obj in response.objects:
+                batch.update(
+                    uuid=obj.uuid,
+                    properties=properties_to_update
+                )
+                count += 1
+        
+        logger.info(
+            "Document metadata updated in Weaviate",
+            document_id=document_id,
+            tenant_id=tenant_id,
+            updated_count=count,
+            properties=list(properties_to_update.keys())
+        )
+        return count
+
     def delete_tenant_data(self, tenant_id: int) -> int:
         client = self._get_client()
         collection = client.collections.get(COLLECTION_NAME)

@@ -140,7 +140,7 @@ class Settings(BaseSettings):
     @property
     def sync_database_url(self) -> str:
         """Sync URL for Alembic migrations."""
-        password = quote_plus(self.DB_PASSWORD)
+        password = quote_plus(self.DB_PASSWORD).replace("%", "%%")
         return (
             f"mysql+pymysql://{self.DB_USER}:{password}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"

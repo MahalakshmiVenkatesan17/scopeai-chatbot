@@ -566,8 +566,8 @@ class ApiClient {
     }>;
   }> {
     const form = new FormData();
-    (file || []).slice(0, 5).forEach((file) => {
-      form.append("file", file);
+    (file || []).slice(0, 5).forEach((f) => {
+      form.append("file", f);
     });
 
     if (metadata) {
@@ -815,14 +815,14 @@ class ApiClient {
     return response.data;
   }
 
-  async createPlan(planData: {
+ async createPlan(planData: {
     name: string;
     price: number;
     billing_cycle: string;
-    concurrent_users: number;
-    document_collections: number;
-    max_file_upload_mb: number;
-    storage_limit_gb: number;
+    concurrent_users: number | null;
+    document_collections: number | null;
+    max_file_upload_mb: number | null;
+    storage_limit_gb: number | null;
     card_border_color: string;
     icon_color: string;
     icon_background: string;
@@ -837,16 +837,16 @@ class ApiClient {
     return response.data;
   }
 
-  async updatePlan(
+ async updatePlan(
     id: number,
     planData: {
       name?: string;
       price?: number;
       billing_cycle?: string;
-      concurrent_users?: number;
-      document_collections?: number;
-      max_file_upload_mb?: number;
-      storage_limit_gb?: number;
+      concurrent_users?: number | null;
+      document_collections?: number | null;
+      max_file_upload_mb?: number | null;
+      storage_limit_gb?: number | null;
       card_border_color?: string;
       icon_color?: string;
       icon_background?: string;
