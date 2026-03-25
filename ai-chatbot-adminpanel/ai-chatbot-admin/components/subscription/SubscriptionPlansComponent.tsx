@@ -373,33 +373,38 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
 
     setErrors({});
 
-    const planData = {
-      name: trimmedName,
-      description: trimmedDescription,
-      price: parseFloat(formData.price) || 0,
-      billing_cycle: formData.billing_cycle,
-      concurrent_users:
-        formData.concurrent_users === ""
-          ? null
-          : parseInt(formData.concurrent_users, 10),
-      document_collections:
-        formData.document_collections === ""
-          ? null
-          : parseInt(formData.document_collections, 10),
-      max_file_upload_mb:
-        formData.max_file_upload_mb === ""
-          ? null
-          : parseInt(formData.max_file_upload_mb, 10),
-      storage_limit_gb:
-        formData.storage_limit_gb === ""
-          ? null
-          : parseInt(formData.storage_limit_gb, 10),
-      card_border_color: formData.card_border_color,
-      icon_color: formData.icon_color,
-      icon_background: formData.icon_background,
-      features: formData.features,
-      is_active: formData.is_active,
-    };
+ const planData = {
+  name: trimmedName,
+  description: trimmedDescription,
+  price: parseFloat(formData.price) || 0,
+  billing_cycle: formData.billing_cycle,
+
+  concurrent_users:
+    formData.concurrent_users === ""
+      ? undefined
+      : parseInt(formData.concurrent_users, 10),
+
+  document_collections:
+    formData.document_collections === ""
+      ? undefined
+      : parseInt(formData.document_collections, 10),
+
+  max_file_upload_mb:
+    formData.max_file_upload_mb === ""
+      ? undefined
+      : parseInt(formData.max_file_upload_mb, 10),
+
+  storage_limit_gb:
+    formData.storage_limit_gb === ""
+      ? undefined
+      : parseInt(formData.storage_limit_gb, 10),
+
+  card_border_color: formData.card_border_color,
+  icon_color: formData.icon_color,
+  icon_background: formData.icon_background,
+  features: formData.features,
+  is_active: formData.is_active,
+};
 
     try {
       if (editingPlan) {
