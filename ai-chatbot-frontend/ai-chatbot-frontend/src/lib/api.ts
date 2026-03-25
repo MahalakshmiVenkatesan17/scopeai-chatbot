@@ -26,7 +26,7 @@ const getApiUrl = () => {
   }
   
   // Default to production URL
-  return process.env.NEXT_PUBLIC_API_URL || 'https://ai-api.scopethinkers.ai/api/v1';
+  return process.env.NEXT_PUBLIC_API_URL || 'https://api-scopeaichat.scopethinkers.ai/api/v1';
 };
 
 class ChatbotAPI {
@@ -49,7 +49,7 @@ class ChatbotAPI {
     }
     
     // Default to production URL
-    return process.env.NEXT_PUBLIC_API_URL || 'https://ai-api.scopethinkers.ai/api/v1';
+    return process.env.NEXT_PUBLIC_API_URL || 'https://api-scopeaichat.scopethinkers.ai/api/v1';
   }
 
   constructor(baseURL?: string) {
