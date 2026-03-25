@@ -140,10 +140,10 @@ export function Features() {
              {/* Text Content */}
                       <div className="text-center md:text-left text-sm">
                         <p className="mb-3 w-fit border border-gray-800 text-gray-800 text-sm font-medium px-4 py-1.5 rounded-full">
-                          Unified AI Chatbot Operations
+                          Unified ScopeAIChat Operations
                         </p>
                         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                          Everything you need to manage and scale AI chatbot operations
+                          Everything you need to manage and scale ScopeAIChat operations
                         </h2>
                         <p className="text-gray-500 leading-relaxed sm:leading-8 max-w-md mx-auto md:mx-0 mb-4">
                         Manage tenants, users, documents, analytics, visitor intelligence, widget deployment, subscriptions, and billing — all from one unified platform built for modern businesses.
@@ -192,7 +192,7 @@ export function Features() {
 
             {/* Heading */}
             <h2 className="text-4xl font-bold text-gray-900 mb-4 max-w-2xl">
-              Built to run your entire AI chatbot platform
+              Built to run your entire ScopeAIChat platform
             </h2>
             <p className="text-gray-500 text-lg leading-relaxed mb-12 max-w-2xl">
               Every core capability from the admin platform is reimagined here as a
@@ -255,7 +255,7 @@ export function Features() {
                   </span>
 
                   <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                    A clear view of AI chatbot performance and operations
+                    A clear view of ScopeAIChat performance and operations
                   </h2>
 
                   <p className="text-gray-500 text-base leading-relaxed mb-8">
@@ -347,7 +347,7 @@ export function Features() {
             </h2>
 
             <p className="text-gray-500 text-base mb-12 max-w-xl mx-auto">
-              Replace fragmented tools with one connected platform for AI chatbot management.
+              Replace fragmented tools with one connected platform for ScopeAIChat management.
             </p>
 
             {/* Cards */}

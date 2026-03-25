@@ -16,10 +16,10 @@ export default function ContactForm() {
         {/* Header */}
         <div className="text-center mb-14">
           <h1 className="text-[36px] font-semibold text-[#0f172a]">
-            Talk to our AI Chatbot Experts
+            Talk to our ScopeAIChat Experts
           </h1>
           <p className="mt-3 text-[#6b7280] text-[16px]">
-            Have questions about AI chatbots, integrations, or pricing? Our team
+            Have questions about ScopeAIChat, integrations, or pricing? Our team
             is here to help
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function ContactForm() {
                   <p className="text-[12px] tracking-wide text-white/70 mb-1">
                     PHONE NUMBER
                   </p>
-                  <p className="text-[15px] font-medium">+1-202-555-0138</p>
+                  <p className="text-[15px] font-medium">+91 9876543210</p>
                 </div>
               </div>
 
@@ -104,9 +104,9 @@ export default function ContactForm() {
                     LOCATION
                   </p>
                   <p className="text-[15px] leading-6 font-medium">
-                    901 N Pitt Str., Suite 170
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
                     <br />
-                    Alexandria, VA 22314, USA
+                    Quia beatae at, nisi provident voluptatum
                   </p>
                 </div>
               </div>

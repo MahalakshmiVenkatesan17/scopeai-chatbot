@@ -8,10 +8,10 @@ export function HeroIntegration() {
           {/* Text Content */}
           <div className="text-center md:text-left">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-              AI Chatbot Integrations
+              ScopeAIChat Integrations
             </h2>
             <p className="text-gray-500 leading-relaxed sm:leading-8 max-w-md mx-auto md:mx-0 mb-4">
-             Embed your AI chatbot on any website in minutes. Works with HTML, React, Next.js, and modern website builders — built for fast deployment and beautiful customer experiences.
+             Embed your ScopeAIChat on any website in minutes. Works with HTML, React, Next.js, and modern website builders — built for fast deployment and beautiful customer experiences.
             </p>  
             <div className="flex gap-4">
               <Button radius="rounded-xl" text="Start Free" height="h-12" />

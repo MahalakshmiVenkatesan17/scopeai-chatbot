@@ -9,7 +9,7 @@ export function ToolsMarquee() {
     <section className="w-full py-28 home-tools-gradient overflow-hidden">
       {/* Heading */}
       <h2 className="md:text-4xl text-2xl font-bold text-center mb-2 text-black">
-        Connect your AI chatbot to the tools you already use
+        Connect your ScopeAIChat to the tools you already use
       </h2>
 
       <p className="text-gray-500 text-center mb-16 max-w-2xl mx-auto">

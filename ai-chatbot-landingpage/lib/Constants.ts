@@ -78,7 +78,7 @@ export const plans = [
     price: { monthly: 0, yearly: 0 },
     highlights: [],
     features: [
-      "AI Chatbot + Autoreply",
+      "ScopeAIChat + Autoreply",
       "Basic Workflow Automation",
       "1 seat",
       "200 conversations/month",
@@ -190,7 +190,7 @@ export const features = [
   {
     title: "Resolve issues faster",
     description:
-      "Resolve customer queries faster with AI Chatbots that are trained on your data and can understand customer intent.",
+      "Resolve customer queries faster with ScopeAIChat that are trained on your data and can understand customer intent.",
     image: "/images/articles/article-1.png",
     btnText: "Start Free Trial",
     reverse: true,
@@ -198,7 +198,7 @@ export const features = [
   {
     title: "Generate more leads with 24/7 engagement",
     description:
-      "Capture more leads and generate more revenue with AI Chatbots that engage visitors 24/7 and qualify buying intent.",
+      "Capture more leads and generate more revenue with ScopeAIChat that engage visitors 24/7 and qualify buying intent.",
     image: "/images/articles/article-2.png",
     btnText: "Start Free Trial",
   },
@@ -214,12 +214,12 @@ export const TestimonialItems = [
     type: "text",
     name: "Edoardo Moreni",
     company: "Emma",
-    text: "We chose AI Chatbot from the beginning because of its flexibility and level of automations it allowed.",
+    text: "We chose ScopeAIChat from the beginning because of its flexibility and level of automations it allowed.",
   },
   {
     type: "text",
     rating: true,
-    text: "AI Chatbot is probably one of my favorite part of my business. It's just so good.",
+    text: "ScopeAIChat is probably one of my favorite part of my business. It's just so good.",
   },
   {
     type: "text",
@@ -240,7 +240,7 @@ export const TestimonialItems = [
     type: "text",
     name: "Chris Sees",
     company: "Hoxton Mix",
-    text: "AI Chatbot has been amazing and the first thing that really attracted me was the size of the chat widget.",
+    text: "ScopeAIChat has been amazing and the first thing that really attracted me was the size of the chat widget.",
   },
   {
     type: "image",
@@ -251,7 +251,7 @@ export const TestimonialItems = [
     type: "text",
     name: "Emmanuel Nataf",
     company: "Reedsy",
-    text: "AI Chatbot has become a central asset for Reedsy, empowering the team to provide fast, personalized responses and better customer support through AI-powered solutions.",
+    text: "ScopeAIChat has become a central asset for Reedsy, empowering the team to provide fast, personalized responses and better customer support through AI-powered solutions.",
   },
 ];
 
@@ -293,7 +293,7 @@ export const benefits = [
   {
     icon: "🧠",
     title: "24/7 Availability",
-    desc: "Your AI chatbot stays available 24/7 with accurate answers.",
+    desc: "Your ScopeAIChat stays available 24/7 with accurate answers.",
   },
   {
     icon: "❓",
@@ -377,7 +377,7 @@ export const journeyStats = [
   },
   {
     value: "800+",
-    label: "teams using our AI chatbot daily",
+    label: "teams using our ScopeAIChat daily",
     bg: "bg-pink-50",
     border: "border-pink-300",
     icon: "🤝",
@@ -457,19 +457,19 @@ export const integrations = [
 
 export const faqs = [
   {
-    question: "What is AI Chatbot and how does it work?",
+    question: "What is ScopeAIChat and how does it work?",
     answer:
-      "AI Chatbot is an advanced AI chatbot builder that allows you to train intelligent agents using your website content, files, and documentation. It leverages natural language processing to understand user queries and provide accurate, context-aware responses in real-time. The platform automates customer conversations, provides instant support, and integrates seamlessly into your workflow.",
+      "ScopeAIChat is an advanced ScopeAIChat builder that allows you to train intelligent agents using your website content, files, and documentation. It leverages natural language processing to understand user queries and provide accurate, context-aware responses in real-time. The platform automates customer conversations, provides instant support, and integrates seamlessly into your workflow.",
   },
   {
-    question: "Does AI Chatbot support multiple languages?",
+    question: "Does ScopeAIChat support multiple languages?",
     answer:
-      "Yes, AI Chatbot supports multiple languages, allowing you to engage with users globally and provide localized support experiences.",
+      "Yes, ScopeAIChat supports multiple languages, allowing you to engage with users globally and provide localized support experiences.",
   },
   {
-    question: "Do I need coding skills to use AI Chatbot?",
+    question: "Do I need coding skills to use ScopeAIChat?",
     answer:
-      "No coding skills are required. AI Chatbot is designed with a user-friendly interface so anyone can set it up and manage it easily.",
+      "No coding skills are required. ScopeAIChat is designed with a user-friendly interface so anyone can set it up and manage it easily.",
   },
   {
     question: "How do I embed the chatbot into my website?",
@@ -682,7 +682,7 @@ export const policyData = {
     "We respect your privacy and are committed to protecting your data and maintaining transparency in how information is collected and used.",
   lastUpdated: "[Date]",
   intro:
-    "We value your privacy and are committed to protecting your data while using our AI Chatbot platform.",
+    "We value your privacy and are committed to protecting your data while using our ScopeAIChat platform.",
   sections: [
     {
       title: "Information We Collect",
@@ -696,7 +696,7 @@ export const policyData = {
     {
       title: "How We Use Data",
       items: [
-        "Operate and improve the AI Chatbot service",
+        "Operate and improve the ScopeAIChat service",
         "Generate accurate, document-based responses",
         "Monitor usage, performance, and costs",
         "Manage subscriptions, billing, and invoices",
@@ -736,10 +736,10 @@ export const policyData = {
 export const termsConditionsData = {
   title: "Terms & Conditions",
   subtitle:
-    "Please read these Terms & Conditions carefully before using our AI Chatbot platform.",
+    "Please read these Terms & Conditions carefully before using our ScopeAIChat platform.",
   lastUpdated: "[Date]",
   intro:
-    'By accessing or using our AI Chatbot platform ("Service"), you agree to these Terms & Conditions. If you do not agree, please do not use the Service.',
+    'By accessing or using our ScopeAIChat platform ("Service"), you agree to these Terms & Conditions. If you do not agree, please do not use the Service.',
   sections: [
     {
       title: "Service Overview",

@@ -31,7 +31,7 @@ export function Navbar() {
       <div className="bg-[#5856d6] py-2">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-3 flex-wrap">
           <p className="text-white text-[13px] font-medium text-center">
-            AI Chatbot: Human-Like Agent Voices for Real Conversations, Sales &
+            ScopeAIChat: Human-Like Agent Voices for Real Conversations, Sales &
             Support
           </p>
           <Link
@@ -53,7 +53,7 @@ export function Navbar() {
               alt="Chatbot AI Logo"
               width={60}
               height={60}
-              className="object-contain w-32"
+              className="object-contain w-40"
               priority
             />
           </Link>
@@ -74,17 +74,17 @@ export function Navbar() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-6">
             <Link
-              href="/auth/logIn"
-              className="text-[14px] font-medium text-gray-700 hover:text-[#5856d6]"
+              href="https://ai-admin.scopethinkers.ai/login"
+              className="bg-[#5856d6] text-white text-[14px] font-semibold px-5 py-2 rounded-full hover:bg-[var(--foundation--blue-blue-700)] transition"
             >
               Login
             </Link>
-            <Link
+            {/* <Link
               href="/auth/signUp"
               className="bg-[#5856d6] text-white text-[14px] font-semibold px-5 py-2 rounded-full hover:bg-[var(--foundation--blue-blue-700)] transition"
             >
               Sign Up
-            </Link>
+            </Link> */}
           </div>
 
           {/* Mobile Menu Button */}
@@ -142,19 +142,19 @@ export function Navbar() {
 
               <div className="pt-4 border-t flex flex-col gap-3">
                 <Link
-                  href="/logIn"
+                  href="https://ai-admin.scopethinkers.ai/login"
                   onClick={() => setMenuOpen(false)}
-                  className="text-[14px] font-medium text-gray-700"
+                  className="bg-[#5856d6] text-white text-center text-[14px] font-semibold py-2.5 rounded-full"
                 >
                   Login
                 </Link>
-                <Link
+                {/* <Link
                   href="/signUp"
                   onClick={() => setMenuOpen(false)}
                   className="bg-[#5856d6] text-white text-center text-[14px] font-semibold py-2.5 rounded-full"
                 >
                   Sign Up
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>

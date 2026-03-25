@@ -199,11 +199,11 @@ export function Footer() {
                   FAQ
                 </Link>
               </li>
-              <li className="cursor-pointer hover:underline">
+              {/* <li className="cursor-pointer hover:underline">
                 <Link href="/auth/signUp" className="cursor-pointer hover:underline">
                   Sign Up
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
@@ -214,7 +214,7 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className="max-w-7xl mx-auto px-6 py-6 grid md:grid-cols-[0.4fr_1fr] text-xs text-gray-500 md:text-start text-center space-y-3">
-        <p>Copyright © 2026 AI ChatBot. All rights reserved.</p>
+        <p>Copyright © 2026 ScopeAIChat. All rights reserved.</p>
         <p>
           Hey there! We’re excited to have you here. Just a quick note—our
           website uses cookies to enhance your experience and our partners’ use

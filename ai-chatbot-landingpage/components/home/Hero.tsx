@@ -38,8 +38,8 @@ export function Hero() {
         </div>
 
         {/* Headline */}
-        <h1 className="mx-auto max-w-4xl text-4xl font-semibold leading-tight text-slate-900 md:text-5xl">
-          AI Chatbots that convert
+        <h1 className="mx-auto max-w-4xl text-4xl font-bold leading-tight text-slate-900 md:text-5xl">
+          ScopeAIChat that convert
           <span className="block text-[var(--foundation-blue-blue-600)]">visitors into customers</span>
         </h1>
 
@@ -62,7 +62,7 @@ export function Hero() {
           <div className="mx-auto max-w-5xl rounded-2xl bg-white shadow-2xl ring-1 ring-[var(--foundation-blue-blue-100)]">
             <Image
               src="/images/home/hero-section.png"
-              alt="AI Chatbot Dashboard"
+              alt="ScopeAIChat Dashboard"
               width={1200}
               height={700}
               className="rounded-2xl"
