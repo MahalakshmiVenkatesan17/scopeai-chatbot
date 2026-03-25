@@ -116,11 +116,11 @@
     getWindowPositionStyle() {
       // Chat window opens opposite to toggle button to avoid clipping
       switch (this.config.widgetPosition) {
-        case 'bottom-left': return 'bottom:80px;left:0;right:auto;';
-        case 'top-right':   return 'top:80px;right:0;bottom:auto;';
-        case 'top-left':    return 'top:80px;left:0;bottom:auto;right:auto;';
+        case 'bottom-left': return 'bottom:0;left:0;right:auto;';
+        case 'top-right':   return 'top:0;right:0;bottom:auto;';
+        case 'top-left':    return 'top:0;left:0;bottom:auto;right:auto;';
         case 'bottom-right':
-        default:            return 'bottom:80px;right:0;';
+        default:            return 'bottom:0;right:0;';
       }
     }
 
@@ -175,7 +175,9 @@
         @keyframes aicw-pulse-v1{0%{transform:scale(1);opacity:.6}70%{transform:scale(1.3);opacity:0}100%{transform:scale(1.3);opacity:0}}
 
         #aicw-window-v1{
-          display:none!important;position:absolute!important;
+          display:none!important;
+          position:absolute!important;
+          z-index:1 !important;
           ${this.getWindowPositionStyle()}
           width:${dims.width}!important;
           height:${dims.height}!important;

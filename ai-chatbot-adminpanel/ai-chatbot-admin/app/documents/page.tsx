@@ -12,6 +12,7 @@ import {
   Files,
   Filter,
   UploadCloud,
+  X,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -255,6 +256,18 @@ export default function DocumentsPage() {
     setUploadIsPublic(false);
     setUploadTags("");
     setUploadDescription("");
+  };
+
+  const removeFile = (index: number) => {
+    setUploadFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const inputClass =
@@ -635,21 +648,43 @@ export default function DocumentsPage() {
                     multiple
                     accept=".pdf,.doc,.docx,.txt,.md"
                     onChange={(e) => {
-                      const fl = e.target.files ? Array.from(e.target.files) : [];
+                      const newFiles = e.target.files ? Array.from(e.target.files) : [];
+                      
+                      setUploadFiles((prev) => {
+                        const existingInSelection = new Set(prev.map(f => `${f.name}-${f.size}`));
+                        const existingInDb = new Set(documents.map(d => `${d.original_filename}-${d.file_size}`));
+                        
+                        const uniqueNew = newFiles.filter(f => {
+                          const key = `${f.name}-${f.size}`;
+                          if (existingInSelection.has(key)) {
+                            showToast(`File "${f.name}" is already in your selection`, "error");
+                            return false;
+                          }
+                          if (existingInDb.has(key)) {
+                            showToast(`File "${f.name}" has already been uploaded`, "error");
+                            return false;
+                          }
+                          return true;
+                        });
+                        
+                        const combined = [...prev, ...uniqueNew];
+                        
+                        if (combined.length > 5) {
+                          showToast("Maximum 5 files allowed", "error");
+                          return combined.slice(0, 5);
+                        }
+                        
+                        return combined;
+                      });
 
-                      if (fl.length > 5) {
-                        showToast("Maximum 5 files allowed", "error");
-                        e.target.value = "";
-                        return;
-                      }
-
-                      setUploadFiles(fl);
+                      // Reset input value to allow re-selection of the same files if needed
+                      e.target.value = "";
                     }}
                     className="hidden"
                   />
 
                   {uploadFiles.length > 0 ? (
-                    <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                    <span className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
                       {uploadFiles.length} file(s) selected
                     </span>
                   ) : (
@@ -658,6 +693,39 @@ export default function DocumentsPage() {
                     </span>
                   )}
                 </div>
+
+                {/* Selected Files List */}
+                {uploadFiles.length > 0 && (
+                  <div className="mt-4 space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                    {uploadFiles.map((file, idx) => (
+                      <div
+                        key={`${file.name}-${idx}`}
+                        className="flex items-center justify-between p-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 animate-in fade-in slide-in-from-top-2 duration-200"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400">
+                            <FileText className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {formatSize(file.size)}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removeFile(idx)}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                          title="Remove file"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -759,7 +827,7 @@ export default function DocumentsPage() {
                         new Set(failures.map((f: any) => f.message)),
                       );
                       const combinedMsg = uniqueMsgs.join(", ");
- 
+
                       if (failures.length === result.results.length) {
                         showToast(`Upload failed: ${combinedMsg}`, "error");
                       } else {
@@ -769,18 +837,29 @@ export default function DocumentsPage() {
                           } files. ${failures.length} failed: ${combinedMsg}`,
                           "warning",
                         );
+                        // Some succeeded, update the list behind the modal
+                        fetchDocuments();
                       }
+                      
+                      // Keep modal open so user can see failures and adjust selection
+                      // We should remove the ones that succeeded from uploadFiles
+                      const succeededFnames = new Set(
+                        result.results
+                          .filter((r: any) => r.status === "uploaded")
+                          .map((r: any) => r.filename)
+                      );
+                      setUploadFiles(prev => prev.filter(f => !succeededFnames.has(f.name)));
+
                     } else {
                       showToast("All files uploaded successfully", "success");
+                      setShowUploadModal(false);
+                      fetchDocuments();
+                      setUploadFiles([]);
+                      setUploadCategoryId(undefined);
+                      setUploadIsPublic(false);
+                      setUploadTags("");
+                      setUploadDescription("");
                     }
-                    setShowUploadModal(false);
-                    await fetchDocuments();
-
-                    setUploadFiles([]);
-                    setUploadCategoryId(undefined);
-                    setUploadIsPublic(false);
-                    setUploadTags("");
-                    setUploadDescription("");
                   } catch (err: any) {
                     console.error("Upload failed", err);
                     const backendMsg = err?.response?.data?.error?.message;
