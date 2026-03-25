@@ -11,7 +11,7 @@
       if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
         return 'http://localhost:3001/api/v1';
       }
-      return 'https://ai-api.scopethinkers.ai/api/v1';
+      return 'https://api-scopeaichat.scopethinkers.ai/api/v1';
     },
     tenant: null,
     primaryColor: '#007bff',
