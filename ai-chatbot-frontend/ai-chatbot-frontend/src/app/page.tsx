@@ -22,7 +22,10 @@ export default function HomePage() {
 
   // Demo tenant configuration - replace with actual tenant slug
   const DEMO_TENANT_SLUG = tenantSlug;
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ai-api.scopethinkers.ai';
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-scopeaichat.scopethinkers.ai/api/v1';
+  const API_URL = rawApiUrl.replace(/\/+$/, '').endsWith('/api/v1')
+    ? rawApiUrl.replace(/\/+$/, '')
+    : `${rawApiUrl.replace(/\/+$/, '')}/api/v1`;
 
   const handleError = (error: unknown) => {
     console.error('Chatbot error:', error);
