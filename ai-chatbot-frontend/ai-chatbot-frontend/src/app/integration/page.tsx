@@ -111,7 +111,7 @@ export default function IntegrationPage() {
     <script>
       window.AIChatbotConfig = {
         tenant: 'techcorp',
-        apiUrl: 'https://ai-api.scopethinkers.ai/api/v1'
+        apiUrl: 'https://api-scopeaichat.scopethinkers.ai/api/v1'
       };
     </script>
 </head>
