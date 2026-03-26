@@ -39,7 +39,7 @@ class ApiClient {
       return envApiUrl + "/api/v1";
     }
 
-    // Check if we're in development mode or running on localhost
+    // Check if we're in development mode or running on localhostnpm
     if (typeof window !== "undefined") {
       const hostname = window.location.hostname;
       if (
@@ -52,7 +52,10 @@ class ApiClient {
     }
 
     // Default to production API URL with version path
-    return process?.env?.NEXT_PUBLIC_API_URL || "https://api-scopeaichat.scopethinkers.ai/api/v1";
+    return (
+      process?.env?.NEXT_PUBLIC_BACKEND_API_URL ||
+      "https://api-scopeaichat.scopethinkers.ai/api/v1"
+    );
   }
 
   constructor() {
@@ -72,7 +75,8 @@ class ApiClient {
       if (this.token) {
         // keep axios default headers in sync so initial requests include the token
         this.client.defaults.headers = this.client.defaults.headers || {};
-        (this.client.defaults.headers as any).Authorization = `Bearer ${this.token}`;
+        (this.client.defaults.headers as any).Authorization =
+          `Bearer ${this.token}`;
       }
     }
 
@@ -334,7 +338,6 @@ class ApiClient {
       ApiResponse<PaginatedResponse<User>>
     >("/admin/users", { params });
 
-
     return response.data.data!;
   }
 
@@ -437,7 +440,9 @@ class ApiClient {
     tenantId?: number;
   }): Promise<{
     categories: Array<{
-      id: number; name: string; tenant_id: number;
+      id: number;
+      name: string;
+      tenant_id: number;
       description?: string;
       created_at?: string;
     }>;
@@ -446,7 +451,9 @@ class ApiClient {
     const response = await this.client.get<
       ApiResponse<{
         categories: Array<{
-          id: number; name: string; tenant_id: number;
+          id: number;
+          name: string;
+          tenant_id: number;
           description?: string;
           created_at?: string;
         }>;
@@ -645,7 +652,6 @@ class ApiClient {
     >(`/admin/tenants/${tenantId}/config`);
 
     const responseData = response.data;
-
 
     return responseData.data!.config;
   }
@@ -1428,14 +1434,14 @@ class ApiClient {
       currency: string;
       status: "pending" | "paid" | "failed" | "refunded";
       subscription_status:
-      | "created"
-      | "authenticated"
-      | "active"
-      | "paused"
-      | "halted"
-      | "cancelled"
-      | "completed"
-      | "expired";
+        | "created"
+        | "authenticated"
+        | "active"
+        | "paused"
+        | "halted"
+        | "cancelled"
+        | "completed"
+        | "expired";
       subscribed_date?: string;
       payment_date?: string;
       start_date?: string;
@@ -1471,14 +1477,14 @@ class ApiClient {
       currency: string;
       status: "pending" | "paid" | "failed" | "refunded";
       subscription_status:
-      | "created"
-      | "authenticated"
-      | "active"
-      | "paused"
-      | "halted"
-      | "cancelled"
-      | "completed"
-      | "expired";
+        | "created"
+        | "authenticated"
+        | "active"
+        | "paused"
+        | "halted"
+        | "cancelled"
+        | "completed"
+        | "expired";
       subscribed_date?: string;
       payment_date?: string;
       start_date?: string;

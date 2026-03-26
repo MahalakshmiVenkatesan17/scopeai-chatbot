@@ -12,8 +12,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "AI Chatbot Admin Panel",
-  description: "Admin panel for AI Chatbot SaaS Platform",
+  title: "ScopeAIChat Admin Panel",
+  description: "Admin panel for ScopeAIChat SaaS Platform",
   icons: {
     icon: [
       {

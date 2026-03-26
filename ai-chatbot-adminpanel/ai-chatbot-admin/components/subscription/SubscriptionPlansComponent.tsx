@@ -373,38 +373,38 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
 
     setErrors({});
 
- const planData = {
-  name: trimmedName,
-  description: trimmedDescription,
-  price: parseFloat(formData.price) || 0,
-  billing_cycle: formData.billing_cycle,
+    const planData = {
+      name: trimmedName,
+      description: trimmedDescription,
+      price: parseFloat(formData.price) || 0,
+      billing_cycle: formData.billing_cycle,
 
-  concurrent_users:
-    formData.concurrent_users === ""
-      ? null
-      : parseInt(formData.concurrent_users, 10),
+      concurrent_users:
+        formData.concurrent_users === ""
+          ? null
+          : parseInt(formData.concurrent_users, 10),
 
-  document_collections:
-    formData.document_collections === ""
-      ? null
-      : parseInt(formData.document_collections, 10),
+      document_collections:
+        formData.document_collections === ""
+          ? null
+          : parseInt(formData.document_collections, 10),
 
-  max_file_upload_mb:
-    formData.max_file_upload_mb === ""
-      ? null
-      : parseInt(formData.max_file_upload_mb, 10),
+      max_file_upload_mb:
+        formData.max_file_upload_mb === ""
+          ? null
+          : parseInt(formData.max_file_upload_mb, 10),
 
-  storage_limit_gb:
-    formData.storage_limit_gb === ""
-      ? null
-      : parseInt(formData.storage_limit_gb, 10),
+      storage_limit_gb:
+        formData.storage_limit_gb === ""
+          ? null
+          : parseInt(formData.storage_limit_gb, 10),
 
-  card_border_color: formData.card_border_color,
-  icon_color: formData.icon_color,
-  icon_background: formData.icon_background,
-  features: formData.features,
-  is_active: formData.is_active,
-};
+      card_border_color: formData.card_border_color,
+      icon_color: formData.icon_color,
+      icon_background: formData.icon_background,
+      features: formData.features,
+      is_active: formData.is_active,
+    };
 
     try {
       if (editingPlan) {
@@ -449,7 +449,7 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
       console.error("Failed to save plan:", error);
       showToast(
         getErrorMessage(error) ||
-        `Failed to ${editingPlan ? "update" : "create"} plan`,
+          `Failed to ${editingPlan ? "update" : "create"} plan`,
         "error",
       );
     }
@@ -583,33 +583,33 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
       const response = await apiClient.getAllPlans();
       const fetchedPlans: SubscriptionPlan[] = Array.isArray(response.data)
         ? response.data.map((plan: ApiPlanResponse) => ({
-          id: plan.id,
-          name: plan.plan_name,
-          description: plan.description,
-          price: parseFloat(plan.price.toString()),
-          billing_cycle: plan.billing_cycle,
-          concurrent_users: plan.concurrent_users,
-          document_collections:
-            plan.document_collections ||
-            plan.document_collections_limit ||
-            null,
-          max_file_upload_mb: plan.max_file_upload_mb,
-          storage_limit_gb: plan.storage_limit_gb,
-          card_border_color: plan.card_color || "#3B82F6",
-          icon_color: plan.icon_color || "#2563EB",
-          icon_background: plan.icon_bg_color || "#DBEAFE",
-          features:
-            typeof plan.features === "string"
-              ? plan.features
-                ? JSON.parse(plan.features)
-                : []
-              : Array.isArray(plan.features)
+            id: plan.id,
+            name: plan.plan_name,
+            description: plan.description,
+            price: parseFloat(plan.price.toString()),
+            billing_cycle: plan.billing_cycle,
+            concurrent_users: plan.concurrent_users,
+            document_collections:
+              plan.document_collections ||
+              plan.document_collections_limit ||
+              null,
+            max_file_upload_mb: plan.max_file_upload_mb,
+            storage_limit_gb: plan.storage_limit_gb,
+            card_border_color: plan.card_color || "#3B82F6",
+            icon_color: plan.icon_color || "#2563EB",
+            icon_background: plan.icon_bg_color || "#DBEAFE",
+            features:
+              typeof plan.features === "string"
                 ? plan.features
-                : [],
-          is_active: !!plan.is_active,
-          razorPay_plan_id: plan.razorPay_plan_id || null,
-          stripePay_price_id: plan.stripePay_price_id || null,
-        }))
+                  ? JSON.parse(plan.features)
+                  : []
+                : Array.isArray(plan.features)
+                  ? plan.features
+                  : [],
+            is_active: !!plan.is_active,
+            razorPay_plan_id: plan.razorPay_plan_id || null,
+            stripePay_price_id: plan.stripePay_price_id || null,
+          }))
         : [];
       setPlans(fetchedPlans);
     } catch (error) {
@@ -644,7 +644,6 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
 
   //   const isActivePlan = (plan: SubscriptionPlan): boolean => {
   // console.log("Checking active plan:", { plan, activeSubscription });
-
 
   //     if (isSuperAdmin || !activeSubscription) return false;
   //     return (
@@ -715,7 +714,9 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
         <div className="min-h-screen bg-linear-to-b from-white via-blue-50 to-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading plans...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">
+              Loading plans...
+            </p>
           </div>
         </div>
       </DashboardLayout>
@@ -784,10 +785,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
             {!isSuperAdmin && (
               <div className="flex items-center justify-center gap-4 sm:gap-6">
                 <span
-                  className={`text-sm font-semibold transition-colors ${billingCycle === "monthly"
-                    ? "primary-color"
-                    : "text-gray-500"
-                    }`}
+                  className={`text-sm font-semibold transition-colors ${
+                    billingCycle === "monthly"
+                      ? "primary-color"
+                      : "text-gray-500"
+                  }`}
                 >
                   Pay Monthly
                 </span>
@@ -800,17 +802,19 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                   className="relative inline-flex h-6 w-15 items-center rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
                 >
                   <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${billingCycle === "yearly"
-                      ? "translate-x-9"
-                      : "translate-x-1"
-                      }`}
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
+                      billingCycle === "yearly"
+                        ? "translate-x-9"
+                        : "translate-x-1"
+                    }`}
                   />
                 </button>
                 <span
-                  className={`text-sm font-semibold transition-colors ${billingCycle === "yearly"
-                    ? "primary-color"
-                    : "text-gray-500"
-                    }`}
+                  className={`text-sm font-semibold transition-colors ${
+                    billingCycle === "yearly"
+                      ? "primary-color"
+                      : "text-gray-500"
+                  }`}
                 >
                   Pay Yearly
                 </span>
@@ -843,211 +847,221 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
         <div className="px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="max-w-360 mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
-              {visiblePlans
-                .map((plan) => {
-                  const styling = getPlanStyling(plan.name);
-                  const Icon = getPlanIcon(plan.name);
-                  const features = generateFeatures(plan);
-                  const isFree = plan.price === 0;
-                  const isPlanActive = isActivePlan(plan);
-                  const isSilver = plan.name.toLowerCase() === "silver";
+              {visiblePlans.map((plan) => {
+                const styling = getPlanStyling(plan.name);
+                const Icon = getPlanIcon(plan.name);
+                const features = generateFeatures(plan);
+                const isFree = plan.price === 0;
+                const isPlanActive = isActivePlan(plan);
+                const isSilver = plan.name.toLowerCase() === "silver";
 
-                  return (
-                    <div key={plan.id} className="h-full">
-                      <div
-                        className={`relative h-full rounded-2xl border shadow-lg hover:shadow-xl overflow-hidden transition-all duration-300 ${isPlanActive
+                return (
+                  <div key={plan.id} className="h-full">
+                    <div
+                      className={`relative h-full rounded-2xl border shadow-lg hover:shadow-xl overflow-hidden transition-all duration-300 ${
+                        isPlanActive
                           ? "primary-bg-color primary-color border-transparent"
                           : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-800"
-                          }`}
-                      >
-                        {/* Super Admin: Edit/Delete Actions */}
-                        {isSuperAdmin && (
-                          <div className="absolute top-4 right-4 z-10 flex gap-2">
+                      }`}
+                    >
+                      {/* Super Admin: Edit/Delete Actions */}
+                      {isSuperAdmin && (
+                        <div className="absolute top-4 right-4 z-10 flex gap-2">
+                          <button
+                            onClick={() => openEditModal(plan)}
+                            className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-md hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors cursor-pointer border border-transparent dark:border-gray-700"
+                          >
+                            <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                          </button>
+                          {plan.name.toLowerCase() !== "free" && (
                             <button
-                              onClick={() => openEditModal(plan)}
-                              className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-md hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors cursor-pointer border border-transparent dark:border-gray-700"
+                              onClick={() => openDeleteModal(plan)}
+                              className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-md hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors cursor-pointer border border-transparent dark:border-gray-700"
                             >
-                              <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                              <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
                             </button>
-                            {plan.name.toLowerCase() !== "free" && (
+                          )}
+                        </div>
+                      )}
+
+                      <div className="p-8 md:p-10 flex flex-col h-full">
+                        <h3
+                          className={`text-xl font-bold mb-2 ${
+                            isPlanActive
+                              ? "text-white"
+                              : "text-gray-900 dark:text-gray-100"
+                          }`}
+                        >
+                          {plan.name}
+                        </h3>
+                        <p
+                          className={`text-sm mb-4 ${
+                            isPlanActive
+                              ? "text-white/80"
+                              : "text-gray-600 dark:text-gray-400"
+                          }`}
+                        >
+                          {plan.description ||
+                            "Perfect for your ScopeAIChat needs"}
+                        </p>
+
+                        <div
+                          className="my-4"
+                          style={{
+                            borderColor: `${plan.card_border_color}30`,
+                          }}
+                        >
+                          {isFree ? (
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span
+                                  className={`text-3xl md:text-5xl font-semibold ${
+                                    !isSuperAdmin && isPlanActive
+                                      ? "text-white"
+                                      : "text-gray-900 dark:text-gray-100"
+                                  }`}
+                                >
+                                  $0
+                                </span>
+                                <span
+                                  className={`text-lg font-light ${
+                                    !isSuperAdmin && isPlanActive
+                                      ? "text-white/80"
+                                      : "text-gray-600 dark:text-gray-400"
+                                  }`}
+                                >
+                                  /month
+                                </span>
+                              </div>
+                              <p className="text-sm text-green-500 dark:text-green-400 font-semibold pt-3 border-t border-gray-300 dark:border-gray-800">
+                                Forever free • No credit card required
+                              </p>
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span
+                                  className={`text-3xl md:text-5xl font-semibold text-gray-900 dark:text-gray-100 ${
+                                    isPlanActive
+                                      ? "text-white"
+                                      : "text-gray-900 dark:text-gray-100"
+                                  }`}
+                                >
+                                  ${isSuperAdmin ? plan.price : getPrice(plan)}
+                                </span>
+                                <span
+                                  className={`text-lg text-gray-600 dark:text-gray-400 font-light ${
+                                    isPlanActive
+                                      ? "text-white/80"
+                                      : "text-gray-600 dark:text-gray-400"
+                                  }`}
+                                >
+                                  /
+                                  {isSuperAdmin
+                                    ? plan.billing_cycle
+                                    : billingCycle === "yearly"
+                                      ? "year"
+                                      : "month"}
+                                </span>
+                              </div>
+                              {!isSuperAdmin && billingCycle === "yearly" && (
+                                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
+                                  <TrendingUp className="w-4 h-4 text-green-500" />
+                                  <p className="text-sm font-semibold text-green-600">
+                                    Save {getDiscount(plan)}% annually
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* CTA Buttons */}
+                        {!isSuperAdmin && (
+                          <>
+                            {isPlanActive ? (
+                              <div className="mb-8">
+                                <div className="w-full font-bold py-4 px-6 rounded-xl text-center relative overflow-hidden">
+                                  <div className="absolute inset-0 bg-linear-to-r from-blue-500 via-purple-500 to-blue-500 animate-gradient-x"></div>
+                                  <div className="relative flex items-center justify-center gap-2 text-white">
+                                    <Check className="w-5 h-5" />
+                                    <span>Active Plan</span>
+                                  </div>
+                                </div>
+                                <style jsx>{`
+                                  @keyframes gradient-x {
+                                    0%,
+                                    100% {
+                                      background-position: 0% 50%;
+                                    }
+                                    50% {
+                                      background-position: 100% 50%;
+                                    }
+                                  }
+                                  .animate-gradient-x {
+                                    background-size: 200% 200%;
+                                    animation: gradient-x 3s ease infinite;
+                                  }
+                                `}</style>
+                              </div>
+                            ) : isFree && activeSubscription ? (
                               <button
-                                onClick={() => openDeleteModal(plan)}
-                                className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-md hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors cursor-pointer border border-transparent dark:border-gray-700"
+                                disabled
+                                className="w-full font-bold py-4 px-6 rounded-xl mb-8 cursor-not-allowed opacity-60 bg-gray-300 text-gray-600"
                               >
-                                <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                                Not Available
                               </button>
-                            )}
-                          </div>
+                            ) : !isFree ? (
+                              <Link
+                                href={{
+                                  pathname: "/checkout",
+                                  query: {
+                                    plan: plan.name.toLowerCase(),
+                                    billing: billingCycle,
+                                    planId: plan.razorPay_plan_id,
+                                    stripePriceId: plan.stripePay_price_id,
+                                    price: plan.price,
+                                    description: plan.description,
+                                    features: JSON.stringify(features),
+                                  },
+                                }}
+                                className="block w-full font-bold py-4 px-6 rounded-lg mb-8 shadow-md hover:scale-100 text-center transition-all bg-white dark:bg-slate-900 border border-primary primary-color dark:text-blue-400 dark:border-blue-500/50 hover:bg-gray-50 dark:hover:bg-slate-800"
+                              >
+                                Get Started Now
+                              </Link>
+                            ) : null}
+                          </>
                         )}
 
-                        <div className="p-8 md:p-10 flex flex-col h-full">
-                          <h3
-                            className={`text-xl font-bold mb-2 ${isPlanActive ? "text-white" : "text-gray-900 dark:text-gray-100"
-                              }`}
-                          >
-                            {plan.name}
-                          </h3>
-                          <p
-                            className={`text-sm mb-4 ${isPlanActive ? "text-white/80" : "text-gray-600 dark:text-gray-400"
-                              }`}
-                          >
-                            {plan.description ||
-                              "Perfect for your AI chatbot needs"}
-                          </p>
-
-                          <div
-                            className="my-4"
-                            style={{
-                              borderColor: `${plan.card_border_color}30`,
-                            }}
-                          >
-                            {isFree ? (
-                              <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span
-                                    className={`text-3xl md:text-5xl font-semibold ${!isSuperAdmin && isPlanActive
-                                      ? "text-white"
-                                      : "text-gray-900 dark:text-gray-100"
-                                      }`}
-                                  >
-                                    $0
-                                  </span>
-                                  <span
-                                    className={`text-lg font-light ${!isSuperAdmin && isPlanActive
-                                      ? "text-white/80"
-                                      : "text-gray-600 dark:text-gray-400"
-                                      }`}
-                                  >
-                                    /month
-                                  </span>
+                        {/* Features */}
+                        <div className="space-y-4 mb-6">
+                          <div className="space-y-3">
+                            {features.map((feature, fIndex) => (
+                              <div
+                                key={fIndex}
+                                className="flex items-start gap-3"
+                              >
+                                <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center shadow-sm bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                                  <Check className="w-4 h-4" />
                                 </div>
-                                <p className="text-sm text-green-500 dark:text-green-400 font-semibold pt-3 border-t border-gray-300 dark:border-gray-800">
-                                  Forever free • No credit card required
-                                </p>
-                              </div>
-                            ) : (
-                              <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span
-                                    className={`text-3xl md:text-5xl font-semibold text-gray-900 dark:text-gray-100 ${isPlanActive
-                                      ? "text-white"
-                                      : "text-gray-900 dark:text-gray-100"
-                                      }`}
-                                  >
-                                    $
-                                    {isSuperAdmin ? plan.price : getPrice(plan)}
-                                  </span>
-                                  <span
-                                    className={`text-lg text-gray-600 dark:text-gray-400 font-light ${isPlanActive
-                                      ? "text-white/80"
-                                      : "text-gray-600 dark:text-gray-400"
-                                      }`}
-                                  >
-                                    /
-                                    {isSuperAdmin
-                                      ? plan.billing_cycle
-                                      : billingCycle === "yearly"
-                                        ? "year"
-                                        : "month"}
-                                  </span>
-                                </div>
-                                {!isSuperAdmin && billingCycle === "yearly" && (
-                                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
-                                    <TrendingUp className="w-4 h-4 text-green-500" />
-                                    <p className="text-sm font-semibold text-green-600">
-                                      Save {getDiscount(plan)}% annually
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* CTA Buttons */}
-                          {!isSuperAdmin && (
-                            <>
-                              {isPlanActive ? (
-                                <div className="mb-8">
-                                  <div className="w-full font-bold py-4 px-6 rounded-xl text-center relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-linear-to-r from-blue-500 via-purple-500 to-blue-500 animate-gradient-x"></div>
-                                    <div className="relative flex items-center justify-center gap-2 text-white">
-                                      <Check className="w-5 h-5" />
-                                      <span>Active Plan</span>
-                                    </div>
-                                  </div>
-                                  <style jsx>{`
-                                    @keyframes gradient-x {
-                                      0%,
-                                      100% {
-                                        background-position: 0% 50%;
-                                      }
-                                      50% {
-                                        background-position: 100% 50%;
-                                      }
-                                    }
-                                    .animate-gradient-x {
-                                      background-size: 200% 200%;
-                                      animation: gradient-x 3s ease infinite;
-                                    }
-                                  `}</style>
-                                </div>
-                              ) : isFree && activeSubscription ? (
-                                <button
-                                  disabled
-                                  className="w-full font-bold py-4 px-6 rounded-xl mb-8 cursor-not-allowed opacity-60 bg-gray-300 text-gray-600"
-                                >
-                                  Not Available
-                                </button>
-                              ) : !isFree ? (
-                                <Link
-                                  href={{
-                                    pathname: "/checkout",
-                                    query: {
-                                      plan: plan.name.toLowerCase(),
-                                      billing: billingCycle,
-                                      planId: plan.razorPay_plan_id,
-                                      stripePriceId: plan.stripePay_price_id,
-                                      price: plan.price,
-                                      description: plan.description,
-                                      features: JSON.stringify(features),
-                                    },
-                                  }}
-                                  className="block w-full font-bold py-4 px-6 rounded-lg mb-8 shadow-md hover:scale-100 text-center transition-all bg-white dark:bg-slate-900 border border-primary primary-color dark:text-blue-400 dark:border-blue-500/50 hover:bg-gray-50 dark:hover:bg-slate-800"
-                                >
-                                  Get Started Now
-                                </Link>
-                              ) : null}
-                            </>
-                          )}
-
-                          {/* Features */}
-                          <div className="space-y-4 mb-6">
-                            <div className="space-y-3">
-                              {features.map((feature, fIndex) => (
-                                <div
-                                  key={fIndex}
-                                  className="flex items-start gap-3"
-                                >
-                                  <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center shadow-sm bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
-                                    <Check className="w-4 h-4" />
-                                  </div>
-                                  <span
-                                    className={`text-sm md:text-base leading-relaxed ${isPlanActive
+                                <span
+                                  className={`text-sm md:text-base leading-relaxed ${
+                                    isPlanActive
                                       ? "text-white"
                                       : "text-gray-900 dark:text-gray-200"
-                                      }`}
-                                  >
-                                    {feature}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
+                                  }`}
+                                >
+                                  {feature}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -1113,7 +1127,7 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                           feature: "Storage Limit",
                           values: visiblePlans.map((p) =>
                             p.storage_limit_gb === 0 ||
-                              p.storage_limit_gb === null
+                            p.storage_limit_gb === null
                               ? "∞"
                               : `${p.storage_limit_gb}GB`,
                           ),
@@ -1127,7 +1141,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       ].map((row, idx) => (
                         <tr
                           key={idx}
-                          className={idx % 2 === 0 ? "bg-white dark:bg-gray-900" : "bg-blue-50 dark:bg-gray-800/50"}
+                          className={
+                            idx % 2 === 0
+                              ? "bg-white dark:bg-gray-900"
+                              : "bg-blue-50 dark:bg-gray-800/50"
+                          }
                         >
                           <td className="px-6 py-4 font-semibold text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700">
                             {row.feature}
@@ -1233,10 +1251,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${errors.name
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                        }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${
+                        errors.name
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                      }`}
                     />
                     {errors.name && (
                       <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -1255,10 +1274,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       onChange={handleInputChange}
                       step="0.01"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors ${errors.price
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                        }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors ${
+                        errors.price
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                      }`}
                     />
                     {errors.price && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1278,8 +1298,12 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       onChange={handleInputChange}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600 focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors"
                     >
-                      <option value="monthly" className="dark:bg-gray-800">Monthly</option>
-                      <option value="yearly" className="dark:bg-gray-800">Yearly</option>
+                      <option value="monthly" className="dark:bg-gray-800">
+                        Monthly
+                      </option>
+                      <option value="yearly" className="dark:bg-gray-800">
+                        Yearly
+                      </option>
                     </select>
                   </div>
 
@@ -1295,10 +1319,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.concurrent_users
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                        }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
+                        errors.concurrent_users
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                      }`}
                     />
                     {errors.concurrent_users && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1319,10 +1344,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.document_collections
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                        }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
+                        errors.document_collections
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                      }`}
                     />
                     {errors.document_collections && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1343,10 +1369,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.max_file_upload_mb
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                        }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
+                        errors.max_file_upload_mb
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                      }`}
                     />
                     {errors.max_file_upload_mb && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1367,10 +1394,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.storage_limit_gb
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                        }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
+                        errors.storage_limit_gb
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                      }`}
                     />
                     {errors.storage_limit_gb && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1390,10 +1418,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={3}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${errors.description
-                      ? "border-red-500 focus:ring-red-500"
-                      : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
-                      }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${
+                      errors.description
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
+                    }`}
                   />
                   {errors.description && (
                     <p className="mt-1 text-sm text-red-600">
@@ -1425,10 +1454,11 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
                           }
                         }}
                         placeholder="Add a feature"
-                        className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.features
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
-                          }`}
+                        className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
+                          errors.features
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
+                        }`}
                       />
                       <button
                         type="button"

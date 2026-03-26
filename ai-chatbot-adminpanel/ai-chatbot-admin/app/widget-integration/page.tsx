@@ -118,8 +118,12 @@ function FeatureItem({
           {icon}
         </div>
         <div>
-          <h4 className="font-semibold text-gray-900 dark:text-gray-100">{title}</h4>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{desc}</p>
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+            {title}
+          </h4>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {desc}
+          </p>
         </div>
       </div>
     </div>
@@ -172,14 +176,15 @@ export default function WidgetIntegrationPage() {
 
   const getApiUrl = () => {
     return (
-      process.env.NEXT_PUBLIC_API_URL ||
-      "https://ai-api.scopethinkers.ai/api/v1"
+      process.env.NEXT_PUBLIC_BACKEND_API_URL ||
+      "https://api-scopeaichat.scopethinkers.ai/api/v1"
     );
   };
 
   const getFrontendUrl = () => {
     return (
-      process.env.NEXT_PUBLIC_FRONTEND_URL || "https://ai-chat.scopethinkers.ai"
+      process.env.NEXT_PUBLIC_FRONTEND_URL ||
+      "https://frontend-scopeaichat.scopethinkers.ai/"
     );
   };
 
@@ -190,7 +195,7 @@ export default function WidgetIntegrationPage() {
   const getBasicIntegrationCode = () => {
     if (!selectedTenant) return "";
 
-    return `<!-- AI Chatbot Widget -->
+    return `<!-- ScopeAIChat Widget -->
 <script>
   window.AIChatbotConfig = {
     tenant: '${selectedTenant.slug}',
@@ -203,7 +208,7 @@ export default function WidgetIntegrationPage() {
   const getAdvancedIntegrationCode = () => {
     if (!selectedTenant) return "";
 
-    return `<!-- AI Chatbot Widget - Advanced Configuration -->
+    return `<!-- ScopeAIChat Widget - Advanced Configuration -->
 <script>
   window.AIChatbotConfig = {
     tenant: '${selectedTenant.slug}',
@@ -350,7 +355,8 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                     Widget Integration
                   </h1>
                   <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Copy the integration code and embed the chatbot widget on your website
+                    Copy the integration code and embed the chatbot widget on
+                    your website
                   </p>
                 </div>
               </div>
@@ -459,7 +465,8 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                   {isTenantAdmin && (
                     <div className="inline-flex w-fit items-center gap-2 rounded-2xl border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-300">
                       <Sparkles className="h-4 w-4" />
-                      Active Tenant: {selectedTenant.name} ({selectedTenant.slug})
+                      Active Tenant: {selectedTenant.name} (
+                      {selectedTenant.slug})
                     </div>
                   )}
 
@@ -506,7 +513,8 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        For vanilla HTML websites. Add this code before the closing{" "}
+                        For vanilla HTML websites. Add this code before the
+                        closing{" "}
                         <code className="rounded bg-gray-100 dark:bg-white/[0.05] px-1.5 py-0.5">
                           &lt;/body&gt;
                         </code>{" "}
@@ -516,7 +524,9 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                       <CodeBlock
                         code={getBasicIntegrationCode()}
                         copied={copiedSection === "basic"}
-                        onCopy={() => handleCopy(getBasicIntegrationCode(), "basic")}
+                        onCopy={() =>
+                          handleCopy(getBasicIntegrationCode(), "basic")
+                        }
                       />
                     </CardContent>
                   </Card>
@@ -533,13 +543,16 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        For React applications. Add this to your main App component or layout.
+                        For React applications. Add this to your main App
+                        component or layout.
                       </p>
 
                       <CodeBlock
                         code={getReactIntegrationCode()}
                         copied={copiedSection === "react"}
-                        onCopy={() => handleCopy(getReactIntegrationCode(), "react")}
+                        onCopy={() =>
+                          handleCopy(getReactIntegrationCode(), "react")
+                        }
                       />
                     </CardContent>
                   </Card>
@@ -556,13 +569,16 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        For Next.js applications (App Router or Pages Router). Add this to your root layout.
+                        For Next.js applications (App Router or Pages Router).
+                        Add this to your root layout.
                       </p>
 
                       <CodeBlock
                         code={getNextJsIntegrationCode()}
                         copied={copiedSection === "nextjs"}
-                        onCopy={() => handleCopy(getNextJsIntegrationCode(), "nextjs")}
+                        onCopy={() =>
+                          handleCopy(getNextJsIntegrationCode(), "nextjs")
+                        }
                       />
                     </CardContent>
                   </Card>
@@ -579,7 +595,8 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        With custom styling, event callbacks, and analytics integration.
+                        With custom styling, event callbacks, and analytics
+                        integration.
                       </p>
 
                       <CodeBlock
@@ -606,13 +623,16 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
 
                       <CardContent className="space-y-4">
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Test your chatbot configuration using curl or directly in the browser.
+                          Test your chatbot configuration using curl or directly
+                          in the browser.
                         </p>
 
                         <CodeBlock
                           code={getCurlTestCommand()}
                           copied={copiedSection === "curl"}
-                          onCopy={() => handleCopy(getCurlTestCommand(), "curl")}
+                          onCopy={() =>
+                            handleCopy(getCurlTestCommand(), "curl")
+                          }
                         />
 
                         <div className="flex flex-wrap items-center gap-3">

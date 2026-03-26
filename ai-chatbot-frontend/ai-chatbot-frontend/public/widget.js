@@ -1,5 +1,5 @@
 (function () {
-  'use strict';
+  "use strict";
 
   if (window.AIChatbotWidget) {
     return;
@@ -8,29 +8,33 @@
   const DEFAULT_CONFIG = {
     getApiUrl() {
       const hostname = window.location.hostname;
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('localhost')) {
-        return 'http://localhost:3001/api/v1';
+      if (
+        hostname === "localhost" ||
+        hostname === "127.0.0.1" ||
+        hostname.includes("localhost")
+      ) {
+        return "http://localhost:3001/api/v1";
       }
-      return 'https://api-scopeaichat.scopethinkers.ai/api/v1';
+      return "https://api-scopeaichat.scopethinkers.ai/api/v1";
     },
     tenant: null,
-    primaryColor: '#007bff',
-    secondaryColor: '#10B981',
-    chatbotName: 'AI Assistant',
-    welcomeMessage: 'Hello! How can I help you today?',
-    placeholderText: 'Type a message...',
-    widgetPosition: 'bottom-right',  // bottom-right | bottom-left | top-right | top-left
-    widgetSize: 'medium',            // small | medium | large
+    primaryColor: "#007bff",
+    secondaryColor: "#10B981",
+    chatbotName: "AI Assistant",
+    welcomeMessage: "Hello! How can I help you today?",
+    placeholderText: "Type a message...",
+    widgetPosition: "bottom-right", // bottom-right | bottom-left | top-right | top-left
+    widgetSize: "medium", // small | medium | large
     autoOpen: false,
     showAgentAvatar: true,
     collectUserInfo: false,
     requireEmail: false,
     enableFileUpload: false,
     maxMessageLength: 2000,
-    textColor: '#333333',
-    backgroundColor: '#ffffff',
+    textColor: "#333333",
+    backgroundColor: "#ffffff",
     customCss: null,
-    useAPI: true
+    useAPI: true,
   };
 
   class AIChatbotWidget {
@@ -44,7 +48,7 @@
       this.userInfo = null;
 
       if (!this.config.tenant) {
-        console.error('[Widget] Tenant is required');
+        console.error("[Widget] Tenant is required");
         return;
       }
 
@@ -77,66 +81,91 @@
           if (data.success && data.data && data.data.config) {
             const c = data.data.config;
             // Map every API field into this.config
-            this.config.primaryColor = c.primaryColor || this.config.primaryColor;
-            this.config.secondaryColor = c.secondaryColor || this.config.secondaryColor;
+            this.config.primaryColor =
+              c.primaryColor || this.config.primaryColor;
+            this.config.secondaryColor =
+              c.secondaryColor || this.config.secondaryColor;
             this.config.textColor = c.textColor || this.config.textColor;
-            this.config.backgroundColor = c.backgroundColor || this.config.backgroundColor;
+            this.config.backgroundColor =
+              c.backgroundColor || this.config.backgroundColor;
             this.config.chatbotName = c.chatbotName || this.config.chatbotName;
-            this.config.welcomeMessage = c.welcomeMessage || this.config.welcomeMessage;
-            this.config.placeholderText = c.placeholderText || this.config.placeholderText;
-            this.config.widgetPosition = c.widgetPosition || this.config.widgetPosition;
+            this.config.welcomeMessage =
+              c.welcomeMessage || this.config.welcomeMessage;
+            this.config.placeholderText =
+              c.placeholderText || this.config.placeholderText;
+            this.config.widgetPosition =
+              c.widgetPosition || this.config.widgetPosition;
             this.config.widgetSize = c.widgetSize || this.config.widgetSize;
             this.config.autoOpen = c.autoOpen === 1 || c.autoOpen === true;
-            this.config.showAgentAvatar = c.showAgentAvatar === 1 || c.showAgentAvatar === true;
-            this.config.collectUserInfo = c.collectUserInfo === 1 || c.collectUserInfo === true;
-            this.config.requireEmail = c.requireEmail === 1 || c.requireEmail === true;
-            this.config.enableFileUpload = c.enableFileUpload === 1 || c.enableFileUpload === true;
-            this.config.maxMessageLength = c.maxMessageLength || this.config.maxMessageLength;
+            this.config.showAgentAvatar =
+              c.showAgentAvatar === 1 || c.showAgentAvatar === true;
+            this.config.collectUserInfo =
+              c.collectUserInfo === 1 || c.collectUserInfo === true;
+            this.config.requireEmail =
+              c.requireEmail === 1 || c.requireEmail === true;
+            this.config.enableFileUpload =
+              c.enableFileUpload === 1 || c.enableFileUpload === true;
+            this.config.maxMessageLength =
+              c.maxMessageLength || this.config.maxMessageLength;
             this.config.customCss = c.customCss || null;
           }
         } else {
-          console.warn('[Widget] Could not fetch config, using defaults');
+          console.warn("[Widget] Could not fetch config, using defaults");
         }
       } catch (error) {
-        console.warn('[Widget] Config fetch failed, using defaults:', error.message);
+        console.warn(
+          "[Widget] Config fetch failed, using defaults:",
+          error.message,
+        );
       }
     }
 
     /* ─────────────────────────── POSITION HELPER ─────────────────────────── */
     getPositionStyle() {
       switch (this.config.widgetPosition) {
-        case 'bottom-left': return 'bottom:20px;left:20px;right:auto;';
-        case 'top-right': return 'top:20px;right:20px;bottom:auto;';
-        case 'top-left': return 'top:20px;left:20px;bottom:auto;right:auto;';
-        case 'bottom-right':
-        default: return 'bottom:20px;right:20px;';
+        case "bottom-left":
+          return "bottom:20px;left:20px;right:auto;";
+        case "top-right":
+          return "top:20px;right:20px;bottom:auto;";
+        case "top-left":
+          return "top:20px;left:20px;bottom:auto;right:auto;";
+        case "bottom-right":
+        default:
+          return "bottom:20px;right:20px;";
       }
     }
 
     getWindowPositionStyle() {
       // Chat window opens opposite to toggle button to avoid clipping
       switch (this.config.widgetPosition) {
-        case 'bottom-left': return 'bottom:0;left:0;right:auto;';
-        case 'top-right': return 'top:0;right:0;bottom:auto;';
-        case 'top-left': return 'top:0;left:0;bottom:auto;right:auto;';
-        case 'bottom-right':
-        default: return 'bottom:0;right:0;';
+        case "bottom-left":
+          return "bottom:0;left:0;right:auto;";
+        case "top-right":
+          return "top:0;right:0;bottom:auto;";
+        case "top-left":
+          return "top:0;left:0;bottom:auto;right:auto;";
+        case "bottom-right":
+        default:
+          return "bottom:0;right:0;";
       }
     }
 
     getWidgetDimensions() {
       switch (this.config.widgetSize) {
-        case 'small': return { width: '320px', height: '420px' };
-        case 'large': return { width: '440px', height: '680px' };
-        case 'medium':
-        default: return { width: '400px', height: '580px' };
+        case "small":
+          return { width: "320px", height: "420px" };
+        case "large":
+          return { width: "440px", height: "680px" };
+        case "medium":
+        default:
+          return { width: "400px", height: "580px" };
       }
     }
 
     /* ──────────────────────────── DOM SETUP ──────────────────────────────── */
     createContainer() {
-      this.container = document.createElement('div');
-      this.container.id = 'aicw-widget-container-v1';
+      this.container = document.createElement("div");
+      this.container.id = "aicw-widget-container-v1";
       this.container.style.cssText = `position:fixed!important;${this.getPositionStyle()}z-index:999999!important;font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif!important;`;
       document.body.appendChild(this.container);
     }
@@ -149,12 +178,12 @@
 
       // Inject custom CSS from tenant if any
       if (this.config.customCss) {
-        const customStyle = document.createElement('style');
+        const customStyle = document.createElement("style");
         customStyle.textContent = this.config.customCss;
         document.head.appendChild(customStyle);
       }
 
-      const style = document.createElement('style');
+      const style = document.createElement("style");
       style.textContent = `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -445,9 +474,9 @@
       const avatarHtml = this.config.showAgentAvatar
         ? `<div class="aicw-avatar-wrap">
              <div class="aicw-avatar-v1">AI</div>
-             <div class="aicw-online-dot"></div>
+            
            </div>`
-        : '';
+        : "";
 
       this.container.innerHTML = `
         <div id="aicw-window-v1">
@@ -465,7 +494,7 @@
               </div>
             </div>
             <div class="aicw-header-actions">
-              <button class="aicw-icon-btn-v1 aicw-minimize-btn-v1" title="Minimize">-</button>
+              <button class="aicw-icon-btn-v1 aicw-minimize-btn-v1" title="Minimize">–</button>
               <button class="aicw-icon-btn-v1 aicw-close-btn-v1" title="Close">×</button>
             </div>
           </div>
@@ -477,7 +506,7 @@
           <div class="aicw-branding-v1">
             <a href="https://scopethinkers.ai" target="_blank" rel="noopener noreferrer" class="aicw-branding-link-v1">
               <span>Powered by</span>
-              <img src="https://ai-chat.scopethinkers.ai/favicon.svg" alt="ScopeThinkers" class="aicw-branding-logo-v1"/>
+              <img src="https://frontend-scopeaichat.scopethinkers.ai/favicon.svg" alt="ScopeThinkers" class="aicw-branding-logo-v1"/>
               <span style="font-weight:600;">scopethinkers.ai</span>
             </a>
           </div>
@@ -497,7 +526,7 @@
 
     /* ──────────────────────── BODY RENDERING ─────────────────────────────── */
     renderBody() {
-      const body = this.container.querySelector('#aicw-body-v1');
+      const body = this.container.querySelector("#aicw-body-v1");
       if (!body) return;
 
       if (!this.hasInitialized && this.config.collectUserInfo) {
@@ -530,7 +559,7 @@
                         color:white;font-weight:700;font-size:18px;display:inline-flex;align-items:center;justify-content:center;
                         box-shadow:0 6px 20px ${this.config.primaryColor}30;margin-bottom:10px;">AI</div>
             <p class="aicw-userform-title-v1">Welcome to ${this.config.chatbotName}!</p>
-            <p class="aicw-userform-sub-v1">${required ? '✨ Please share your details to get started' : '🎯 Tell us a bit about you (optional)'}</p>
+            <p class="aicw-userform-sub-v1">${required ? "✨ Please share your details to get started" : "🎯 Tell us a bit about you (optional)"}</p>
           </div>
 
           <div class="aicw-field-v1">
@@ -539,14 +568,14 @@
           </div>
 
           <div class="aicw-field-v1">
-            <label for="aicw-email-v1">📧 Email Address ${required ? '<span style="color:#ef4444">*</span>' : ''}</label>
-            <input type="email" id="aicw-email-v1" placeholder="your@email.com" ${required ? 'required' : ''} />
+            <label for="aicw-email-v1">📧 Email Address ${required ? '<span style="color:#ef4444">*</span>' : ""}</label>
+            <input type="email" id="aicw-email-v1" placeholder="your@email.com" ${required ? "required" : ""} />
             <div class="aicw-field-error-v1" id="aicw-email-error-v1" style="display:none;"></div>
           </div>
 
           <div class="aicw-form-actions-v1">
             <button class="aicw-form-submit-v1" id="aicw-form-submit-v1">🚀 Start Chatting</button>
-            ${!required ? '<button class="aicw-form-skip-v1" id="aicw-form-skip-v1">Skip</button>' : ''}
+            ${!required ? '<button class="aicw-form-skip-v1" id="aicw-form-skip-v1">Skip</button>' : ""}
           </div>
           <div class="aicw-form-privacy-v1">🔒 Your info is secure and never shared</div>
         </div>`;
@@ -566,18 +595,22 @@
     }
 
     renderMessages() {
-      const msgDiv = this.container.querySelector('#aicw-messages-v1');
+      const msgDiv = this.container.querySelector("#aicw-messages-v1");
       if (!msgDiv) return;
-      msgDiv.innerHTML = '';
+      msgDiv.innerHTML = "";
 
       // Welcome message
-      if (this.config.welcomeMessage && this.messages && this.messages.length === 0) {
+      if (
+        this.config.welcomeMessage &&
+        this.messages &&
+        this.messages.length === 0
+      ) {
         this.appendBotBubble(this.config.welcomeMessage);
       }
 
       if (this.messages) {
-        this.messages.forEach(m => {
-          if (m.role === 'user') this.appendUserBubble(m.content, false);
+        this.messages.forEach((m) => {
+          if (m.role === "user") this.appendUserBubble(m.content, false);
           else this.appendBotBubble(m.content, false);
         });
       }
@@ -591,18 +624,18 @@
           tenantSlug: this.config.tenant,
           visitorId: this.generateVisitorId(),
           visitorInfo: {
-            name: visitorInfo.name || '',
-            email: visitorInfo.email || '',
-            metadata: {}
+            name: visitorInfo.name || "",
+            email: visitorInfo.email || "",
+            metadata: {},
           },
           pageUrl: window.location.href,
-          referrerUrl: document.referrer || ''
+          referrerUrl: document.referrer || "",
         };
 
         const response = await fetch(sessionUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) throw new Error(`Session error: ${response.status}`);
@@ -613,15 +646,15 @@
         this.hasInitialized = true;
 
         // Switch to chat UI
-        const body = this.container.querySelector('#aicw-body-v1');
+        const body = this.container.querySelector("#aicw-body-v1");
         if (body) {
           body.innerHTML = this.buildChatInterface();
           this.attachInputListeners();
           this.appendBotBubble(this.config.welcomeMessage);
         }
       } catch (error) {
-        console.error('[Widget] Session failed:', error);
-        const body = this.container.querySelector('#aicw-body-v1');
+        console.error("[Widget] Session failed:", error);
+        const body = this.container.querySelector("#aicw-body-v1");
         if (body) {
           body.innerHTML = `<div style="padding:20px;text-align:center;color:#ef4444;font-size:13px;">
             ⚠️ Could not connect. Please try again later.</div>`;
@@ -630,62 +663,66 @@
     }
 
     generateVisitorId() {
-      let id = localStorage.getItem('aicw_visitor_id');
+      let id = localStorage.getItem("aicw_visitor_id");
       if (!id) {
-        id = 'visitor_' + Math.random().toString(36).substr(2, 12);
-        try { localStorage.setItem('aicw_visitor_id', id); } catch (e) { }
+        id = "visitor_" + Math.random().toString(36).substr(2, 12);
+        try {
+          localStorage.setItem("aicw_visitor_id", id);
+        } catch (e) { }
       }
       return id;
     }
 
     /* ──────────────────────── EVENT LISTENERS ────────────────────────────── */
     attachEventListeners() {
-      const toggleBtn = this.container.querySelector('#aicw-toggle-btn-v1');
-      const closeBtn = this.container.querySelector('.aicw-close-btn-v1');
-      const minBtn = this.container.querySelector('.aicw-minimize-btn-v1');
+      const toggleBtn = this.container.querySelector("#aicw-toggle-btn-v1");
+      const closeBtn = this.container.querySelector(".aicw-close-btn-v1");
+      const minBtn = this.container.querySelector(".aicw-minimize-btn-v1");
 
-      toggleBtn.addEventListener('click', () => this.openChat());
+      toggleBtn.addEventListener("click", () => this.openChat());
 
       // ✕ Close: ends the API session and fully resets state
-      closeBtn.addEventListener('click', () => this.closeChat());
+      closeBtn.addEventListener("click", () => this.closeChat());
 
       // — Minimize: just hides the window, session remains alive
-      minBtn.addEventListener('click', () => {
-        const win = this.container.querySelector('#aicw-window-v1');
-        win.classList.remove('aicw-open-v1');
+      minBtn.addEventListener("click", () => {
+        const win = this.container.querySelector("#aicw-window-v1");
+        win.classList.remove("aicw-open-v1");
         this.isOpen = false;
       });
 
       // Delegate form events (form is rendered later)
-      this.container.addEventListener('click', (e) => {
-        if (e.target.id === 'aicw-form-submit-v1') this.handleFormSubmit();
-        if (e.target.id === 'aicw-form-skip-v1') this.handleFormSkip();
+      this.container.addEventListener("click", (e) => {
+        if (e.target.id === "aicw-form-submit-v1") this.handleFormSubmit();
+        if (e.target.id === "aicw-form-skip-v1") this.handleFormSkip();
       });
     }
 
     attachInputListeners() {
-      const sendBtn = this.container.querySelector('#aicw-send-btn-v1');
-      const input = this.container.querySelector('#aicw-input-v1');
+      const sendBtn = this.container.querySelector("#aicw-send-btn-v1");
+      const input = this.container.querySelector("#aicw-input-v1");
       if (!sendBtn || !input) return;
 
-      sendBtn.addEventListener('click', () => this.sendMessage());
-      input.addEventListener('keypress', (e) => { if (e.key === 'Enter') this.sendMessage(); });
+      sendBtn.addEventListener("click", () => this.sendMessage());
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") this.sendMessage();
+      });
       input.focus();
     }
 
     /* ──────────────────────── CHAT OPEN / CLOSE ──────────────────────────── */
     openChat() {
-      const win = this.container.querySelector('#aicw-window-v1');
-      win.classList.add('aicw-open-v1');
+      const win = this.container.querySelector("#aicw-window-v1");
+      win.classList.add("aicw-open-v1");
       this.isOpen = true;
 
       // Remove notification badge if present
-      const badge = this.container.querySelector('.aicw-notif-badge-v1');
+      const badge = this.container.querySelector(".aicw-notif-badge-v1");
       if (badge) badge.remove();
 
       // If not yet initialized (first open OR after a close+reset), set up the body
       if (!this.hasInitialized) {
-        const body = this.container.querySelector('#aicw-body-v1');
+        const body = this.container.querySelector("#aicw-body-v1");
         if (!body) return;
 
         if (this.config.collectUserInfo) {
@@ -706,8 +743,8 @@
         await this.endSession();
       }
 
-      const win = this.container.querySelector('#aicw-window-v1');
-      win.classList.remove('aicw-open-v1');
+      const win = this.container.querySelector("#aicw-window-v1");
+      win.classList.remove("aicw-open-v1");
       this.isOpen = false;
 
       // Reset state so next open starts a fresh session
@@ -718,13 +755,13 @@
       this.messages = [];
 
       // Reset body back to initial state (form or loading-on-demand)
-      const body = this.container.querySelector('#aicw-body-v1');
+      const body = this.container.querySelector("#aicw-body-v1");
       if (body) {
         if (this.config.collectUserInfo) {
           body.innerHTML = this.buildUserInfoForm();
         } else {
           // Empty — will show loading spinner on next open
-          body.innerHTML = '';
+          body.innerHTML = "";
         }
       }
     }
@@ -733,42 +770,45 @@
       try {
         const url = `${this.config.apiUrl}/public/chat/session/${this.sessionToken}/end`;
         const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
         });
 
         if (!response.ok) {
-          console.warn('[Widget] End session returned non-OK status:', response.status);
+          console.warn(
+            "[Widget] End session returned non-OK status:",
+            response.status,
+          );
           return;
         }
 
         const data = await response.json();
         if (data.success) {
-          console.log('[Widget] Session ended:', data.data.message);
+          console.log("[Widget] Session ended:", data.data.message);
         }
       } catch (error) {
         // Non-blocking — we still close the chat even if this call fails
-        console.warn('[Widget] End session call failed:', error.message);
+        console.warn("[Widget] End session call failed:", error.message);
       }
     }
 
     /* ──────────────────────── USER INFO FORM ─────────────────────────────── */
     handleFormSubmit() {
-      const nameInput = this.container.querySelector('#aicw-name-v1');
-      const emailInput = this.container.querySelector('#aicw-email-v1');
-      const emailError = this.container.querySelector('#aicw-email-error-v1');
-      const email = emailInput ? emailInput.value.trim() : '';
-      const name = nameInput ? nameInput.value.trim() : '';
+      const nameInput = this.container.querySelector("#aicw-name-v1");
+      const emailInput = this.container.querySelector("#aicw-email-v1");
+      const emailError = this.container.querySelector("#aicw-email-error-v1");
+      const email = emailInput ? emailInput.value.trim() : "";
+      const name = nameInput ? nameInput.value.trim() : "";
 
       // Validate
       if (this.config.requireEmail && !email) {
-        emailError.textContent = '⚠️ Email is required';
-        emailError.style.display = 'block';
+        emailError.textContent = "⚠️ Email is required";
+        emailError.style.display = "block";
         return;
       }
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        emailError.textContent = '⚠️ Please enter a valid email address';
-        emailError.style.display = 'block';
+        emailError.textContent = "⚠️ Please enter a valid email address";
+        emailError.style.display = "block";
         return;
       }
 
@@ -779,37 +819,37 @@
       this.userInfo = visitorInfo;
 
       // Show loading then start session
-      const body = this.container.querySelector('#aicw-body-v1');
+      const body = this.container.querySelector("#aicw-body-v1");
       if (body) body.innerHTML = this.buildLoadingState();
       this.startSession(visitorInfo);
     }
 
     handleFormSkip() {
-      const body = this.container.querySelector('#aicw-body-v1');
+      const body = this.container.querySelector("#aicw-body-v1");
       if (body) body.innerHTML = this.buildLoadingState();
       this.startSession();
     }
 
     /* ──────────────────────── MESSAGING ──────────────────────────────────── */
     async sendMessage() {
-      const input = this.container.querySelector('#aicw-input-v1');
-      const sendBtn = this.container.querySelector('#aicw-send-btn-v1');
-      const msgDiv = this.container.querySelector('#aicw-messages-v1');
-      const message = input ? input.value.trim() : '';
+      const input = this.container.querySelector("#aicw-input-v1");
+      const sendBtn = this.container.querySelector("#aicw-send-btn-v1");
+      const msgDiv = this.container.querySelector("#aicw-messages-v1");
+      const message = input ? input.value.trim() : "";
 
       if (!message || !this.sessionToken) return;
 
       sendBtn.disabled = true;
       input.disabled = true;
-      input.value = '';
+      input.value = "";
 
       this.appendUserBubble(message);
 
       // Typing indicator
-      const typing = document.createElement('div');
-      typing.className = 'aicw-typing-v1';
-      typing.id = 'aicw-typing-v1';
-      typing.innerHTML = '<span></span><span></span><span></span>';
+      const typing = document.createElement("div");
+      typing.className = "aicw-typing-v1";
+      typing.id = "aicw-typing-v1";
+      typing.innerHTML = "<span></span><span></span><span></span>";
       msgDiv.appendChild(typing);
       msgDiv.scrollTop = msgDiv.scrollHeight;
 
@@ -819,9 +859,9 @@
         this.appendBotBubble(responseText);
       } catch (error) {
         typing.remove();
-        const err = document.createElement('div');
-        err.className = 'aicw-error-v1';
-        err.textContent = 'Sorry, something went wrong. Please try again.';
+        const err = document.createElement("div");
+        err.className = "aicw-error-v1";
+        err.textContent = "Sorry, something went wrong. Please try again.";
         msgDiv.appendChild(err);
       } finally {
         sendBtn.disabled = false;
@@ -832,24 +872,25 @@
     }
 
     appendUserBubble(text, scroll = true) {
-      const msgDiv = this.container.querySelector('#aicw-messages-v1');
+      const msgDiv = this.container.querySelector("#aicw-messages-v1");
       if (!msgDiv) return;
-      const row = document.createElement('div');
-      row.className = 'aicw-message-row-v1 aicw-user-row-v1';
+      const row = document.createElement("div");
+      row.className = "aicw-message-row-v1 aicw-user-row-v1";
       row.innerHTML = `<div class="aicw-message-v1 aicw-user-v1">${this.escapeHtml(text)}</div>`;
       msgDiv.appendChild(row);
       if (scroll) msgDiv.scrollTop = msgDiv.scrollHeight;
     }
 
     appendBotBubble(text, scroll = true) {
-      const msgDiv = this.container.querySelector('#aicw-messages-v1');
+      const msgDiv = this.container.querySelector("#aicw-messages-v1");
       if (!msgDiv) return;
 
       const avatarHtml = this.config.showAgentAvatar
-        ? `<div class="aicw-msg-avatar-v1">AI</div>` : '';
+        ? `<div class="aicw-msg-avatar-v1">AI</div>`
+        : "";
 
-      const row = document.createElement('div');
-      row.className = 'aicw-message-row-v1';
+      const row = document.createElement("div");
+      row.className = "aicw-message-row-v1";
       row.innerHTML = `${avatarHtml}<div class="aicw-message-v1 aicw-bot-v1">${this.formatMessage(text)}</div>`;
       msgDiv.appendChild(row);
       if (scroll) msgDiv.scrollTop = msgDiv.scrollHeight;
@@ -858,83 +899,290 @@
     async sendToAPI(message) {
       const url = `${this.config.apiUrl}/public/chat/session/${this.sessionToken}/message`;
       const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, visitorInfo: this.userInfo || {} })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, visitorInfo: this.userInfo || {} }),
       });
 
       if (!response.ok) throw new Error(`API error: ${response.status}`);
       const data = await response.json();
-      if (!data.success) throw new Error(data.error?.message || 'API request failed');
-      if (data.data.conversationId) this.conversationId = data.data.conversationId;
-      return data.data.assistantMessage.content || 'No response from server';
+      if (!data.success)
+        throw new Error(data.error?.message || "API request failed");
+      if (data.data.conversationId)
+        this.conversationId = data.data.conversationId;
+      return data.data.assistantMessage.content || "No response from server";
     }
 
     /* ──────────────────────── UTILITIES ──────────────────────────────────── */
     escapeHtml(text) {
-      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
     adjustColor(color, percent) {
-      const num = parseInt(color.replace('#', ''), 16);
+      const num = parseInt(color.replace("#", ""), 16);
       const amt = Math.round(2.55 * percent);
       const R = (num >> 16) + amt;
-      const G = (num >> 8 & 0x00FF) + amt;
-      const B = (num & 0x0000FF) + amt;
-      return '#' + (0x1000000 +
-        (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-        (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-        (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+      const G = ((num >> 8) & 0x00ff) + amt;
+      const B = (num & 0x0000ff) + amt;
+      return (
+        "#" +
+        (
+          0x1000000 +
+          (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+          (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+          (B < 255 ? (B < 1 ? 0 : B) : 255)
+        )
+          .toString(16)
+          .slice(1)
+      );
     }
 
     /* ─────────────────── MESSAGE FORMATTER (unchanged logic) ─────────────── */
     formatMessage(text) {
-      const lines = text.split('\n');
+      const lines = text.split("\n");
       const processedLines = [];
-      let currentListItems = [], currentOrderedItems = [];
-      let lastLineType = '';
-      let isCollectingAddress = false, addressLines = [];
-      let isCodeBlock = false, codeBlockContent = [];
-      let isQuote = false, quoteContent = [];
+      let currentListItems = [],
+        currentOrderedItems = [];
+      let lastLineType = "";
+      let isCollectingAddress = false,
+        addressLines = [];
+      let isCodeBlock = false,
+        codeBlockContent = [];
+      let isQuote = false,
+        quoteContent = [];
 
       const isAddressContent = (line) => {
-        const patterns = [/^\d+[/-]\d+/, /^(Suite|Floor|Room|Unit|Building|Apt)\.?\s+\w+/i, /^(No\.?|Number)\s+\d+/i, /^[A-Z][a-z]+,\s+[A-Z][a-z]+/, /^\d+\s+[A-Z][a-z]+\s+(Road|Street|Avenue|Boulevard|Lane|Drive|Way)/i, /^(P\.?O\.?\s+)?Box\s+\d+/i, /^[A-Z]{2}\s+\d+/, /^\d{5,6}/];
-        const hasIndicators = (line.includes(',') && line.match(/[A-Z]/)) || (['Road', 'Street', 'Avenue', 'Floor', 'Suite', 'Unit'].some(w => line.includes(w))) || line.match(/^\s*[A-Z][a-z]+,\s+[A-Z]/) || (line.match(/^\s*\d/) && line.length < 60);
-        return patterns.some(p => p.test(line)) || hasIndicators;
+        const patterns = [
+          /^\d+[/-]\d+/,
+          /^(Suite|Floor|Room|Unit|Building|Apt)\.?\s+\w+/i,
+          /^(No\.?|Number)\s+\d+/i,
+          /^[A-Z][a-z]+,\s+[A-Z][a-z]+/,
+          /^\d+\s+[A-Z][a-z]+\s+(Road|Street|Avenue|Boulevard|Lane|Drive|Way)/i,
+          /^(P\.?O\.?\s+)?Box\s+\d+/i,
+          /^[A-Z]{2}\s+\d+/,
+          /^\d{5,6}/,
+        ];
+        const hasIndicators =
+          (line.includes(",") && line.match(/[A-Z]/)) ||
+          ["Road", "Street", "Avenue", "Floor", "Suite", "Unit"].some((w) =>
+            line.includes(w),
+          ) ||
+          line.match(/^\s*[A-Z][a-z]+,\s+[A-Z]/) ||
+          (line.match(/^\s*\d/) && line.length < 60);
+        return patterns.some((p) => p.test(line)) || hasIndicators;
       };
-      const flushAddressLines = () => { if (addressLines.length) { processedLines.push('<div class="aicw-address-block">' + addressLines.join('<br>') + '</div>'); addressLines = []; isCollectingAddress = false; lastLineType = 'address'; } };
-      const flushBulletList = () => { if (currentListItems.length) { processedLines.push('<ul class="aicw-bullet-list">' + currentListItems.join('') + '</ul>'); currentListItems = []; } };
-      const flushOrderedList = () => { if (currentOrderedItems.length) { processedLines.push('<ol class="aicw-numbered-list">' + currentOrderedItems.join('') + '</ol>'); currentOrderedItems = []; } };
-      const flushCodeBlock = () => { if (codeBlockContent.length) { processedLines.push('<div class="aicw-code-block"><pre><code>' + codeBlockContent.join('\n') + '</code></pre></div>'); codeBlockContent = []; isCodeBlock = false; } };
-      const flushQuoteBlock = () => { if (quoteContent.length) { processedLines.push('<blockquote class="aicw-quote">' + quoteContent.join('<br>') + '</blockquote>'); quoteContent = []; isQuote = false; } };
+      const flushAddressLines = () => {
+        if (addressLines.length) {
+          processedLines.push(
+            '<div class="aicw-address-block">' +
+            addressLines.join("<br>") +
+            "</div>",
+          );
+          addressLines = [];
+          isCollectingAddress = false;
+          lastLineType = "address";
+        }
+      };
+      const flushBulletList = () => {
+        if (currentListItems.length) {
+          processedLines.push(
+            '<ul class="aicw-bullet-list">' +
+            currentListItems.join("") +
+            "</ul>",
+          );
+          currentListItems = [];
+        }
+      };
+      const flushOrderedList = () => {
+        if (currentOrderedItems.length) {
+          processedLines.push(
+            '<ol class="aicw-numbered-list">' +
+            currentOrderedItems.join("") +
+            "</ol>",
+          );
+          currentOrderedItems = [];
+        }
+      };
+      const flushCodeBlock = () => {
+        if (codeBlockContent.length) {
+          processedLines.push(
+            '<div class="aicw-code-block"><pre><code>' +
+            codeBlockContent.join("\n") +
+            "</code></pre></div>",
+          );
+          codeBlockContent = [];
+          isCodeBlock = false;
+        }
+      };
+      const flushQuoteBlock = () => {
+        if (quoteContent.length) {
+          processedLines.push(
+            '<blockquote class="aicw-quote">' +
+            quoteContent.join("<br>") +
+            "</blockquote>",
+          );
+          quoteContent = [];
+          isQuote = false;
+        }
+      };
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
-        if (!line.length) { if (!isCollectingAddress && !isCodeBlock && !isQuote && lastLineType && lastLineType !== 'empty') { processedLines.push('<br>'); lastLineType = 'empty'; } continue; }
-        if (line === '```') { isCodeBlock ? flushCodeBlock() : (flushBulletList(), flushOrderedList(), flushAddressLines(), flushQuoteBlock(), isCodeBlock = true); continue; }
-        if (line.startsWith('> ')) { flushBulletList(); flushOrderedList(); flushAddressLines(); flushCodeBlock(); isQuote = true; quoteContent.push(line.substring(2)); lastLineType = 'quote'; continue; }
-        if (isCodeBlock) { codeBlockContent.push(line); continue; }
-        if (isQuote) { flushQuoteBlock(); }
+        if (!line.length) {
+          if (
+            !isCollectingAddress &&
+            !isCodeBlock &&
+            !isQuote &&
+            lastLineType &&
+            lastLineType !== "empty"
+          ) {
+            processedLines.push("<br>");
+            lastLineType = "empty";
+          }
+          continue;
+        }
+        if (line === "```") {
+          isCodeBlock
+            ? flushCodeBlock()
+            : (flushBulletList(),
+              flushOrderedList(),
+              flushAddressLines(),
+              flushQuoteBlock(),
+              (isCodeBlock = true));
+          continue;
+        }
+        if (line.startsWith("> ")) {
+          flushBulletList();
+          flushOrderedList();
+          flushAddressLines();
+          flushCodeBlock();
+          isQuote = true;
+          quoteContent.push(line.substring(2));
+          lastLineType = "quote";
+          continue;
+        }
+        if (isCodeBlock) {
+          codeBlockContent.push(line);
+          continue;
+        }
+        if (isQuote) {
+          flushQuoteBlock();
+        }
         const looksAddr = isAddressContent(line);
-        if (looksAddr && !isCollectingAddress) { flushBulletList(); flushOrderedList(); flushCodeBlock(); isCollectingAddress = true; }
-        if (isCollectingAddress) { if (looksAddr) { addressLines.push(line); continue; } else { flushAddressLines(); } }
+        if (looksAddr && !isCollectingAddress) {
+          flushBulletList();
+          flushOrderedList();
+          flushCodeBlock();
+          isCollectingAddress = true;
+        }
+        if (isCollectingAddress) {
+          if (looksAddr) {
+            addressLines.push(line);
+            continue;
+          } else {
+            flushAddressLines();
+          }
+        }
         const isNum = line.match(/^(\d+)[\.\)]\s+(.+)/);
         const isBoldBullet = line.match(/^-\s+\*\*(.+?)\*\*(?:\s|$)/);
         const isBullet = line.match(/^-\s+(.+)/) && !isBoldBullet;
-        const isMainHeading = line.match(/^[A-Z][^:\n]+:$/) && line.length < 60 && !line.includes('(') && !line.match(/phone|email|website|address|sales|contact|fax/i);
-        const isContactHeading = line.match(/^(Contact|Email|Website|Phone|Mobile|Tel|Fax|Address|Location):?$/i);
-        if (isNum && lastLineType !== 'numbered') flushBulletList();
-        else if ((isBullet || isBoldBullet) && lastLineType !== 'bullet') flushOrderedList();
-        if (isNum) { const c = isNum[2].replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'); currentOrderedItems.push('<li>' + c + '</li>'); lastLineType = 'numbered'; }
-        else if (isMainHeading || isContactHeading) { flushBulletList(); flushOrderedList(); flushAddressLines(); processedLines.push('<h3 class="aicw-main-heading">' + line.replace(/:$/, '') + '</h3>'); lastLineType = 'main-heading'; }
-        else if (isBoldBullet) { const bold = line.replace(/^-\s+\*\*(.+?)\*\*\s*/, '$1'); const rest = line.replace(/^-\s+\*\*(.+?)\*\*\s*/, '').replace(/\*\*/g, ''); currentListItems.push('<li><span class="aicw-bullet-bold">' + bold + ':</span>' + (rest.trim() ? ' ' + rest.trim() : '') + '</li>'); lastLineType = 'bullet'; }
-        else if (isBullet) { let bc = line.replace(/^-\s+/, '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`(.+?)`/g, '<code class="aicw-inline-code">$1</code>'); if (bc.match(/^[A-Za-z\s]+:/) && !bc.includes('<strong>')) { const parts = bc.split(':'); if (parts[0].length < 30) bc = '<span class="aicw-bullet-bold">' + parts[0].trim() + ':</span> ' + parts.slice(1).join(':').trim(); } currentListItems.push('<li>' + bc + '</li>'); lastLineType = 'bullet'; }
-        else { flushBulletList(); flushOrderedList(); flushAddressLines(); let fl = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`(.+?)`/g, '<code class="aicw-inline-code">$1</code>'); if (line.match(/^[A-Z][A-Za-z\s]+$/) && line.length < 50 && !line.includes('.') && !line.includes(',')) { processedLines.push('<h4 class="aicw-subheading">' + fl + '</h4>'); lastLineType = 'sub-heading'; } else if (line.endsWith(':') && line.length < 100) { processedLines.push('<h4 class="aicw-subheading">' + fl + '</h4>'); lastLineType = 'sub-heading'; } else if (line.match(/^[-=_*]{3,}$/)) { processedLines.push('<hr class="aicw-divider">'); lastLineType = 'divider'; } else { processedLines.push('<p>' + fl + '</p>'); lastLineType = 'paragraph'; } }
+        const isMainHeading =
+          line.match(/^[A-Z][^:\n]+:$/) &&
+          line.length < 60 &&
+          !line.includes("(") &&
+          !line.match(/phone|email|website|address|sales|contact|fax/i);
+        const isContactHeading = line.match(
+          /^(Contact|Email|Website|Phone|Mobile|Tel|Fax|Address|Location):?$/i,
+        );
+        if (isNum && lastLineType !== "numbered") flushBulletList();
+        else if ((isBullet || isBoldBullet) && lastLineType !== "bullet")
+          flushOrderedList();
+        if (isNum) {
+          const c = isNum[2].replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+          currentOrderedItems.push("<li>" + c + "</li>");
+          lastLineType = "numbered";
+        } else if (isMainHeading || isContactHeading) {
+          flushBulletList();
+          flushOrderedList();
+          flushAddressLines();
+          processedLines.push(
+            '<h3 class="aicw-main-heading">' + line.replace(/:$/, "") + "</h3>",
+          );
+          lastLineType = "main-heading";
+        } else if (isBoldBullet) {
+          const bold = line.replace(/^-\s+\*\*(.+?)\*\*\s*/, "$1");
+          const rest = line
+            .replace(/^-\s+\*\*(.+?)\*\*\s*/, "")
+            .replace(/\*\*/g, "");
+          currentListItems.push(
+            '<li><span class="aicw-bullet-bold">' +
+            bold +
+            ":</span>" +
+            (rest.trim() ? " " + rest.trim() : "") +
+            "</li>",
+          );
+          lastLineType = "bullet";
+        } else if (isBullet) {
+          let bc = line
+            .replace(/^-\s+/, "")
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.+?)\*/g, "<em>$1</em>")
+            .replace(/`(.+?)`/g, '<code class="aicw-inline-code">$1</code>');
+          if (bc.match(/^[A-Za-z\s]+:/) && !bc.includes("<strong>")) {
+            const parts = bc.split(":");
+            if (parts[0].length < 30)
+              bc =
+                '<span class="aicw-bullet-bold">' +
+                parts[0].trim() +
+                ":</span> " +
+                parts.slice(1).join(":").trim();
+          }
+          currentListItems.push("<li>" + bc + "</li>");
+          lastLineType = "bullet";
+        } else {
+          flushBulletList();
+          flushOrderedList();
+          flushAddressLines();
+          let fl = line
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.+?)\*/g, "<em>$1</em>")
+            .replace(/`(.+?)`/g, '<code class="aicw-inline-code">$1</code>');
+          if (
+            line.match(/^[A-Z][A-Za-z\s]+$/) &&
+            line.length < 50 &&
+            !line.includes(".") &&
+            !line.includes(",")
+          ) {
+            processedLines.push('<h4 class="aicw-subheading">' + fl + "</h4>");
+            lastLineType = "sub-heading";
+          } else if (line.endsWith(":") && line.length < 100) {
+            processedLines.push('<h4 class="aicw-subheading">' + fl + "</h4>");
+            lastLineType = "sub-heading";
+          } else if (line.match(/^[-=_*]{3,}$/)) {
+            processedLines.push('<hr class="aicw-divider">');
+            lastLineType = "divider";
+          } else {
+            processedLines.push("<p>" + fl + "</p>");
+            lastLineType = "paragraph";
+          }
+        }
       }
-      flushAddressLines(); flushBulletList(); flushOrderedList(); flushCodeBlock(); flushQuoteBlock();
-      let result = processedLines.join('');
-      result = result.replace(/(<br>\s*){2,}/g, '<br>').replace(/<\/p>\s*<br>\s*<p>/g, '</p><p>').replace(/<\/(h3|h4|ul|ol|blockquote|div)>\s*<br>/g, '</$1>').replace(/<p><\/p>/g, '');
+      flushAddressLines();
+      flushBulletList();
+      flushOrderedList();
+      flushCodeBlock();
+      flushQuoteBlock();
+      let result = processedLines.join("");
+      result = result
+        .replace(/(<br>\s*){2,}/g, "<br>")
+        .replace(/<\/p>\s*<br>\s*<p>/g, "</p><p>")
+        .replace(/<\/(h3|h4|ul|ol|blockquote|div)>\s*<br>/g, "</$1>")
+        .replace(/<p><\/p>/g, "");
       return result;
     }
   }
@@ -942,22 +1190,22 @@
   /* ───────────────────────── BOOTSTRAP ───────────────────────────────────── */
   function init() {
     if (!window.AIChatbotConfig) {
-      console.error('[Widget] AIChatbotConfig not found');
+      console.error("[Widget] AIChatbotConfig not found");
       return;
     }
     const instance = new AIChatbotWidget(window.AIChatbotConfig);
     window.AIChatbotWidget = { instance };
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
   } else {
     init();
   }
 
   window.initializeChatbotFromForm = async function (formData) {
     if (!window.AIChatbotWidget?.instance) {
-      console.error('[Widget] Chatbot instance not found');
+      console.error("[Widget] Chatbot instance not found");
       return;
     }
     await window.AIChatbotWidget.instance.startSession(formData);

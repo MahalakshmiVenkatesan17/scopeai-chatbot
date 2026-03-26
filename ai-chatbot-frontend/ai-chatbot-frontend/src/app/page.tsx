@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { ChatbotWidget } from '@/components/ChatbotWidget';
-import clsx from 'clsx';
+import React, { useEffect, useState } from "react";
+import { ChatbotWidget } from "@/components/ChatbotWidget";
+import clsx from "clsx";
 
 export default function HomePage() {
   const [isEmbedMode, setIsEmbedMode] = useState<boolean | null>(null);
-  const [tenantSlug, setTenantSlug] = useState('scope-thinkers');
+  const [tenantSlug, setTenantSlug] = useState("scope-thinkers");
 
   useEffect(() => {
     // Check if running in embed mode
     const params = new URLSearchParams(window.location.search);
-    const embed = params.get('embed') === 'true';
-    const tenant = params.get('tenant');
+    const embed = params.get("embed") === "true";
+    const tenant = params.get("tenant");
 
     setIsEmbedMode(embed);
     if (tenant) {
@@ -22,17 +22,18 @@ export default function HomePage() {
 
   // Demo tenant configuration - replace with actual tenant slug
   const DEMO_TENANT_SLUG = tenantSlug;
-  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api-scopeaichat.scopethinkers.ai/api/v1';
-  const API_URL = rawApiUrl.replace(/\/+$/, '').endsWith('/api/v1')
-    ? rawApiUrl.replace(/\/+$/, '')
-    : `${rawApiUrl.replace(/\/+$/, '')}/api/v1`;
+  const rawApiUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    "https://api-scopeaichat.scopethinkers.ai/api/v1";
+  const API_URL = rawApiUrl.replace(/\/+$/, "").endsWith("/api/v1")
+    ? rawApiUrl.replace(/\/+$/, "")
+    : `${rawApiUrl.replace(/\/+$/, "")}/api/v1`;
 
   const handleError = (error: unknown) => {
-    console.error('Chatbot error:', error);
+    console.error("Chatbot error:", error);
   };
 
   const handleMessage = (message: string, response: unknown) => {
-
     // You can add analytics tracking here
     // gtag('event', 'chatbot_interaction', { message_length: message.length });
   };
@@ -72,7 +73,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             <div className="animate-slideIn">
               <h1 className="text-4xl font-bold gradient-text">
-                AI Chatbot Demo ✨
+                ScopeAIChat Demo ✨
               </h1>
               <p className="text-gray-600 mt-2 text-lg font-medium">
                 Experience next-generation intelligent customer support
@@ -108,9 +109,10 @@ export default function HomePage() {
                     Welcome to TechCorp
                   </h2>
                   <p className="text-gray-600 mb-6 text-lg leading-relaxed">
-                    We&apos;re a leading technology company providing innovative solutions
-                    for businesses worldwide. Our AI-powered chatbot is here to help
-                    you with any questions about our products and services.
+                    We&apos;re a leading technology company providing innovative
+                    solutions for businesses worldwide. Our AI-powered chatbot
+                    is here to help you with any questions about our products
+                    and services.
                   </p>
                 </div>
               </div>
@@ -118,35 +120,41 @@ export default function HomePage() {
               <div className="grid grid-cols-1 gap-6 mt-8">
                 {[
                   {
-                    icon: '🚀',
-                    title: '24/7 Support',
-                    desc: 'Get instant answers to your questions anytime, day or night.',
-                    gradient: 'from-emerald-400 to-cyan-400'
+                    icon: "🚀",
+                    title: "24/7 Support",
+                    desc: "Get instant answers to your questions anytime, day or night.",
+                    gradient: "from-emerald-400 to-cyan-400",
                   },
                   {
-                    icon: '🧠',
-                    title: 'Smart Responses',
-                    desc: 'Our AI understands context and provides accurate, helpful information.',
-                    gradient: 'from-blue-400 to-indigo-400'
+                    icon: "🧠",
+                    title: "Smart Responses",
+                    desc: "Our AI understands context and provides accurate, helpful information.",
+                    gradient: "from-blue-400 to-indigo-400",
                   },
                   {
-                    icon: '⚡',
-                    title: 'Easy Integration',
-                    desc: 'Simple to add to any website with just a few lines of code.',
-                    gradient: 'from-purple-400 to-pink-400'
-                  }
+                    icon: "⚡",
+                    title: "Easy Integration",
+                    desc: "Simple to add to any website with just a few lines of code.",
+                    gradient: "from-purple-400 to-pink-400",
+                  },
                 ].map((feature, index) => (
                   <div
                     key={index}
                     className="flex items-start space-x-4 p-4 rounded-xl hover:bg-gray-50/50 transition-all duration-200 group animate-slideIn"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <div className={`p-2 bg-linear-to-r ${feature.gradient} rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-200`}>
+                    <div
+                      className={`p-2 bg-linear-to-r ${feature.gradient} rounded-lg shadow-lg group-hover:scale-110 transition-transform duration-200`}
+                    >
                       <div className="text-white text-lg">{feature.icon}</div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">{feature.desc}</p>
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        {feature.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed">
+                        {feature.desc}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -154,7 +162,10 @@ export default function HomePage() {
             </div>
 
             {/* Sample questions */}
-            <div className="card-modern p-8 animate-slideIn" style={{ animationDelay: '0.2s' }}>
+            <div
+              className="card-modern p-8 animate-slideIn"
+              style={{ animationDelay: "0.2s" }}
+            >
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-linear-to-r from-orange-400 to-red-400 rounded-lg shadow-lg">
                   <div className="text-white text-lg">💬</div>
@@ -165,25 +176,27 @@ export default function HomePage() {
               </div>
               <div className="space-y-3">
                 {[
-                  { q: 'What products do you offer?', icon: '🛍️' },
-                  { q: 'How can I contact support?', icon: '📞' },
-                  { q: 'What are your pricing plans?', icon: '💰' },
-                  { q: 'How do I reset my password?', icon: '🔑' },
-                  { q: 'What are your business hours?', icon: '🕒' }
+                  { q: "What products do you offer?", icon: "🛍️" },
+                  { q: "How can I contact support?", icon: "📞" },
+                  { q: "What are your pricing plans?", icon: "💰" },
+                  { q: "How do I reset my password?", icon: "🔑" },
+                  { q: "What are your business hours?", icon: "🕒" },
                 ].map((item, index) => (
                   <div
                     key={index}
                     className={clsx(
-                      'p-4 bg-linear-to-r from-gray-50 to-gray-100/50 rounded-xl',
-                      'text-sm text-gray-700 cursor-pointer transition-all duration-200',
-                      'hover:from-blue-50 hover:to-purple-50 hover:scale-[1.02]',
-                      'hover:shadow-md border border-transparent hover:border-blue-200/50',
-                      'group animate-slideIn'
+                      "p-4 bg-linear-to-r from-gray-50 to-gray-100/50 rounded-xl",
+                      "text-sm text-gray-700 cursor-pointer transition-all duration-200",
+                      "hover:from-blue-50 hover:to-purple-50 hover:scale-[1.02]",
+                      "hover:shadow-md border border-transparent hover:border-blue-200/50",
+                      "group animate-slideIn",
                     )}
                     style={{ animationDelay: `${index * 0.05 + 0.3}s` }}
                   >
                     <div className="flex items-center space-x-3">
-                      <span className="text-lg group-hover:animate-bounce">{item.icon}</span>
+                      <span className="text-lg group-hover:animate-bounce">
+                        {item.icon}
+                      </span>
                       <span className="font-medium">&quot;{item.q}&quot;</span>
                     </div>
                   </div>
@@ -195,7 +208,10 @@ export default function HomePage() {
           {/* Right column - Features */}
           <div className="space-y-8">
             {/* Features grid */}
-            <div className="card-modern p-8 animate-slideIn" style={{ animationDelay: '0.1s' }}>
+            <div
+              className="card-modern p-8 animate-slideIn"
+              style={{ animationDelay: "0.1s" }}
+            >
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-linear-to-r from-cyan-400 to-blue-400 rounded-lg shadow-lg">
                   <div className="text-white text-lg">✨</div>
@@ -208,42 +224,47 @@ export default function HomePage() {
               <div className="grid grid-cols-2 gap-4">
                 {[
                   {
-                    icon: '🤖',
-                    title: 'AI Powered',
-                    desc: 'Advanced AI models',
-                    gradient: 'from-blue-500 to-cyan-500'
+                    icon: "🤖",
+                    title: "AI Powered",
+                    desc: "Advanced AI models",
+                    gradient: "from-blue-500 to-cyan-500",
                   },
                   {
-                    icon: '🏗️',
-                    title: 'Multi-tenant',
-                    desc: 'Isolated data per tenant',
-                    gradient: 'from-green-500 to-emerald-500'
+                    icon: "🏗️",
+                    title: "Multi-tenant",
+                    desc: "Isolated data per tenant",
+                    gradient: "from-green-500 to-emerald-500",
                   },
                   {
-                    icon: '🎨',
-                    title: 'Customizable',
-                    desc: 'Brand colors & styling',
-                    gradient: 'from-purple-500 to-pink-500'
+                    icon: "🎨",
+                    title: "Customizable",
+                    desc: "Brand colors & styling",
+                    gradient: "from-purple-500 to-pink-500",
                   },
                   {
-                    icon: '📱',
-                    title: 'Responsive',
-                    desc: 'Works on all devices',
-                    gradient: 'from-orange-500 to-red-500'
-                  }
+                    icon: "📱",
+                    title: "Responsive",
+                    desc: "Works on all devices",
+                    gradient: "from-orange-500 to-red-500",
+                  },
                 ].map((feature, index) => (
                   <div
                     key={index}
                     className="group text-center p-5 rounded-2xl transition-all duration-300 hover:scale-105 cursor-pointer animate-slideIn"
                     style={{
-                      background: 'linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%)',
-                      animationDelay: `${index * 0.1 + 0.2}s`
+                      background:
+                        "linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%)",
+                      animationDelay: `${index * 0.1 + 0.2}s`,
                     }}
                   >
-                    <div className={`w-12 h-12 bg-linear-to-r ${feature.gradient} rounded-xl mx-auto mb-3 flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-300`}>
+                    <div
+                      className={`w-12 h-12 bg-linear-to-r ${feature.gradient} rounded-xl mx-auto mb-3 flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform duration-300`}
+                    >
                       <div className="text-white text-xl">{feature.icon}</div>
                     </div>
-                    <h4 className="font-semibold text-gray-900 text-sm mb-1">{feature.title}</h4>
+                    <h4 className="font-semibold text-gray-900 text-sm mb-1">
+                      {feature.title}
+                    </h4>
                     <p className="text-gray-600 text-xs leading-relaxed">
                       {feature.desc}
                     </p>
@@ -253,7 +274,10 @@ export default function HomePage() {
             </div>
 
             {/* Integration code example */}
-            <div className="card-modern p-8 animate-slideIn" style={{ animationDelay: '0.3s' }}>
+            <div
+              className="card-modern p-8 animate-slideIn"
+              style={{ animationDelay: "0.3s" }}
+            >
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-linear-to-r from-indigo-400 to-purple-400 rounded-lg shadow-lg">
                   <div className="text-white text-lg">🚀</div>
@@ -264,7 +288,8 @@ export default function HomePage() {
               </div>
 
               <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-                Add this powerful chatbot to your website with just a few lines of code:
+                Add this powerful chatbot to your website with just a few lines
+                of code:
               </p>
 
               <div className="relative">
@@ -275,29 +300,36 @@ export default function HomePage() {
                 <div className="bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 text-sm text-gray-300 overflow-x-auto border border-gray-700 shadow-2xl">
                   <div className="flex items-center space-x-2 mb-4 pb-2 border-b border-gray-700">
                     <div className="text-green-400 font-mono">→</div>
-                    <span className="text-gray-400 text-xs">integration.html</span>
+                    <span className="text-gray-400 text-xs">
+                      integration.html
+                    </span>
                   </div>
                   <pre className="leading-relaxed">
-{`<!-- Add to your website -->
+                    {`<!-- Add to your website -->
 <script>
   window.AIChatbotConfig = {
     tenant: 'your-tenant-slug',
     apiUrl: '${API_URL}'
   };
 </script>
-<script src="${typeof window !== 'undefined' ? window.location.origin : ''}/widget.js"></script>`}
+<script src="${typeof window !== "undefined" ? window.location.origin : ""}/widget.js"></script>`}
                   </pre>
                 </div>
 
                 {/* Copy button */}
                 <button className="absolute top-2 right-4 p-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors duration-200 group">
-                  <div className=" text-gray-300 group-hover:text-white">📋</div>
+                  <div className=" text-gray-300 group-hover:text-white">
+                    📋
+                  </div>
                 </button>
               </div>
             </div>
 
             {/* Call to action */}
-            <div className="card-modern p-8 bg-linear-to-br from-indigo-50 to-purple-50 border-2 border-indigo-100 animate-slideIn" style={{ animationDelay: '0.4s' }}>
+            <div
+              className="card-modern p-8 bg-linear-to-br from-indigo-50 to-purple-50 border-2 border-indigo-100 animate-slideIn"
+              style={{ animationDelay: "0.4s" }}
+            >
               <div className="text-center">
                 <div className="w-16 h-16 bg-linear-to-r from-indigo-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg animate-bounce">
                   <div className="text-white text-2xl">💬</div>
@@ -306,7 +338,8 @@ export default function HomePage() {
                   Ready to get started?
                 </h3>
                 <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-                  Click the chat icon in the bottom-right corner to experience the magic of AI-powered support!
+                  Click the chat icon in the bottom-right corner to experience
+                  the magic of AI-powered support!
                 </p>
                 <div className="inline-flex items-center space-x-2 text-sm text-indigo-600 font-medium">
                   <span>👆</span>
@@ -319,7 +352,10 @@ export default function HomePage() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-20 text-center animate-slideIn" style={{ animationDelay: '0.6s' }}>
+        <footer
+          className="mt-20 text-center animate-slideIn"
+          style={{ animationDelay: "0.6s" }}
+        >
           <div className="card-modern p-8 bg-linear-to-r from-gray-50 to-white border border-gray-100">
             <div className="flex flex-col items-center space-y-4">
               <div className="flex items-center space-x-2">
@@ -332,8 +368,9 @@ export default function HomePage() {
               </div>
 
               <div className="text-gray-600 text-sm max-w-2xl leading-relaxed mb-4">
-                Click the <strong>chat icon</strong> in the bottom-right corner to start an intelligent conversation!
-                Our AI assistant is ready to help you discover the possibilities.
+                Click the <strong>chat icon</strong> in the bottom-right corner
+                to start an intelligent conversation! Our AI assistant is ready
+                to help you discover the possibilities.
               </div>
 
               <div className="flex items-center space-x-6 text-xs text-gray-500 pt-4 border-t border-gray-200">

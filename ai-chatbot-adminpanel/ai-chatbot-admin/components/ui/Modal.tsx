@@ -51,7 +51,7 @@ export function Modal({
 
       {/* Modal */}
       <div className={`relative w-full ${sizes[size]} mx-4`}>
-        <div className="bg-white dark:bg-gray-950 rounded-lg shadow-xl border border-transparent dark:border-gray-800">
+        <div className="bg-white dark:bg-gray-950 rounded-lg shadow-xl border border-transparent dark:border-gray-700">
           {/* Header */}
           <div className="flex items-center justify-between primary-bg-color dark:bg-gray-900 px-6 py-4 rounded-tl-lg rounded-tr-lg border-b border-white/10">
             <h3 className="text-lg font-semibold text-white">{title}</h3>

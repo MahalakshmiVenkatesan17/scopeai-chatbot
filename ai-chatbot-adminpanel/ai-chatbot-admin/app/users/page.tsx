@@ -449,12 +449,12 @@ export default function UsersPage() {
                     <option value="tenant_admin" className="dark:bg-[#111827]">
                       Tenant Admin
                     </option>
-                    <option value="customer" className="dark:bg-[#111827]">
+                    {/* <option value="customer" className="dark:bg-[#111827]">
                       Customer
                     </option>
                     <option value="support" className="dark:bg-[#111827]">
                       Support
-                    </option>
+                    </option> */}
                   </select>
                 </div>
 {/* 

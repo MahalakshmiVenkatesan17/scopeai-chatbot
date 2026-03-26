@@ -95,7 +95,7 @@ export function useChatbot({
         tenantSlug,
         visitorInfo,
         window.location.href,
-        document.referrer || "https://example.com", 
+        document.referrer || "https://example.com",
       );
       setSession(chatSession);
 

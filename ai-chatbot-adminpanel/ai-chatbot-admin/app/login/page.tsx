@@ -73,7 +73,6 @@ export default function LoginPage() {
         router.push("/dashboard");
       }, 1000);
     } catch (err: any) {
-
       const message =
         err?.response?.data?.error?.message || // backend error
         err?.response?.data?.detail || // fallback
@@ -125,15 +124,21 @@ export default function LoginPage() {
             <div className="mt-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#5856d6] shadow-xl dark:bg-[#635BDF] dark:shadow-[0_0_30px_rgba(99,91,223,0.35)] shrink-0">
-                  <Image src="/icon-white.svg" alt="icon" width={34} height={34} />
+                  <Image
+                    src="/icon-white.svg"
+                    alt="icon"
+                    width={34}
+                    height={34}
+                  />
                 </div>
 
                 <div>
                   <h1 className="text-4xl xl:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    AI Chatbot Admin
+                    ScopeAIChat Admin
                   </h1>
                   <p className="mt-2 text-base text-gray-600 dark:text-slate-400">
-                    Securely manage tenants, users, subscriptions, and analytics.
+                    Securely manage tenants, users, subscriptions, and
+                    analytics.
                   </p>
                 </div>
               </div>
@@ -149,7 +154,8 @@ export default function LoginPage() {
                         Secure admin access
                       </p>
                       <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
-                        Protected login with clean, fast access to your full admin console.
+                        Protected login with clean, fast access to your full
+                        admin console.
                       </p>
                     </div>
                   </div>
@@ -165,7 +171,8 @@ export default function LoginPage() {
                         Unified control panel
                       </p>
                       <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
-                        Manage billing, analytics, chatbot settings, and platform operations in one place.
+                        Manage billing, analytics, chatbot settings, and
+                        platform operations in one place.
                       </p>
                     </div>
                   </div>
@@ -181,7 +188,12 @@ export default function LoginPage() {
             {/* Mobile logo */}
             <div className="mb-6 text-center lg:hidden">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[#5856d6] shadow-xl dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.3)]">
-                <Image src="/icon-white.svg" alt="icon" width={35} height={35} />
+                <Image
+                  src="/icon-white.svg"
+                  alt="icon"
+                  width={35}
+                  height={35}
+                />
               </div>
             </div>
 
@@ -215,15 +227,18 @@ export default function LoginPage() {
                       setFormErrors({ ...formErrors, email: "" });
                     }}
                     className={`block w-full rounded-2xl border px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-4 bg-white dark:bg-white/[0.03] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors
-                    ${formErrors.email
+                    ${
+                      formErrors.email
                         ? "border-red-500 focus:ring-red-500/15"
                         : "border-gray-300 dark:border-white/[0.06] focus:border-[#5856d6] focus:ring-[#5856d6]/15"
-                      }`}
+                    }`}
                     placeholder="admin@example.com"
                   />
 
                   {formErrors.email && (
-                    <p className="mt-1.5 text-xs text-red-500">{formErrors.email}</p>
+                    <p className="mt-1.5 text-xs text-red-500">
+                      {formErrors.email}
+                    </p>
                   )}
                 </div>
 
@@ -242,10 +257,11 @@ export default function LoginPage() {
                         setFormErrors({ ...formErrors, password: "" });
                       }}
                       className={`block w-full rounded-2xl border px-4 py-3 pr-12 text-sm shadow-sm focus:outline-none focus:ring-4 bg-white dark:bg-white/[0.03] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors
-                      ${formErrors.password
+                      ${
+                        formErrors.password
                           ? "border-red-500 focus:ring-red-500/15"
                           : "border-gray-300 dark:border-white/[0.06] focus:border-[#5856d6] focus:ring-[#5856d6]/15"
-                        }`}
+                      }`}
                       placeholder="••••••••"
                     />
 

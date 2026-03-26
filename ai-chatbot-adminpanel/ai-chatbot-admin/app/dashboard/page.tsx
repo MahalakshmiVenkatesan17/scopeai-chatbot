@@ -117,14 +117,19 @@ export default function DashboardPage() {
         tenantId,
         period: "7d",
       });
-      const { dailyUsers, dailySessions, dailyMessages, dailyDocuments } = response;
+      const { dailyUsers, dailySessions, dailyMessages, dailyDocuments } =
+        response;
 
       // ✅ Keep your original weekly logic as is
       // This mapping is correct — keep as-is once backend is fixed:
       const combined = dailySessions.map((s) => {
-        const date = new Date(s.date).toLocaleDateString("en-US", { weekday: "short" });
-        const messages = dailyMessages.find((m) => m.date === s.date)?.count || 0;
-        const documents = dailyDocuments.find((d) => d.date === s.date)?.count || 0;
+        const date = new Date(s.date).toLocaleDateString("en-US", {
+          weekday: "short",
+        });
+        const messages =
+          dailyMessages.find((m) => m.date === s.date)?.count || 0;
+        const documents =
+          dailyDocuments.find((d) => d.date === s.date)?.count || 0;
         return { date, sessions: s.count, messages, documents }; // sessions = chat_sessions per day ✅
       });
 
@@ -160,9 +165,7 @@ export default function DashboardPage() {
       setTenants(items.filter((t: any) => t.status !== "suspended"));
 
       if (loggedInUser?.tenant_id) {
-        const tenantExists = items.find(
-          (t) => t.id === loggedInUser.tenant_id
-        );
+        const tenantExists = items.find((t) => t.id === loggedInUser.tenant_id);
 
         if (tenantExists) {
           setSelectedTenant(String(tenantExists.id));
@@ -175,14 +178,17 @@ export default function DashboardPage() {
         setTenantName(getTenantName);
       }
 
-      const planCounts = items.reduce((acc, tenant) => {
-        const plan = tenant.subscription_plan || "No Plan";
-        acc[plan] = (acc[plan] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const planCounts = items.reduce(
+        (acc, tenant) => {
+          const plan = tenant.subscription_plan || "No Plan";
+          acc[plan] = (acc[plan] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
       setTenantPlans(
-        Object.entries(planCounts).map(([name, value]) => ({ name, value }))
+        Object.entries(planCounts).map(([name, value]) => ({ name, value })),
       );
     } catch (error) {
       console.error("Failed to fetch tenants:", error);
@@ -243,7 +249,8 @@ export default function DashboardPage() {
                     Dashboard
                   </h1>
                   <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
-                    Welcome back! Here&apos;s an overview of your AI Chatbot platform.
+                    Welcome back! Here&apos;s an overview of your ScopeAIChat
+                    platform.
                   </p>
                 </div>
               </div>
@@ -272,7 +279,11 @@ export default function DashboardPage() {
                   >
                     {/* <option value="">All Tenants</option> */}
                     {tenants.map((tenant) => (
-                      <option key={tenant.id} value={tenant.id} className="dark:bg-[#0F172A]">
+                      <option
+                        key={tenant.id}
+                        value={tenant.id}
+                        className="dark:bg-[#0F172A]"
+                      >
                         {tenant.name}
                       </option>
                     ))}
@@ -442,8 +453,6 @@ export default function DashboardPage() {
                         style={{ cursor: "pointer" }}
                         name="Chat Sessions"
                       />
-
-                   
 
                       {/* Primary Line */}
                       <Line
@@ -797,7 +806,9 @@ function UsageTooltip({ active, payload, label }: UsageTooltipProps) {
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white px-4 py-3 shadow-xl dark:border-white/[0.06] dark:bg-[#0F172A] text-xs min-w-36 transition-colors">
-      <p className="font-medium mb-2 text-gray-500 dark:text-slate-400">{label}</p>
+      <p className="font-medium mb-2 text-gray-500 dark:text-slate-400">
+        {label}
+      </p>
 
       <div className="flex justify-between gap-4">
         <span className="text-gray-500 dark:text-slate-400">Requests</span>

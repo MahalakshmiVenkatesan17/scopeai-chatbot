@@ -155,7 +155,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     for (const item of filteredNavItems) {
       if (item.subItems) {
         const match = item.subItems.find((sub) =>
-          pathname.startsWith(sub.href)
+          pathname.startsWith(sub.href),
         );
         if (match) {
           matchedMenu = item.href;
@@ -197,7 +197,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="relative flex h-full flex-col">
           {/* LOGO */}
           <div className="flex h-20 items-center px-5 border-b border-white/10 dark:border-white/[0.06]">
-            <img src="/chatbot-logo.svg" alt="logo" className="h-10 w-auto" />
+            <img
+              src="/ScopeAIChat_Logo_White.svg"
+              alt="logo"
+              className="h-10 w-auto"
+            />
           </div>
 
           {/* NAVIGATION */}
@@ -220,18 +224,20 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       <button
                         onClick={() => toggleSubmenu(item.href)}
                         className={`group flex w-full items-center justify-between rounded-2xl px-3.5 py-3 text-sm font-medium transition-all cursor-pointer border
-                        ${isActive || isSubmenuOpen
+                        ${
+                          isActive || isSubmenuOpen
                             ? "bg-white text-[#5856d6] border-white/20 shadow-sm dark:bg-[#635BDF]/12 dark:text-[#A5B4FC] dark:border-[#635BDF]/20 dark:shadow-[0_0_20px_rgba(99,91,223,0.08)]"
                             : "text-white/85 border-transparent hover:bg-white/10 hover:text-white dark:text-slate-300 dark:hover:bg-white/[0.04] dark:hover:text-white"
-                          }`}
+                        }`}
                       >
                         <div className="flex items-center min-w-0">
                           <div
                             className={`mr-3 flex h-9 w-9 items-center justify-center rounded-xl transition-colors
-                            ${isActive || isSubmenuOpen
+                            ${
+                              isActive || isSubmenuOpen
                                 ? "bg-[#5856d6]/10 text-[#5856d6] dark:bg-[#635BDF]/15 dark:text-[#818CF8]"
                                 : "bg-white/10 text-white/75 group-hover:text-white dark:bg-white/[0.04] dark:text-slate-400 dark:group-hover:text-[#A5B4FC]"
-                              }`}
+                            }`}
                           >
                             <Icon className="h-4.5 w-4.5" />
                           </div>
@@ -251,7 +257,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
                           {item.subItems?.map((subItem) => {
                             const isSubItemActive = pathname.startsWith(
-                              subItem.href
+                              subItem.href,
                             );
 
                             return (
@@ -259,10 +265,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                                 key={subItem.href}
                                 onClick={() => handleNavigation(subItem.href)}
                                 className={`relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm transition-all cursor-pointer border
-                                ${isSubItemActive
+                                ${
+                                  isSubItemActive
                                     ? "bg-white/90 text-[#5856d6] border-white/20 dark:bg-[#635BDF]/10 dark:text-[#A5B4FC] dark:border-[#635BDF]/15"
                                     : "text-white/75 border-transparent hover:bg-white/10 hover:text-white dark:text-slate-400 dark:hover:bg-white/[0.04] dark:hover:text-slate-200"
-                                  }`}
+                                }`}
                               >
                                 <span className="absolute -left-5 top-1/2 h-px w-3 bg-white/20 dark:bg-white/[0.08]"></span>
                                 {subItem.label}
@@ -276,17 +283,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <button
                       onClick={() => handleNavigation(item.href)}
                       className={`group flex w-full items-center rounded-2xl px-3.5 py-3 text-sm font-medium transition-all cursor-pointer border
-                      ${isActive
+                      ${
+                        isActive
                           ? "bg-white text-[#5856d6] border-white/20 shadow-sm dark:bg-[#635BDF]/12 dark:text-[#A5B4FC] dark:border-[#635BDF]/20 dark:shadow-[0_0_20px_rgba(99,91,223,0.08)]"
                           : "text-white/85 border-transparent hover:bg-white/10 hover:text-white dark:text-slate-300 dark:hover:bg-white/[0.04] dark:hover:text-white"
-                        }`}
+                      }`}
                     >
                       <div
                         className={`mr-3 flex h-9 w-9 items-center justify-center rounded-xl transition-colors
-                        ${isActive
+                        ${
+                          isActive
                             ? "bg-[#5856d6]/10 text-[#5856d6] dark:bg-[#635BDF]/15 dark:text-[#818CF8]"
                             : "bg-white/10 text-white/75 group-hover:text-white dark:bg-white/[0.04] dark:text-slate-400 dark:group-hover:text-[#A5B4FC]"
-                          }`}
+                        }`}
                       >
                         <Icon className="h-4.5 w-4.5" />
                       </div>
@@ -304,7 +313,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <div className="pointer-events-none absolute -top-10 right-0 h-24 w-24 rounded-full bg-violet-500/10 blur-2xl hidden dark:block" />
 
                   <img
-                    src={mounted && resolvedTheme === 'dark' ? "/Illustrations-dark.png" : "/Illustrations.png"}
+                    src={
+                      mounted && resolvedTheme === "dark"
+                        ? "/Illustrations-dark.png"
+                        : "/Illustrations.png"
+                    }
                     alt="upgrade-plan"
                     className="w-full rounded-xl opacity-95"
                   />
@@ -315,7 +328,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </h2>
 
                     <p className="mt-1 text-xs text-gray-600 dark:text-slate-400 leading-relaxed">
-                      Your subscription plan will expire soon. Upgrade now for uninterrupted access.
+                      Your subscription plan will expire soon. Upgrade now for
+                      uninterrupted access.
                     </p>
 
                     <button
