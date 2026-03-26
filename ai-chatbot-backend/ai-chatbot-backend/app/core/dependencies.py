@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from fastapi import Depends, Request
@@ -9,6 +10,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.exceptions import ForbiddenError, UnauthorizedError
 from app.core.logging import logger
+from app.core.redis import redis_client
 from app.core.security import decode_access_token
 from app.models.user import User, UserSession
 
@@ -17,6 +19,9 @@ UserRole = str  # "super_admin" | "tenant_admin" | "support" | "customer"
 
 # HTTPBearer scheme — adds "Authorize" button to Swagger UI
 bearer_scheme = HTTPBearer(auto_error=False)
+
+# Cache TTL for auth lookups — short enough to reflect revocations quickly
+_AUTH_CACHE_TTL = 300  # 5 minutes
 
 
 class CurrentUser:
@@ -30,12 +35,45 @@ class CurrentUser:
         self.session_id = session_id
 
 
+async def _get_cached_auth(session_id: str) -> Optional[dict]:
+    """Try to load auth result from Redis cache."""
+    if not redis_client:
+        return None
+    try:
+        raw = await redis_client.get(f"auth:session:{session_id}")
+        return json.loads(raw) if raw else None
+    except Exception:
+        return None
+
+
+async def _set_cached_auth(session_id: str, data: dict) -> None:
+    """Cache auth result in Redis for _AUTH_CACHE_TTL seconds."""
+    if not redis_client:
+        return
+    try:
+        await redis_client.setex(f"auth:session:{session_id}", _AUTH_CACHE_TTL, json.dumps(data))
+    except Exception:
+        pass
+
+
+async def invalidate_auth_cache(session_id: str) -> None:
+    """Call this on logout / session revocation to clear the cache entry."""
+    if not redis_client:
+        return
+    try:
+        await redis_client.delete(f"auth:session:{session_id}")
+    except Exception:
+        pass
+
+
 async def get_current_user(
     request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db),
 ) -> CurrentUser:
-    """Authenticate JWT token — mirrors Node.js authMiddleware.authenticate."""
+    """Authenticate JWT token — mirrors Node.js authMiddleware.authenticate.
+    Uses Redis cache to avoid 2 MySQL queries on every authenticated request.
+    """
     if not credentials:
         raise UnauthorizedError(message="Access token is required", code="MISSING_TOKEN")
 
@@ -55,6 +93,20 @@ async def get_current_user(
     if not all([user_id, email, role, session_id]):
         raise UnauthorizedError(message="Invalid token payload", code="INVALID_TOKEN")
 
+    # --- Redis cache hit: skip both MySQL queries ---
+    cached = await _get_cached_auth(session_id)
+    if cached and cached.get("user_active"):
+        request.state.tenant_id = tenant_id
+        request.state.user_id = user_id
+        return CurrentUser(
+            id=user_id,
+            email=email,
+            role=role,
+            tenant_id=tenant_id,
+            session_id=session_id,
+        )
+
+    # --- Cache miss: hit MySQL (2 queries) and populate cache ---
     # Verify session is still valid
     result = await db.execute(
         select(UserSession).where(
@@ -71,6 +123,9 @@ async def get_current_user(
     user = result.scalar_one_or_none()
     if not user or user.status != "active":
         raise UnauthorizedError(message="User account is not active", code="USER_INACTIVE")
+
+    # Store in Redis so next requests skip MySQL
+    await _set_cached_auth(session_id, {"user_active": True, "user_id": user_id})
 
     # Set state for middleware/logging
     request.state.tenant_id = tenant_id
@@ -144,3 +199,5 @@ def require_admin():
 def require_super_admin():
     """Mirrors Node.js authMiddleware.requireSuperAdmin."""
     return require_role(["super_admin"])
+
+

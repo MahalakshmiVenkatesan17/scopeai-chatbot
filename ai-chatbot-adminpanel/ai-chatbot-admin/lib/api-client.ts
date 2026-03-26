@@ -52,7 +52,7 @@ class ApiClient {
     }
 
     // Default to production API URL with version path
-    return process?.env?.NEXT_PUBLIC_BACKEND_API_URL || "https://ai-api.scopethinkers.ai/api/v1";
+    return process?.env?.NEXT_PUBLIC_BACKEND_API_URL || "https://api-scopeaichat.scopethinkers.ai/api/v1";
   }
 
   constructor() {

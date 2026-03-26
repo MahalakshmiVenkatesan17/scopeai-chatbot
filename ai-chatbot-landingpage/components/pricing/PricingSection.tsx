@@ -20,7 +20,7 @@ export function PricingSection() {
         </span>
 
         <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-          Choose a plan that grows with your AI chatbot
+          Choose a plan that grows with your ScopeAIChat
         </h1>
 
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600">

@@ -8,7 +8,7 @@ export default function Context() {
       <section className="context-hero-gradient border-b border-[var(--foundation-blue-blue-100)]">
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 text-center">
           <p className="inline-flex items-center rounded-full border border-[var(--foundation--blue-blue-200)] bg-[var(--foundation-blue-blue-50)] px-4 py-1 text-xs font-medium text-[var(--foundation-blue-blue-600)]">
-            AI Chatbot Core Technology
+            ScopeAIChat Core Technology
           </p>
           <h1 className="mt-6 text-5xl font-bold tracking-tight text-[var(--foundation-blue-blue-600)]">
             Context Engineering

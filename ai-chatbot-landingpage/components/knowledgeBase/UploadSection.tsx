@@ -10,7 +10,7 @@ export const UploadSection = () => {
         </h2>
 
         <p className="text-gray-600 text-lg mt-2">
-          Automatically extract and structure knowledge for your AI chatbot.
+          Automatically extract and structure knowledge for your ScopeAIChat.
         </p>
 
         {/* Upload Box */}

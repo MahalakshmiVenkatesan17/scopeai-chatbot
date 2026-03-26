@@ -23,6 +23,8 @@ export function BrandMarquee() {
     return brands.filter((b) => b.category === activeTab);
   }, [activeTab]);
 
+  const shouldAnimate = activeTab === "All";
+
   return (
     <section className="py-16 bg-white">
       {/* Title */}
@@ -55,19 +57,35 @@ export function BrandMarquee() {
 
       {/* Marquee */}
       {filteredBrands.length > 0 ? (
-        <Marquee speed={40} pauseOnHover gradient={false}>
-          {filteredBrands.map((brand, index) => (
-            <div key={index} className="mx-12 flex items-center justify-center">
-              <Image
-                src={brand.logo}
-                alt={brand.name}
-                width={70}
-                height={50}
-                className="object-contain transition"
-              />
-            </div>
-          ))}
-        </Marquee>
+        shouldAnimate ? (
+          <Marquee speed={40} pauseOnHover gradient={false}>
+            {filteredBrands.map((brand, index) => (
+              <div key={index} className="mx-12 flex items-center justify-center">
+                <Image
+                  src={brand.logo}
+                  alt={brand.name}
+                  width={70}
+                  height={50}
+                  className="object-contain transition"
+                />
+              </div>
+            ))}
+          </Marquee>
+        ) : (
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-12 gap-y-8">
+            {filteredBrands.map((brand, index) => (
+              <div key={index} className="flex items-center justify-center">
+                <Image
+                  src={brand.logo}
+                  alt={brand.name}
+                  width={70}
+                  height={50}
+                  className="object-contain transition"
+                />
+              </div>
+            ))}
+          </div>
+        )
       ) : (
         <p className="text-center text-gray-500">
           No brands available for this category

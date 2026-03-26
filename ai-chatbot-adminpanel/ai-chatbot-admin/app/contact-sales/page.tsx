@@ -38,7 +38,7 @@ function ContactSalesContent() {
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.email)) newErrors.email = 'Invalid email format';
     if (!formData.companyName.trim()) newErrors.companyName = 'Company name is required';
     if (!formData.companySize) newErrors.companySize = 'Company size is required';
     if (!formData.message.trim()) newErrors.message = 'Message is required';

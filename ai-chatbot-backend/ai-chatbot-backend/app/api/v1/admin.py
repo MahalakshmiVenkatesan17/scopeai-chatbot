@@ -1845,10 +1845,10 @@ async def create_subscription_plan(
         billing_cycle = body.get("billing_cycle") or body.get("billingCycle", "monthly")
         if billing_cycle not in ("monthly", "yearly"):
             billing_cycle = "monthly"
-        concurrent_users = body.get("concurrent_users") or body.get("concurrentUsers", 1)
-        document_collections = body.get("document_collections") or body.get("documentCollections", 5)
-        max_file_upload_mb = body.get("max_file_upload_mb") or body.get("maxFileUploadMb", 10)
-        storage_limit_gb = body.get("storage_limit_gb") or body.get("storageLimitGb", 1)
+        concurrent_users = body.get("concurrent_users") if "concurrent_users" in body else body.get("concurrentUsers", 1)
+        document_collections = body.get("document_collections") if "document_collections" in body else body.get("documentCollections", 5)
+        max_file_upload_mb = body.get("max_file_upload_mb") if "max_file_upload_mb" in body else body.get("maxFileUploadMb", 10)
+        storage_limit_gb = body.get("storage_limit_gb") if "storage_limit_gb" in body else body.get("storageLimitGb", 1)        
         card_color = body.get("card_color") or body.get("cardColor", "#ffffff")
         icon_color = body.get("icon_color") or body.get("iconColor", "#000000")
         icon_bg_color = body.get("icon_bg_color") or body.get("iconBgColor", "#f0f0f0")

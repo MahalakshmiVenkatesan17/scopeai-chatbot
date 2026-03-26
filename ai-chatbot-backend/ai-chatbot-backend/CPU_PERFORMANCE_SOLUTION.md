@@ -8,6 +8,7 @@ Based on the PDF report and full code audit, here are the root causes and soluti
 
 ---
 
+
 ## Summary of Problems Found
 
 | Issue | Severity | Root Cause |

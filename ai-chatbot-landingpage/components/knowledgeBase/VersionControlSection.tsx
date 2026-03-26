@@ -15,7 +15,7 @@ export const VersionControlSection = () => {
       <div className="text-white mb-12 text-center">
         <h2 className="text-4xl md:text-5xl font-bold">Version Control</h2>
         <p className="text-lg mt-2 opacity-90">
-          Ensure your AI chatbot always answers from the latest content.
+          Ensure your ScopeAIChat always answers from the latest content.
         </p>
       </div>
 

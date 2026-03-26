@@ -11,7 +11,7 @@ export function Journey() {
         </h2>
 
         <p className="text-gray-500 text-center mb-10 max-w-2xl mx-auto">
-          With AI Chatbot you can build Conversational AI Agents that truly
+          With ScopeAIChat you can build Conversational AI Agents that truly
           understand your needs and create intelligent conversations.
         </p>
       </div>

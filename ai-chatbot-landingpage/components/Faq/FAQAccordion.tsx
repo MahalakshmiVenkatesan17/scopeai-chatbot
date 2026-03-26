@@ -21,7 +21,7 @@ export default function FAQAccordion() {
           </h2>
 
           <p className="text-[var(--foundation-blue-blue-50)]0 text-base faq-header-width mx-auto">
-            Quick answers to common questions about using AI Chatbot to automate
+            Quick answers to common questions about using ScopeAIChat to automate
             customer conversations.
           </p>
         </div>

@@ -169,8 +169,8 @@ export default function AnalyticsDashboard() {
                     d="M 0 80 C 50 55, 90 30, 130 45 S 220 110, 280 75 S 360 20, 410 40 S 460 90, 500 70"
                     fill="none"
                     stroke="#7c3aed"
-                    stroke-width="4"
-                    stroke-linecap="round"
+                    strokeWidth="4"
+                    strokeLinecap="round"
                   />
                 </svg>
               </div>
@@ -202,7 +202,7 @@ export default function AnalyticsDashboard() {
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl">
         <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-          Built to make AI chatbot performance measurable
+          Built to make ScopeAIChat performance measurable
         </h2>
         <p className="mt-3 text-lg text-slate-600">
           Showcase the same operational data your team sees internally — translated into clear, business-friendly visibility for growth, support, and performance.
@@ -262,7 +262,7 @@ export default function AnalyticsDashboard() {
             Product Preview
           </span>
           <h2 className="mt-5 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-            A clear view of your AI chatbot performance
+            A clear view of your ScopeAIChat performance
           </h2>
           <p className="mt-4 text-lg leading-8 text-slate-600">
             This is how we showcase analytics on a marketing page: not by reproducing the full admin dashboard, but by presenting a polished product preview that highlights the most valuable insights customers care about.
@@ -401,8 +401,8 @@ export default function AnalyticsDashboard() {
                              S 940 180, 1000 200"
                           fill="none"
                           stroke="#7c3aed"
-                          stroke-width="4"
-                          stroke-linecap="round"
+                          strokeWidth="4"
+                          strokeLinecap="round"
                         />
                       </svg>
                     </div>

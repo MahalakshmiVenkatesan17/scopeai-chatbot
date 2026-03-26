@@ -29,7 +29,7 @@ export function HeroSection() {
 
         {/* Description */}
         <p className="mx-auto mt-6 knowledge-base-hero-description text-base leading-relaxed text-gray-600">
-          Centralize, organize, and power your AI chatbot with accurate,
+          Centralize, organize, and power your ScopeAIChat with accurate,
           up-to-date knowledge.
         </p>
 
