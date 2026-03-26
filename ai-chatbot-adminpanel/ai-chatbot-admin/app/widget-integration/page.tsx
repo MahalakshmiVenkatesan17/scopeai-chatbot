@@ -184,7 +184,7 @@ export default function WidgetIntegrationPage() {
   const getFrontendUrl = () => {
     return (
       process.env.NEXT_PUBLIC_FRONTEND_URL ||
-      "https://frontend-scopeaichat.scopethinkers.ai/"
+      "https://frontend-scopeaichat.scopethinkers.ai"
     );
   };
 
