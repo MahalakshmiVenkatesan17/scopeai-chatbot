@@ -23,26 +23,26 @@ export  function Breadcrumb() {
   if (segments.length === 0) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className="w-full bg-gray-50">
+    <nav aria-label="Breadcrumb" className="w-full bg-gray-50 dark:bg-gray-900/50 transition-colors">
       <div className="max-w-7xl mx-auto px-6 py-4">
-        <ol className="flex items-center flex-wrap gap-2 text-sm text-gray-600">
+        <ol className="flex items-center flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">
           <li>
-            <Link href="/" className="hover:text-[var(--foundation-blue-blue-600)] font-medium">
+            <Link href="/" className="hover:text-[var(--foundation-blue-blue-600)] dark:hover:text-blue-400 font-medium transition-colors">
               Home
             </Link>
           </li>
 
           {breadcrumbs.map((crumb, index) => (
             <li key={crumb.href} className="flex items-center gap-2">
-              <span className="text-gray-400">/</span>
+              <span className="text-gray-400 dark:text-gray-600">/</span>
               {index === breadcrumbs.length - 1 ? (
-                <span className="font-semibold text-gray-900">
+                <span className="font-semibold text-gray-900 dark:text-white transition-colors">
                   {crumb.label}
                 </span>
               ) : (
                 <Link
                   href={crumb.href}
-                  className="hover:text-[var(--foundation-blue-blue-600)] font-medium"
+                  className="hover:text-[var(--foundation-blue-blue-600)] dark:hover:text-blue-400 font-medium transition-colors"
                 >
                   {crumb.label}
                 </Link>

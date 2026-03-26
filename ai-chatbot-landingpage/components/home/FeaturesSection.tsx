@@ -5,7 +5,7 @@ import { HeroWithPreview } from "./HeroWithPreview";
 
 export function FeaturesSection() {
   return (
-    <section className="w-full bg-white pb-24">
+    <section className="w-full bg-white dark:bg-gray-950 pb-24 transition-colors">
       <div className="max-w-300 mx-auto px-4 sm:px-6 lg:px-8 ">
         <HeroWithPreview
           badge="Revolutionize"

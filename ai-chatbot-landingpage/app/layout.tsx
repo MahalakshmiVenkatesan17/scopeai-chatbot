@@ -17,6 +17,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: {
@@ -26,16 +28,23 @@ export default function RootLayout({
   const isAuthPage = pathname.startsWith("/auth");
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {!isAuthPage && <Navbar />}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {!isAuthPage && <Navbar />}
 
-        <main>{children}</main>
+          <main>{children}</main>
 
-        {!isAuthPage && <CTASection />}
-        {!isAuthPage && <Footer />}
+          {!isAuthPage && <CTASection />}
+          {!isAuthPage && <Footer />}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -3,8 +3,23 @@
 import Link from "next/link";
 import { Button } from "../common";
 import Image from "next/image";
-
+import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Instagram,
+  Facebook,
+  Linkedin,
+  Youtube,
+  Heart,
+  Mail,
+  Phone,
+  MapPin,
+  ArrowRight,
+  Sparkles,
+  Shield,
+  Globe
+} from "lucide-react";
 
 export function Footer() {
   const router = useRouter();
@@ -12,217 +27,184 @@ export function Footer() {
     router.push(path);
   };
 
+  const currentYear = new Date().getFullYear();
+
+  const socialLinks = [
+    { icon: Instagram, href: "#", label: "Instagram", color: "hover:text-pink-500" },
+    { icon: Facebook, href: "#", label: "Facebook", color: "hover:text-blue-600" },
+    { icon: Linkedin, href: "#", label: "LinkedIn", color: "hover:text-blue-700" },
+    { icon: Youtube, href: "#", label: "YouTube", color: "hover:text-red-600" },
+  ];
+
+  const footerSections = [
+    {
+      title: "Company",
+      links: [
+        { label: "Home", href: "/" },
+        { label: "Contact Us", href: "/contact" },
+        { label: "Privacy Policy", href: "/privacyPolicy" },
+        { label: "Terms and Condition", href: "/termsCondition" },
+      ],
+    },
+    {
+      title: "Product",
+      links: [
+        { label: "Features", href: "/features" },
+        { label: "Integrations", href: "/integration" },
+      ],
+    },
+    {
+      title: "Resources",
+      links: [
+        { label: "Knowledge Base", href: "/knowledgeBase" },
+        { label: "Visitor Insights", href: "/visitor-insights" },
+        { label: "Context", href: "/context" },
+      ],
+    },
+    {
+      title: "Platform",
+      links: [
+        { label: "Analytics & Dashboard", href: "/analytics" },
+        { label: "Pricing", href: "/pricing" },
+      ],
+    },
+    {
+      title: "Support",
+      links: [
+        { label: "FAQ", href: "/faq" },
+      ],
+    },
+  ];
+
+
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+
   return (
-    <footer className="bg-white">
-      {/* Top Blue Strip */}
+    <footer className="bg-white dark:bg-gray-950 transition-colors relative overflow-hidden">
+      {/* Decorative top gradient */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
 
-      <div className="max-w-7xl mx-auto px-6 py-10 lg:flex space-y-10">
-        {/* LOGO + CTA */}
-        <div className="space-y-10">
-          <a href="#" className="px-2">
-            <Image
-              src="/images/navbar/logo.svg"
-              alt="Chat360 Logo"
-              width={60}
-              height={60}
-              className="w-32"
-            />
-          </a>
-          <p className="text-gray-500 max-w-62.5 ">
-            Empowering businesses with intelligent AI solutions for
-            next-generation customer engagement.
-          </p>
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.02),transparent_25%)] dark:bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.05),transparent_25%)]"></div>
 
-          {/* <Button
-            text="Sign Up now"
-            radius="rounded-4xl"
-            onClick={() => navigate("/signup")}
-          /> */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-16 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-10 lg:gap-16">
+          {/* LOGO + CTA Section */}
+          <div className="space-y-6">
+            <Link href="/" className="inline-block group">
+              <Image
+                src={
+                  mounted && resolvedTheme === "dark"
+                    ? "/images/navbar/logo-dark.svg"
+                    : "/images/navbar/logo.svg"
+                }
+                alt="ScopeAIChat Logo"
+                width={60}
+                height={60}
+                className="object-contain w-32 sm:w-40 h-auto transition-transform duration-300 group-hover:scale-105"
+                priority
+              />
+            </Link>
 
-          <div className="flex items-center gap-4 text-lg px-2">
-            <Image
-              src="/images/footer/Link-instagram.png"
-              alt="Instagram"
-              width={24}
-              height={24}
-              className="cursor-pointer"
-            />
+            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-sm transition-colors">
+              Empowering businesses with intelligent AI solutions for
+              next-generation customer engagement.
+            </p>
 
-            <Image
-              src="/images/footer/Link-Facebook.png"
-              alt="Facebook"
-              width={24}
-              height={24}
-              className="cursor-pointer"
-            />
-            <Image
-              src="/images/footer/Link-Linkedin.png"
-              alt="LinkedIn"
-              width={24}
-              height={24}
-              className="cursor-pointer"
-            />
-            <Image
-              src="/images/footer/Link-Youtube.png"
-              alt="Youtube"
-              width={24}
-              height={24}
-              className="cursor-pointer"
-            />
-          </div>
-        </div>
+            {/* Contact info */}
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                <Mail className="w-4 h-4" />
+                <span>hello@scopeai.chat</span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                <Phone className="w-4 h-4" />
+                <span>+91 98765 43210</span>
+              </div>
+            </div>
 
-        <div className="sm:flex mx-auto lg:gap-10 gap-15 pt-5">
-          {/* Company */}
-          <div className="mb-3">
-            <h4 className="text-[var(--foundation--blue-blue-700)] font-bold mb-4">Company</h4>
-            <ul className="space-y-2 text-black ">
-              <li className="cursor-pointer hover:underline">
-                <Link href="/" className="cursor-pointer hover:underline">
-                  {" "}
-                  Home
-                </Link>
-              </li>
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/contact"
-                  className="cursor-pointer hover:underline"
-                >
-                  Contact Us
-                </Link>
-              </li>
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/privacyPolicy"
-                  className="cursor-pointer hover:underline"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/termsCondition"
-                  className="cursor-pointer hover:underline"
-                >
-                  Terms and Condition
-                </Link>
-              </li>
-            </ul>
+            {/* Social Icons */}
+            <div className="flex items-center gap-3">
+              {socialLinks.map((social, idx) => {
+                const Icon = social.icon;
+                return (
+                  <a
+                    key={idx}
+                    href={social.href}
+                    aria-label={social.label}
+                    className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 ${social.color} hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110`}
+                  >
+                    <Icon className="w-5 h-5" />
+                  </a>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Product */}
-          <div className="mb-3">
-            <h4 className="text-[var(--foundation--blue-blue-700)] font-bold mb-4">Product</h4>
-            <ul className="space-y-2 text-black">
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/features"
-                  className="cursor-pointer hover:underline"
-                >
-                  Features
-                </Link>
-              </li>
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/integration"
-                  className="cursor-pointer hover:underline"
-                >
-                  Integrations
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div className="mb-3">
-            <h4 className="text-[var(--foundation--blue-blue-700)] font-bold mb-4">
-              <Link
-                href="/Resources"
-                className="cursor-pointer hover:underline"
-              >
-                Resources
-              </Link>
-            </h4>
-            <ul className="space-y-2 text-black">
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/knowledgeBase"
-                  className="cursor-pointer hover:underline"
-                >
-                  Knowledge Base
-                </Link>
-              </li>
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/visitor-insights"
-                  className="cursor-pointer hover:underline"
-                >
-                  Visitor Insights
-                </Link>
-              </li>
-
-              <li className="cursor-pointer hover:underline">
-                <Link href="/context">Context</Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Platform */}
-          <div className="mb-3">
-            <h4 className="text-[var(--foundation--blue-blue-700)] font-bold mb-4">Platform</h4>
-            <ul className="space-y-2 text-black">
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/analytics"
-                  className="cursor-pointer hover:underline"
-                >
-                  Analytics & Dashboard
-                </Link>
-              </li>
-              <li className="cursor-pointer hover:underline">
-                <Link
-                  href="/pricing"
-                  className="cursor-pointer hover:underline"
-                >
-                  Pricing
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div className="mb-3">
-            <h4 className="text-[var(--foundation--blue-blue-700)] font-bold mb-4">Support</h4>
-            <ul className="space-y-2 text-black">
-              <li className="cursor-pointer hover:underline">
-                <Link href="/faq" className="cursor-pointer hover:underline">
-                  FAQ
-                </Link>
-              </li>
-              <li className="cursor-pointer hover:underline">
-                <Link href="/auth/signUp" className="cursor-pointer hover:underline">
-                  Sign Up
-                </Link>
-              </li>
-            </ul>
+          {/* Links Sections */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 md:gap-8">
+            {footerSections.map((section) => (
+              <div key={section.title} className="space-y-3">
+                <h4 className="text-[#5856d6] dark:text-blue-400 font-semibold text-sm uppercase tracking-wider transition-colors">
+                  {section.title}
+                </h4>
+                <ul className="space-y-2">
+                  {section.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-gray-600 dark:text-gray-400 text-sm hover:text-[#5856d6] dark:hover:text-blue-400 transition-colors duration-200 inline-flex items-center gap-1 group"
+                      >
+                        {link.label}
+                        <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="max-w-7xl mx-auto border-t border-gray-300" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="border-t border-gray-200 dark:border-gray-800 transition-colors" />
+      </div>
 
       {/* Bottom Bar */}
-      <div className="max-w-7xl mx-auto px-6 py-6 grid md:grid-cols-[0.4fr_1fr] text-xs text-gray-500 md:text-start text-center space-y-3">
-        <p>Copyright © 2026 AI ChatBot. All rights reserved.</p>
-        <p>
-          Hey there! We’re excited to have you here. Just a quick note—our
-          website uses cookies to enhance your experience and our partners’ use
-          of cookies for analytics, personalization, and improving our services.
-          You can manage or revoke your consent anytime in your browser
-          settings. Read our{" "}
-          <span className="text-[var(--foundation-blue-blue-600)] cursor-pointer">Cookies Policy</span>.
-        </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        <div className="grid md:grid-cols-[auto_1fr] gap-4 text-xs text-gray-500 dark:text-gray-400 text-center md:text-left">
+          <p className="flex items-center justify-center md:justify-start gap-1">
+            Copyright © {currentYear} ScopeAIChat.
+            <span className="hidden md:inline">All rights reserved.</span>
+          </p>
+          <p className="text-xs leading-relaxed flex flex-wrap items-center justify-center md:justify-end gap-1">
+            <Sparkles className="w-3 h-3 text-blue-500" />
+            Made with <Heart className="w-3 h-3 text-red-500 mx-0.5" /> for better customer conversations
+            <span className="hidden sm:inline mx-1">•</span>
+            <Shield className="w-3 h-3 text-green-500 ml-1" />
+            <span>SOC 2 • GDPR Compliant</span>
+          </p>
+        </div>
+
+        {/* Cookie notice */}
+        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 text-center text-xs text-gray-400 dark:text-gray-500">
+          <p className="flex flex-wrap items-center justify-center gap-1">
+            <Globe className="w-3 h-3" />
+            We use cookies to enhance your experience. By continuing, you agree to our{" "}
+            <Link href="/privacyPolicy" className="text-[#5856d6] dark:text-blue-400 hover:underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -10,12 +10,12 @@ export default function PrivacyPolicy() {
   const { title, subtitle, lastUpdated, intro, sections } = policyData;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
       <PageHeader title={title} subtitle={subtitle} />
 
       <div className="max-w-4xl mx-auto px-6 py-12">
-        <p className="text-xl text-gray-500 mb-6">
-          Last Updated: <span className="font-medium">{lastUpdated}</span>
+        <p className="text-xl text-gray-500 dark:text-gray-400 mb-6 transition-colors">
+          Last Updated: <span className="font-medium text-gray-900 dark:text-white">{lastUpdated}</span>
         </p>
 
         <Paragraph>{intro}</Paragraph>

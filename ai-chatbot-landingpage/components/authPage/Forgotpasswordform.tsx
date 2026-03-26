@@ -36,36 +36,36 @@ export default function ForgotPasswordForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950 px-4 transition-colors">
       <AuthCard variant="login">
         {/* Logo */}
-        <img src="/images/navbar/logo.svg" alt="Logo" className="w-32 mb-6" />
+        <img src="/images/navbar/logo.svg" alt="Logo" className="w-32 mb-6 dark:invert" />
 
         {!submitted ? (
           <>
             {/* Title */}
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
               Forgot Password?
             </h3>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 transition-colors">
               No worries! Enter your email and we'll send you a reset link.
             </p>
 
             <div className="space-y-5">
               {/* Email */}
               <div className="space-y-1">
-                <label className="text-sm text-gray-700">Email address</label>
+                <label className="text-sm text-gray-700 dark:text-gray-400 transition-colors">Email address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={handleChange}
                   onBlur={() => setError(validateEmail(email))}
                   placeholder="Enter your email"
-                  className={`w-full px-4 py-3 border rounded-xl text-sm outline-none transition text-gray-950
-                    focus:ring-1 focus:ring-gray-100
+                  className={`w-full px-4 py-3 border rounded-xl text-sm outline-none transition text-gray-950 dark:text-white dark:bg-gray-900
+                    focus:ring-1 focus:ring-gray-100 dark:focus:ring-gray-800
                     ${error
                       ? "border-red-400 focus:border-red-400"
-                      : "border-gray-300 focus:border-gray-600"
+                      : "border-gray-300 dark:border-gray-700 focus:border-gray-600 dark:focus:border-blue-500"
                     }`}
                 />
                 {/* Error message */}
@@ -101,7 +101,7 @@ export default function ForgotPasswordForm() {
               <div className="flex justify-center">
                 <Link
                   href="/auth/logIn"
-                  className="text-sm text-gray-600 hover:underline flex items-center gap-1"
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:underline flex items-center gap-1 text-[#5856d6] dark:text-blue-400 transition-colors"
                 >
                   <span>&#8592;</span> Back to Log In
                 </Link>
@@ -112,12 +112,12 @@ export default function ForgotPasswordForm() {
           <>
             {/* Success State */}
             <div className="flex flex-col items-start">
-              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
                 Check your email
               </h3>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 transition-colors">
                 We've sent a password reset link to{" "}
-                <span className="font-medium text-gray-800">{email}</span>.
+                <span className="font-medium text-gray-800 dark:text-white transition-colors">{email}</span>.
                 Check your inbox and follow the instructions.
               </p>
 
@@ -130,8 +130,8 @@ export default function ForgotPasswordForm() {
                     setEmail("");
                     setError("");
                   }}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium
-                  text-gray-700 hover:bg-gray-50 transition"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-medium
+                  text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm"
                 >
                   Resend email
                 </button>
@@ -140,7 +140,7 @@ export default function ForgotPasswordForm() {
                 <div className="flex justify-center">
                   <Link
                     href="/auth/logIn"
-                    className="text-sm text-gray-600 hover:underline flex items-center gap-1"
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:underline flex items-center gap-1 text-[#5856d6] dark:text-blue-400 transition-colors"
                   >
                     <span>&#8592;</span> Back to Log In
                   </Link>

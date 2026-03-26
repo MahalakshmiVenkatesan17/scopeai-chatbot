@@ -19,12 +19,12 @@ type ParagraphProps = {
 };
 
 export const PageHeader = ({ title, subtitle }: PageHeaderProps) => (
-  <div className="page-header-gradient">
+  <div className="page-header-gradient dark:context-hero-gradient transition-colors">
     <div className="max-w-4xl mx-auto px-6 py-16 text-center">
-      <h1 className="text-3xl md:text-4xl font-semibold text-gray-900">
+      <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 dark:text-white transition-colors">
         {title}
       </h1>
-      {subtitle && <p className="mt-4 text-gray-600">{subtitle}</p>}
+      {subtitle && <p className="mt-4 text-gray-600 dark:text-gray-400 transition-colors">{subtitle}</p>}
     </div>
   </div>
 );
@@ -32,14 +32,14 @@ export const PageHeader = ({ title, subtitle }: PageHeaderProps) => (
 // Section Wrapper
 export const SectionHeader = ({ title, children }: SectionHeaderProps) => (
   <section className="mt-10">
-    <h2 className="text-[var(--foundation-blue-blue-800)] font-semibold text-2xl mb-3">{title}</h2>
+    <h2 className="text-[var(--foundation-blue-blue-800)] dark:text-blue-400 font-semibold text-2xl mb-3 transition-colors">{title}</h2>
     {children}
   </section>
 );
 
 // Bullet List
 export const BulletList = ({ items }: BulletListProps) => (
-  <ul className="list-disc pl-5 space-y-2 text-gray-700">
+  <ul className="list-disc pl-5 space-y-2 text-gray-700 dark:text-gray-400 transition-colors">
     {items.map((item, index) => (
       <li key={index}>{item}</li>
     ))}
@@ -48,5 +48,5 @@ export const BulletList = ({ items }: BulletListProps) => (
 
 // Simple Text
 export const Paragraph = ({ children }: ParagraphProps) => (
-  <p className="text-gray-700 leading-relaxed">{children}</p>
+  <p className="text-gray-700 dark:text-gray-400 leading-relaxed transition-colors">{children}</p>
 );

@@ -19,8 +19,8 @@ export const StatCard = ({ value, label, bg, icon: Icon, iconColor }: Props) => 
 
     {/* Text */}
     <div>
-      <p className="text-lg font-bold text-gray-900">{value}</p>
-      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+      <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors">{value}</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 transition-colors">
         {label}
       </p>
     </div>

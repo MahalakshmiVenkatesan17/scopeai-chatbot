@@ -133,249 +133,249 @@ const featuresTeam = [
 
 export function Features() {
   return (
-      <div className="max-w-7xl mx-auto px-8 py-16">
-        {/* hero  */}
-        <section className="py-16">  
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-             {/* Text Content */}
-                      <div className="text-center md:text-left text-sm">
-                        <p className="mb-3 w-fit border border-gray-800 text-gray-800 text-sm font-medium px-4 py-1.5 rounded-full">
-                          Unified AI Chatbot Operations
-                        </p>
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-                          Everything you need to manage and scale AI chatbot operations
-                        </h2>
-                        <p className="text-gray-500 leading-relaxed sm:leading-8 max-w-md mx-auto md:mx-0 mb-4">
-                        Manage tenants, users, documents, analytics, visitor intelligence, widget deployment, subscriptions, and billing — all from one unified platform built for modern businesses.
-                        </p>
-                        <div className="flex gap-4 justify-center md:justify-start">
-                          {/* <Button radius="rounded-xl" text="Start Free" height="h-12" /> */}
-                          <a href="/contact" className=" px-4 py-3 rounded-xl border border-gray-300 text-sm font-medium bg-[var(--foundation-blue-blue-50)]
-                            text-gray-700 hover:bg-[var(--foundation-blue-blue-600)] transition cursor-pointer hover:text-white">
-                              Book a demo
-                          </a>
-                        </div>
-                        <div className="flex my-5 gap-2 flex-wrap justify-center md:justify-start">
-                           <p className="text-sm text-gray-900 leading-relaxed sm:leading-8 border border-gray-300 rounded-2xl w-fit px-3">
-                          Multi-tenant ready
-                        </p>
-                         <p className="text-sm text-gray-900 leading-relaxed sm:leading-8 border border-gray-300 rounded-2xl w-fit px-3">
-                          Low-code widget deployment
-                        </p> 
-                        <p className="text-sm text-gray-900 leading-relaxed sm:leading-8  border border-gray-300 rounded-2xl w-fit px-3">
-                          Usage & cost visibility
-                        </p>
-                        </div>
-                      </div>
-          
-                    {/* Image */}
-                    <div className="flex justify-center md:justify-end">
-                      <img
-                        src="/images/features/hero-image.png"
-                        alt="hero-banner"
-                        className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg h-auto"
-                      />
-                    </div>       
-         </div>
-              
-        </section>
-
-        {/* core platform features */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            {/* Badge */}
-            <div className="mb-4">
-              <span className="border border-gray-800 text-gray-800 text-sm font-medium px-4 py-1.5 rounded-full">
-                Core Platform Features
-              </span>
-            </div>
-
-            {/* Heading */}
-            <h2 className="text-4xl font-bold text-gray-900 mb-4 max-w-2xl">
-              Built to run your entire AI chatbot platform
-            </h2>
-            <p className="text-gray-500 text-lg leading-relaxed mb-12 max-w-2xl">
-              Every core capability from the admin platform is reimagined here as a
-              customer-facing product advantage — from analytics and team access to
-              documents, widget deployment, and billing.
+    <div className="max-w-7xl mx-auto px-8 py-16 bg-white dark:bg-gray-950 transition-colors">
+      {/* hero  */}
+      <section className="py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          {/* Text Content */}
+          <div className="text-center md:text-left text-sm">
+            <p className="mb-3 w-fit border border-gray-800 dark:border-gray-400 text-gray-800 dark:text-gray-300 text-sm font-medium px-4 py-1.5 rounded-full transition-colors">
+              Unified ScopeAIChat Operations
             </p>
-
-            {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {features.map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={i}
-                    className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col hover:shadow-md transition"
-                  >
-                    {/* Icon badge */}
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${item.iconBg}`}
-                    >
-                      <Icon className={`w-5 h-5 ${item.iconColor}`} strokeWidth={2.5} />
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="font-bold text-gray-900 text-lg mb-2">
-                      {item.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-gray-500 text-sm leading-relaxed mb-5 flex-1">
-                      {item.desc}
-                    </p>
-
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2 mt-auto">
-                      {item.tags.map((tag, j) => (
-                        <span
-                          key={j}
-                          className="text-xs text-gray-600 border border-gray-200 rounded-full px-3 py-1 bg-gray-50"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4 transition-colors">
+              Everything you need to manage and scale ScopeAIChat operations
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 leading-relaxed sm:leading-8 max-w-md mx-auto md:mx-0 mb-4 transition-colors">
+              Manage tenants, users, documents, analytics, visitor intelligence, widget deployment, subscriptions, and billing — all from one unified platform built for modern businesses.
+            </p>
+            <div className="flex gap-4 justify-center md:justify-start">
+              {/* <Button radius="rounded-xl" text="Start Free" height="h-12" /> */}
+              <a href="/contact" className=" px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-medium bg-[var(--foundation-blue-blue-50)] dark:bg-blue-600
+                            text-gray-700 dark:text-white hover:bg-[var(--foundation-blue-blue-600)] dark:hover:bg-blue-700 transition cursor-pointer">
+                Book a demo
+              </a>
+            </div>
+            <div className="flex my-5 gap-2 flex-wrap justify-center md:justify-start">
+              <p className="text-sm text-gray-900 dark:text-gray-300 leading-relaxed sm:leading-8 border border-gray-300 dark:border-gray-700 rounded-2xl w-fit px-3 transition-colors">
+                Multi-tenant ready
+              </p>
+              <p className="text-sm text-gray-900 dark:text-gray-300 leading-relaxed sm:leading-8 border border-gray-300 dark:border-gray-700 rounded-2xl w-fit px-3 transition-colors">
+                Low-code widget deployment
+              </p>
+              <p className="text-sm text-gray-900 dark:text-gray-300 leading-relaxed sm:leading-8  border border-gray-300 dark:border-gray-700 rounded-2xl w-fit px-3 transition-colors">
+                Usage & cost visibility
+              </p>
             </div>
           </div>
-        </section>
 
-        {/* product preview */}
-        <section className="py-16 ">
-           <div className="max-w-7xl mx-auto px-6">
-              <div className="bg-white rounded-3xl border border-gray-200 p-10 flex flex-col lg:flex-row gap-10 items-center">
-                {/* Left: Text */}
-                <div className="flex-1">
-                  <span className="border border-gray-800 text-gray-800 text-sm font-medium px-4 py-1.5 rounded-full inline-block mb-6">
-                    Product Preview
-                  </span>
+          {/* Image */}
+          <div className="flex justify-center md:justify-end">
+            <img
+              src="/images/features/hero-image.svg"
+              alt="hero-banner"
+              className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg h-auto"
+            />
+          </div>
+        </div>
 
-                  <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                    A clear view of AI chatbot performance and operations
-                  </h2>
+      </section>
 
-                  <p className="text-gray-500 text-base leading-relaxed mb-8">
-                    Monitor KPI metrics, weekly activity, cost trends, request volume,
-                    and performance indicators in one premium dashboard experience
-                    designed for fast decision-making.
+      {/* core platform features */}
+      <section className="py-16 bg-white dark:bg-gray-950 transition-colors">
+        <div className="max-w-7xl mx-auto px-6">
+          {/* Badge */}
+          <div className="mb-4">
+            <span className="border border-gray-800 dark:border-gray-400 text-gray-800 dark:text-gray-300 text-sm font-medium px-4 py-1.5 rounded-full transition-colors">
+              Core Platform Features
+            </span>
+          </div>
+
+          {/* Heading */}
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 max-w-2xl transition-colors">
+            Built to run your entire ScopeAIChat platform
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed mb-12 max-w-2xl transition-colors">
+            Every core capability from the admin platform is reimagined here as a
+            customer-facing product advantage — from analytics and team access to
+            documents, widget deployment, and billing.
+          </p>
+
+          {/* Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={i}
+                  className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 flex flex-col hover:shadow-md transition-all"
+                >
+                  {/* Icon badge */}
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${item.iconBg}`}
+                  >
+                    <Icon className={`w-5 h-5 ${item.iconColor}`} strokeWidth={2.5} />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-2 transition-colors">
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-5 flex-1 transition-colors">
+                    {item.desc}
                   </p>
 
-                  <ul className="flex flex-col gap-4">
-                    {checkItems.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <Check className="w-4 h-4 text-gray-700 mt-1 flex-shrink-0" strokeWidth={2.5} />
-                        <div>
-                          <p className="font-semibold text-gray-900 text-sm">{item.title}</p>
-                          <p className="text-gray-500 text-sm">{item.desc}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Right: Dashboard Preview */}
-                <div className="flex-1 bg-gray-50 rounded-2xl border border-gray-200 p-5 flex flex-col gap-3">
-                  {/* Top stats */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {stats.map((s, i) => (
-                      <div key={i} className="bg-white rounded-xl p-4 border border-gray-100">
-                        <p className="text-xs text-gray-400 font-semibold tracking-widest mb-1">
-                          {s.label}
-                        </p>
-                        <p className="text-3xl font-bold text-gray-900">{s.value}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Chart card */}
-                  <div className="bg-white rounded-xl p-4 border border-gray-100">
-                    <div className="flex items-center justify-between mb-1">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-800">Cost Overview</p>
-                        <p className="text-xs text-gray-400">Monthly trend</p>
-                      </div>
-                      <span className="text-xs bg-green-100 text-green-600 font-medium px-3 py-1 rounded-full">
-                        Stable
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    {item.tags.map((tag, j) => (
+                      <span
+                        key={j}
+                        className="text-xs text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-800 rounded-full px-3 py-1 bg-gray-50 dark:bg-gray-800 transition-colors"
+                      >
+                        {tag}
                       </span>
-                    </div>
-
-                    {/* SVG Chart */}
-                    <svg viewBox="0 0 300 80" className="w-full mt-3" xmlns="http://www.w3.org/2000/svg">
-                      <path
-                        d="M0,60 C30,55 60,30 90,28 C120,26 150,20 180,22 C210,24 240,45 270,40 C285,37 295,35 300,33"
-                        fill="none"
-                        stroke="#6366f1"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </div>
-
-                  {/* Bottom stats */}
-                  <div className="grid grid-cols-3 gap-3">
-                    {bottomStats.map((s, i) => (
-                      <div key={i} className="bg-white rounded-xl p-4 border border-gray-100">
-                        <p className="text-xs text-gray-400 font-semibold tracking-widest mb-1">
-                          {s.label}
-                        </p>
-                        <p className="text-xl font-bold text-gray-900">{s.value}</p>
-                      </div>
                     ))}
                   </div>
                 </div>
-              </div>
-           </div>
-        </section>
+              );
+            })}
+          </div>
+        </div>
+      </section>
 
-        {/* why team choose us */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-6 text-center">
-            {/* Badge */}
-            <div className="flex justify-center mb-5">
-              <span className="border border-gray-800 text-gray-800 text-sm font-medium px-4 py-1.5 rounded-full">
-                Why Teams Choose Us
+      {/* product preview */}
+      <section className="py-16 bg-white dark:bg-gray-950 transition-colors">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-200 dark:border-gray-800 p-10 flex flex-col lg:flex-row gap-10 items-center transition-colors">
+            {/* Left: Text */}
+            <div className="flex-1">
+              <span className="border border-gray-800 dark:border-gray-400 text-gray-800 dark:text-gray-300 text-sm font-medium px-4 py-1.5 rounded-full inline-block mb-6 transition-colors">
+                Product Preview
               </span>
+
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight transition-colors">
+                A clear view of ScopeAIChat performance and operations
+              </h2>
+
+              <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-8 transition-colors">
+                Monitor KPI metrics, weekly activity, cost trends, request volume,
+                and performance indicators in one premium dashboard experience
+                designed for fast decision-making.
+              </p>
+
+              <ul className="flex flex-col gap-4">
+                {checkItems.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <Check className="w-4 h-4 text-gray-700 dark:text-gray-400 mt-1 flex-shrink-0 transition-colors" strokeWidth={2.5} />
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white text-sm transition-colors">{item.title}</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors">{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Heading */}
-            <h2 className="text-4xl font-bold text-gray-900 mb-4 max-w-2xl mx-auto leading-tight">
-              One platform for operations, deployment, and insight
-            </h2>
-
-            <p className="text-gray-500 text-base mb-12 max-w-xl mx-auto">
-              Replace fragmented tools with one connected platform for AI chatbot management.
-            </p>
-
-            {/* Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
-              {featuresTeam.map((item, i) => {
-                const Icon = item.icon;
-                return (
-                  <div
-                    key={i}
-                    className="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition flex flex-col"
-                  >
-                    <div
-                      className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${item.iconBg}`}
-                    >
-                      <Icon className={`w-5 h-5 ${item.iconColor}`} strokeWidth={2.5} />
-                    </div>
-                    <h3 className="font-bold text-gray-900 text-base mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">
-                      {item.desc}
+            {/* Right: Dashboard Preview */}
+            <div className="flex-1 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-5 flex flex-col gap-3 transition-colors">
+              {/* Top stats */}
+              <div className="grid grid-cols-2 gap-3">
+                {stats.map((s, i) => (
+                  <div key={i} className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold tracking-widest mb-1 transition-colors">
+                      {s.label}
                     </p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">{s.value}</p>
                   </div>
-                );
-              })}
+                ))}
+              </div>
+
+              {/* Chart card */}
+              <div className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 transition-colors">Cost Overview</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">Monthly trend</p>
+                  </div>
+                  <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium px-3 py-1 rounded-full transition-colors">
+                    Stable
+                  </span>
+                </div>
+
+                {/* SVG Chart */}
+                <svg viewBox="0 0 300 80" className="w-full mt-3" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M0,60 C30,55 60,30 90,28 C120,26 150,20 180,22 C210,24 240,45 270,40 C285,37 295,35 300,33"
+                    fill="none"
+                    stroke="#6366f1"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+
+              {/* Bottom stats */}
+              <div className="grid grid-cols-3 gap-3">
+                {bottomStats.map((s, i) => (
+                  <div key={i} className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold tracking-widest mb-1 transition-colors">
+                      {s.label}
+                    </p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white transition-colors">{s.value}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* why team choose us */}
+      <section className="py-16 bg-white dark:bg-gray-950 transition-colors">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          {/* Badge */}
+          <div className="flex justify-center mb-5">
+            <span className="border border-gray-800 dark:border-gray-400 text-gray-800 dark:text-gray-300 text-sm font-medium px-4 py-1.5 rounded-full transition-colors">
+              Why Teams Choose Us
+            </span>
+          </div>
+
+          {/* Heading */}
+          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4 max-w-2xl mx-auto leading-tight transition-colors">
+            One platform for operations, deployment, and insight
+          </h2>
+
+          <p className="text-gray-500 dark:text-gray-400 text-base mb-12 max-w-xl mx-auto transition-colors">
+            Replace fragmented tools with one connected platform for ScopeAIChat management.
+          </p>
+
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+            {featuresTeam.map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={i}
+                  className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 hover:shadow-md transition-all flex flex-col"
+                >
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${item.iconBg}`}
+                  >
+                    <Icon className={`w-5 h-5 ${item.iconColor}`} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="font-bold text-gray-900 dark:text-white text-base mb-2 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed transition-colors">
+                    {item.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

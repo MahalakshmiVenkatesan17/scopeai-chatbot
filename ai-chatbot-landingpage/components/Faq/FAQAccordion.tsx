@@ -12,16 +12,16 @@ export default function FAQAccordion() {
   };
 
   return (
-    <section className="bg-white py-24">
+    <section className="bg-white dark:bg-gray-950 py-24 transition-colors">
       <div className="faq-container mx-auto px-4 mb-3">
         {/* Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 dark:text-white mb-4 transition-colors">
             Frequently Asked Questions
           </h2>
 
-          <p className="text-[var(--foundation-blue-blue-50)]0 text-base faq-header-width mx-auto">
-            Quick answers to common questions about using AI Chatbot to automate
+          <p className="text-[var(--foundation-blue-blue-50)]0 dark:text-gray-400 text-base faq-header-width mx-auto transition-colors">
+            Quick answers to common questions about using ScopeAIChat to automate
             customer conversations.
           </p>
         </div>
@@ -58,10 +58,10 @@ export default function FAQAccordion() {
                     onClick={() => toggleFAQ(index)}
                     className="w-full flex items-center justify-between text-left py-4"
                   >
-                    <span className="text-base font-medium text-slate-900">
+                    <span className="text-base font-medium text-slate-900 dark:text-white transition-colors">
                       {faq.question}
                     </span>
-                    <span className="text-slate-400 text-xl leading-none">
+                    <span className="text-slate-400 dark:text-gray-500 text-xl leading-none transition-colors">
                       +
                     </span>
                   </button>

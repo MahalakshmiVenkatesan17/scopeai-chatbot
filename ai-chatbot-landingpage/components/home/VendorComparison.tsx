@@ -13,18 +13,18 @@ const vendors = [
 
 export function VendorComparison() {
   return (
-    <section className="bg-white py-24">
-      <div className="max-w-7xl mx-auto home-vendor-wrapper px-12 py-20">
+    <section className="bg-white dark:bg-gray-950 py-24 transition-colors">
+      <div className="max-w-7xl mx-auto home-vendor-wrapper px-12 py-20 dark:bg-gray-900/50 dark:border dark:border-gray-800 rounded-[3rem] transition-colors">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-16 mb-20">
           <div className="max-w-xl">
-            <h2 className="text-2xl md:text-4xl leading-tight font-semibold text-slate-900 mb-6">
+            <h2 className="text-2xl md:text-4xl leading-tight font-semibold text-black dark:text-[#ffffff]! mb-6 transition-colors">
               Still doubting?
               <br />
               Here are the top 5 leading vendors compared
             </h2>
 
-            <p className="text-sm md:text-base leading-relaxed text-[var(--foundation-blue-blue-50)]0">
+            <p className="text-sm md:text-base leading-relaxed text-black transition-colors">
               Compare the top 5 leading customer support platforms and see how
               they embed AI in their solutions.
             </p>
@@ -37,6 +37,7 @@ export function VendorComparison() {
               width={260}
               height={220}
               priority
+              className="dark:opacity-80 transition-opacity"
             />
           </div>
         </div>
@@ -45,12 +46,12 @@ export function VendorComparison() {
         <div className="relative overflow-x-auto">
           <table className="w-full border-collapse text-center home-vendor-table">
             <thead>
-              <tr className="border-b border-[var(--foundation-blue-blue-100)]">
-                <th className="py-6 text-left text-sm font-medium home-vendor-muted" />
+              <tr className="border-b border-[var(--foundation-blue-blue-100)] dark:border-gray-800">
+                <th className="py-6 text-left text-sm font-medium home-vendor-muted dark:text-gray-500 transition-colors" />
                 {vendors.map((vendor) => (
                   <th
                     key={vendor}
-                    className="py-6 text-sm font-medium text-slate-900"
+                    className="py-6 text-sm font-medium text-slate-900 dark:text-gray-300 transition-colors"
                   >
                     {vendor}
                   </th>
@@ -62,21 +63,21 @@ export function VendorComparison() {
               {VendorComparisonFeatures.map((row) => (
                 <tr
                   key={row.name}
-                  className="border-b border-[var(--foundation-blue-blue-100)] last:border-none"
+                  className="border-b border-[var(--foundation-blue-blue-100)] dark:border-gray-800 last:border-none"
                 >
-                  <td className="py-6 text-left text-sm font-medium home-vendor-muted">
+                  <td className="py-6 text-left text-sm font-medium home-vendor-muted dark:text-gray-400 transition-colors">
                     {row.name}
                   </td>
 
                   {row.values.map((value, i) => (
                     <td key={i} className="py-6">
                       {value ? (
-                        <span className="inline-flex home-vendor-icon rounded-full bg-[var(--foundation-blue-blue-600)] items-center justify-center">
+                        <span className="inline-flex home-vendor-icon rounded-full bg-[var(--foundation-blue-blue-600)] dark:bg-blue-600 items-center justify-center transition-colors">
                           <Check size={14} className="text-white stroke-2" />
                         </span>
                       ) : (
-                        <span className="inline-flex home-vendor-icon rounded-full bg-[var(--foundation-blue-blue-100)] items-center justify-center">
-                          <X size={14} className="text-slate-400 stroke-2" />
+                        <span className="inline-flex home-vendor-icon rounded-full bg-[var(--foundation-blue-blue-100)] dark:bg-gray-800 items-center justify-center transition-colors">
+                          <X size={14} className="text-slate-400 dark:text-gray-500 stroke-2" />
                         </span>
                       )}
                     </td>

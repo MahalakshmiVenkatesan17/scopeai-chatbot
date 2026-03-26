@@ -36,32 +36,44 @@ export function WebsiteBuilders() {
   ];
 
   return (
-    <section className="integration-native-bg py-10">
-      <div className="max-w-7xl mx-auto px-6">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Everything included out of the box
-        </h2>
-        <p className="text-gray-500 mb-10 text-lg leading-relaxed sm:leading-8">
-          Built to deliver beautiful customer conversations without heavy engineering effort.
-        </p>
+    <section className="relative overflow-hidden py-16 sm:py-20 bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900 transition-colors">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.05),transparent_25%)] dark:bg-[radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.1),transparent_25%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(124,58,237,0.05),transparent_25%)] dark:bg-[radial-gradient(circle_at_80%_70%,rgba(124,58,237,0.08),transparent_25%)]"></div>
 
-        <div className="grid grid-col-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <span className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 mb-4 transition-colors">
+            <Rocket className="w-4 h-4 mr-2" />
+            Out of the Box
+          </span>
+          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4 transition-colors">
+            Everything included out of the box
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed transition-colors">
+            Built to deliver beautiful customer conversations without heavy engineering effort.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.map((item, i) => {
             const IconComponent = item.icon;
-            
+
             return (
               <div
                 key={i}
-                className="bg-white rounded-xl p-6 flex flex-col shadow-sm hover:shadow-md transition border border-gray-100"
+                className="group bg-white dark:bg-gray-900/50 rounded-2xl p-6 flex flex-col shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-800 backdrop-blur-sm"
               >
-                {/* Icon */}
-                <IconComponent className="w-6 h-6 text-gray-800 mb-5" strokeWidth={1.8} />
+                {/* Icon with gradient background */}
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+                  <IconComponent className="w-6 h-6 text-blue-600 dark:text-blue-400 transition-colors" strokeWidth={1.8} />
+                </div>
 
-                <h3 className="font-bold text-gray-900 mb-2 text-base">
+                <h3 className="font-bold text-gray-900 dark:text-white mb-2 text-lg transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">
                   {item.title}
                 </h3>
 
-                <p className="text-gray-500 text-sm leading-relaxed">
+                <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed transition-colors">
                   {item.desc}
                 </p>
               </div>
