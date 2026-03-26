@@ -172,7 +172,7 @@ export default function WidgetIntegrationPage() {
 
   const getApiUrl = () => {
     return (
-      process.env.NEXT_PUBLIC_BACKEND_API_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
       "https://ai-api.scopethinkers.ai/api/v1"
     );
   };

@@ -274,17 +274,18 @@ class LangGraphService:
             if state.get("has_relevant_context") and state.get("context_text"):
                 # ✅ Has relevant docs — use them
                 system_prompt += (
-                    "\n\nUse the following context from the knowledge base to answer the user's question:\n\n"
+                    "\n\nCRITICAL: Answer ONLY based on the following context. If the answer is not here, say you don't know.\n\n"
+                    "Context from knowledge base:\n"
                     + state["context_text"]
                 )
             else:
-                # ✅ No relevant docs found — still answer using system prompt only
-                # Don't hard-fail. Let the model respond naturally (greetings, small talk, etc.)
+                # ✅ No relevant docs found
                 system_prompt += (
                     "\n\nNo specific document context was found for this query. "
-                    "If the user is greeting you or asking something general, respond warmly and helpfully. "
-                    "If the user is asking a specific question that requires document knowledge, politely let them know "
-                    "you can only answer based on the available documents and ask them to rephrase or be more specific."
+                    "If the user is simply greeting you (e.g. 'hi', 'hello'), respond warmly and ask how you can help with their documents. "
+                    "For ANY other question or information request, you MUST respond exactly with: "
+                    "'I'm sorry, I cannot answer that based on the provided documents.' "
+                    "Do NOT use your internal knowledge to answer questions about people, places, or general facts."
                 )
 
             messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
@@ -342,13 +343,13 @@ class LangGraphService:
                 name = row.get("chatbot_name") or "AI Assistant"
                 welcome = row.get("welcome_message") or ""
                 prompt = (
-                f"You are {name}. "
-                "Answer using the provided context. "
-                "If the context clearly contains the answer, use it. "
-                "If the context does not contain enough information to answer, respond with: "
-                "'I'm sorry, I cannot answer that based on the provided documents.' "
-                "Do not speculate beyond what the context says."
-            )
+                    f"You are {name}. "
+                    "Your ONLY role is to answer questions based on the provided documents. "
+                    "1. If the context contains the answer, provide it clearly and concisely. "
+                    "2. If the context does NOT contain the answer, you MUST say: 'I'm sorry, I couldn’t find an answer to that. Try rephrasing your question or ask about related topics."
+                    "3. Do NOT use your own internal knowledge. "
+                    "4. If the user greets you, greet them back and ask how you can help with the documents."
+                )
                 if welcome:
                     prompt += f' Your welcome message is: "{welcome}"'
                 return prompt

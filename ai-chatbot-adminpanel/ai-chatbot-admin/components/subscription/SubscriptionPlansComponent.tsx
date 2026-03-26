@@ -381,22 +381,22 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
 
   concurrent_users:
     formData.concurrent_users === ""
-      ? undefined
+      ? null
       : parseInt(formData.concurrent_users, 10),
 
   document_collections:
     formData.document_collections === ""
-      ? undefined
+      ? null
       : parseInt(formData.document_collections, 10),
 
   max_file_upload_mb:
     formData.max_file_upload_mb === ""
-      ? undefined
+      ? null
       : parseInt(formData.max_file_upload_mb, 10),
 
   storage_limit_gb:
     formData.storage_limit_gb === ""
-      ? undefined
+      ? null
       : parseInt(formData.storage_limit_gb, 10),
 
   card_border_color: formData.card_border_color,

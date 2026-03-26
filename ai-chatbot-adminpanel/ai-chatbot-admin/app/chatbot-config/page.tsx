@@ -187,6 +187,16 @@ export default function ChatbotConfigPage() {
       return;
     }
 
+    if (
+      config.maxMessageLength == null ||
+      isNaN(Number(config.maxMessageLength)) ||
+      Number(config.maxMessageLength) < 10 ||
+      Number(config.maxMessageLength) > 100000
+    ) {
+      showToast("Maximum Input Length must be 10 to 100000", "error");
+      return;
+    }
+
     try {
       setLoading(true);
 

@@ -465,7 +465,7 @@
               </div>
             </div>
             <div class="aicw-header-actions">
-              <button class="aicw-icon-btn-v1 aicw-minimize-btn-v1" title="Minimize">—</button>
+              <button class="aicw-icon-btn-v1 aicw-minimize-btn-v1" title="Minimize">-</button>
               <button class="aicw-icon-btn-v1 aicw-close-btn-v1" title="Close">×</button>
             </div>
           </div>

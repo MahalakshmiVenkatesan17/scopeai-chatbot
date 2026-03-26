@@ -363,7 +363,7 @@ export default function UsersPage() {
                   Users Management
                 </h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  Manage all users across tenants with a cleaner dark experience
+                  Manage all users across tenants
                 </p>
               </div>
             </div>
