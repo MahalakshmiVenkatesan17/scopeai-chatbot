@@ -52,7 +52,7 @@ class ApiClient {
     }
 
     // Default to production API URL with version path
-    return process?.env?.NEXT_PUBLIC_BACKEND_API_URL || "https://ai-api.scopethinkers.ai/api/v1";
+    return process?.env?.NEXT_PUBLIC_API_URL || "https://api-scopeaichat.scopethinkers.ai/api/v1";
   }
 
   constructor() {
@@ -819,10 +819,10 @@ class ApiClient {
     name: string;
     price: number;
     billing_cycle: string;
-    concurrent_users: number;
-    document_collections: number;
-    max_file_upload_mb: number;
-    storage_limit_gb: number;
+    concurrent_users: number | null;
+    document_collections: number | null;
+    max_file_upload_mb: number | null;
+    storage_limit_gb: number | null;
     card_border_color: string;
     icon_color: string;
     icon_background: string;
@@ -843,10 +843,10 @@ class ApiClient {
       name?: string;
       price?: number;
       billing_cycle?: string;
-      concurrent_users?: number;
-      document_collections?: number;
-      max_file_upload_mb?: number;
-      storage_limit_gb?: number;
+      concurrent_users?: number | null;
+      document_collections?: number | null;
+      max_file_upload_mb?: number | null;
+      storage_limit_gb?: number | null;
       card_border_color?: string;
       icon_color?: string;
       icon_background?: string;

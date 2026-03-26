@@ -18,7 +18,7 @@ engine = create_async_engine(
     pool_size=min(settings.DB_POOL_SIZE, 5),
     max_overflow=5,
     pool_timeout=settings.DB_POOL_TIMEOUT,
-    pool_recycle=1800,
+    pool_recycle=300,   # Recycle every 5 min — Railway drops idle TCP after ~5 min
     pool_pre_ping=True,
     echo=False,
 )

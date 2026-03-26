@@ -13,7 +13,8 @@ function EmbedContent() {
     // Try environment variable first
     const envApiUrl = process.env.NEXT_PUBLIC_API_URL;
     if (envApiUrl) {
-      return envApiUrl;
+      const base = envApiUrl.replace(/\/+$/, '');
+      return base.endsWith('/api/v1') ? base : `${base}/api/v1`;
     }
 
     // Check if running on localhost for development
@@ -25,7 +26,7 @@ function EmbedContent() {
     }
 
     // Default to production URL
-    return 'https://ai-api.scopethinkers.ai';
+    return 'https://api-scopeaichat.scopethinkers.ai/api/v1';
   };
 
   const apiUrl = getApiUrl();

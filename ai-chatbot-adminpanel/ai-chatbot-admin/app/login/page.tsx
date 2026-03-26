@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Sparkles, ShieldCheck } from "lucide-react";
@@ -15,7 +15,7 @@ export default function LoginPage() {
   const { showToast, ToastComponent } = useToast();
 
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const [formErrors, setFormErrors] = useState({
@@ -31,11 +31,12 @@ export default function LoginPage() {
     if (!email.trim()) {
       errors.email = "Email is required";
       isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
       errors.email = "Invalid email format";
       isValid = false;
     }
 
+    const password = passwordRef.current?.value || "";
     if (!password.trim()) {
       errors.password = "Password is required";
       isValid = false;
@@ -52,7 +53,13 @@ export default function LoginPage() {
     if (!validateForm()) return;
 
     try {
+      const password = passwordRef.current?.value || "";
       await login(email, password);
+
+      // ✅ clear password from memory/DOM
+      if (passwordRef.current) {
+        passwordRef.current.value = "";
+      }
 
       // ✅ Save token to localStorage explicitly
       if (storeToken) {
@@ -115,7 +122,7 @@ export default function LoginPage() {
               AI-powered admin workspace
             </div>
 
-            <div className="mt-8">
+            <div className="mt-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#5856d6] shadow-xl dark:bg-[#635BDF] dark:shadow-[0_0_30px_rgba(99,91,223,0.35)] shrink-0">
                   <Image src="/icon-white.svg" alt="icon" width={34} height={34} />
@@ -131,7 +138,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="mt-10 grid gap-4">
+              <div className="mt-4 grid gap-4">
                 <div className="rounded-3xl border border-gray-200 bg-white/70 p-5 shadow-sm backdrop-blur-xl dark:border-white/[0.06] dark:bg-white/[0.04]">
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-50 text-violet-700 dark:bg-violet-500/10 dark:text-violet-300">
@@ -228,11 +235,10 @@ export default function LoginPage() {
 
                   <div className="relative">
                     <input
+                      ref={passwordRef}
                       type={showPassword ? "text" : "password"}
                       autoComplete="current-password"
-                      value={password}
-                      onChange={(e) => {
-                        setPassword(e.target.value);
+                      onChange={() => {
                         setFormErrors({ ...formErrors, password: "" });
                       }}
                       className={`block w-full rounded-2xl border px-4 py-3 pr-12 text-sm shadow-sm focus:outline-none focus:ring-4 bg-white dark:bg-white/[0.03] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-500 transition-colors
@@ -289,4 +295,3 @@ export default function LoginPage() {
     </div>
   );
 }
- 

@@ -57,7 +57,9 @@ export default function MastersPage() {
   const [tenantSlug, setTenantSlug] = useState("");
 
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(
+    null,
+  );
 
   const { showToast, ToastComponent } = useToast();
 
@@ -164,7 +166,8 @@ export default function MastersPage() {
 
     if (isDuplicateName(name))
       return showToast(
-        `A category named "${name}" already exists${isSuperAdmin ? " for this tenant" : ""
+        `A category named "${name}" already exists${
+          isSuperAdmin ? " for this tenant" : ""
         }`,
         "error",
       );
@@ -203,7 +206,8 @@ export default function MastersPage() {
 
     if (isDuplicateName(name, editingCategory.id))
       return showToast(
-        `A category named "${name}" already exists${isSuperAdmin ? " for this tenant" : ""
+        `A category named "${name}" already exists${
+          isSuperAdmin ? " for this tenant" : ""
         }`,
         "error",
       );
@@ -325,34 +329,6 @@ export default function MastersPage() {
             </div>
 
             <div className="flex gap-3 flex-wrap">
-              {/* Tenant filter — super admin only */}
-              {isSuperAdmin && (
-                <div className="relative min-w-[220px]">
-                  <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-                  <select
-                    value={tenantFilter}
-                    onChange={(e) => {
-                      setTenantFilter(e.target.value);
-                      setPage(1);
-                    }}
-                    className="w-full rounded-xl border border-gray-300 dark:border-white/10 bg-white dark:bg-white/[0.03] pl-10 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-200 focus:border-[#8b5cf6] focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
-                  >
-                    <option value="" className="dark:bg-[#111827]">
-                      All Tenants
-                    </option>
-                    {tenants.map((tenant) => (
-                      <option
-                        key={tenant.id}
-                        value={tenant.id}
-                        className="dark:bg-[#111827]"
-                      >
-                        {tenant.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
               <Button
                 variant="main"
                 onClick={openAddModal}
@@ -360,7 +336,35 @@ export default function MastersPage() {
               >
                 <Plus className="mr-2 h-4 w-4" /> Add Category
               </Button>
-
+            </div>
+          </div>
+          {/* Tenant filter — super admin only */}
+          {isSuperAdmin && (
+            <div className="flex gap-5 ">
+              <div className="relative min-w-[320px]">
+                <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+                <select
+                  value={tenantFilter}
+                  onChange={(e) => {
+                    setTenantFilter(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full rounded-xl border border-gray-300 dark:border-white/10 bg-white dark:bg-white/[0.03] pl-10 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-200 focus:border-[#8b5cf6] focus:outline-none focus:ring-2 focus:ring-[#8b5cf6]/20 transition-all"
+                >
+                  <option value="" className="dark:bg-[#111827]">
+                    All Tenants
+                  </option>
+                  {tenants.map((tenant) => (
+                    <option
+                      key={tenant.id}
+                      value={tenant.id}
+                      className="dark:bg-[#111827]"
+                    >
+                      {tenant.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <Button
                 variant="secondary"
                 onClick={handleResetFilters}
@@ -369,8 +373,7 @@ export default function MastersPage() {
                 <RotateCw className="mr-2 h-4 w-4" /> Reset
               </Button>
             </div>
-          </div>
-
+          )}
           {/* TABLE */}
           <Card className="overflow-hidden border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:shadow-xl rounded-2xl">
             <CardContent className="px-0! py-0!">
@@ -463,18 +466,24 @@ export default function MastersPage() {
                               </TableCell>
 
                               <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300 max-w-[360px]">
-                                <div className="truncate" title={cat.description || "—"}>
+                                <div
+                                  className="truncate"
+                                  title={cat.description || "—"}
+                                >
                                   {cat.description || "—"}
                                 </div>
                               </TableCell>
 
                               <TableCell className="px-6 py-4 text-gray-600 dark:text-gray-300">
                                 {cat.created_at
-                                  ? new Date(cat.created_at).toLocaleDateString("en-US", {
-                                    month: "short",
-                                    day: "2-digit",
-                                    year: "numeric",
-                                  })
+                                  ? new Date(cat.created_at).toLocaleDateString(
+                                      "en-US",
+                                      {
+                                        month: "short",
+                                        day: "2-digit",
+                                        year: "numeric",
+                                      },
+                                    )
                                   : "—"}
                               </TableCell>
 
@@ -583,7 +592,10 @@ export default function MastersPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setShowAddModal(false)}
+              >
                 Cancel
               </Button>
 
@@ -643,7 +655,10 @@ export default function MastersPage() {
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setShowEditModal(false)}
+              >
                 Cancel
               </Button>
 
@@ -680,7 +695,10 @@ export default function MastersPage() {
             </p>
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setShowDeleteModal(false)}
+              >
                 Cancel
               </Button>
 

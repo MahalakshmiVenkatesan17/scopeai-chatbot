@@ -182,7 +182,7 @@ export default function UsersPage() {
       showToast("Email is required", "error");
       return false;
     }
-    if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    if (!formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/)) {
       showToast("Invalid email format", "error");
       return false;
     }
@@ -363,7 +363,7 @@ export default function UsersPage() {
                   Users Management
                 </h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                  Manage all users across tenants with a cleaner dark experience
+                  Manage all users across tenants
                 </p>
               </div>
             </div>
@@ -404,7 +404,7 @@ export default function UsersPage() {
                 </div>
 
                 {loggedInUser?.role !== "tenant_admin" && (
-                  <div className="xl:col-span-3">
+                  <div className="xl:col-span-4">
                     <select
                       value={tenantFilter}
                       onChange={(e) => {
@@ -429,7 +429,7 @@ export default function UsersPage() {
                   </div>
                 )}
 
-                <div className="xl:col-span-2">
+                <div className="xl:col-span-3">
                   <select
                     value={roleFilter}
                     onChange={(e) => {

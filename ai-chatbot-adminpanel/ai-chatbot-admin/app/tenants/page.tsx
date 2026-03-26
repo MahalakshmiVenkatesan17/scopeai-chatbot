@@ -228,7 +228,7 @@ export default function TenantsPage() {
 
     if (!formData.billing_email?.trim()) {
       newErrors.billing_email = "Billing email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.billing_email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(formData.billing_email)) {
       newErrors.billing_email = "Invalid email format";
     }
 

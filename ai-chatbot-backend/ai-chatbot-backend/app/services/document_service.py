@@ -4,6 +4,7 @@ Document processing service – extraction, chunking, embedding, storage.
 Mirrors Node.js DocumentProcessingService.ts.
 """
 
+import os
 import asyncio
 import hashlib
 from dataclasses import dataclass
@@ -97,6 +98,75 @@ class DocumentProcessingService:
     # ------------------------------------------------------------------
     # Reprocess
     # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Deletion & Reprocess
+    # ------------------------------------------------------------------
+    async def delete_document(self, document_id: int, tenant_id: int) -> bool:
+        """Centralized deletion: Weaviate, File System, and Database."""
+        try:
+            # 1. Fetch document info
+            async with async_session_factory() as session:
+                result = await session.execute(
+                    text("SELECT file_path FROM documents WHERE id = :did AND tenant_id = :tid"),
+                    {"did": document_id, "tid": tenant_id},
+                )
+                row = result.mappings().first()
+                if not row:
+                    logger.warning(f"Document {document_id} not found for deletion")
+                    return False
+                file_path = str(row["file_path"])
+
+            # 2. Delete from Weaviate (vector store)
+            try:
+                await asyncio.to_thread(
+                    self.weaviate_service.delete_document_chunks, document_id, tenant_id
+                )
+            except Exception as e:
+                logger.error(f"Failed to delete Weaviate chunks for doc {document_id}: {e}")
+
+            # 3. Delete from File System
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                logger.warning(f"Failed to delete file {file_path}: {e}")
+
+            # 4. Delete from DB (cascades to chunks)
+            from app.repositories.document_repo import DocumentRepository
+            async with async_session_factory() as session:
+                repo = DocumentRepository(session)
+                result = await repo.delete_by_id(document_id)
+                if not result:
+                    logger.warning(f"Document {document_id} was not found in DB during final deletion step")
+                await session.commit()
+
+            logger.info(f"Document {document_id} deleted successfully from all areas")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error during document deletion {document_id}: {e}")
+            return False
+
+    async def sync_document_metadata(
+        self, document_id: int, tenant_id: int, title: str | None = None, category_name: str | None = None
+    ) -> None:
+        """Sync metadata changes to Weaviate."""
+        props = {}
+        if title is not None:
+            props["documentTitle"] = title
+        if category_name is not None:
+            props["categoryName"] = category_name
+
+        if not props:
+            return
+
+        try:
+            await asyncio.to_thread(
+                self.weaviate_service.update_document_metadata, document_id, tenant_id, props
+            )
+        except Exception as e:
+            logger.error(f"Failed to sync metadata to Weaviate for doc {document_id}: {e}")
+
     async def reprocess_document(self, document_id: int, tenant_id: int) -> ProcessingResult:
         """Delete existing chunks and reprocess."""
         async with async_session_factory() as session:
@@ -296,38 +366,28 @@ class DocumentProcessingService:
     async def _insert_chunks(
         self, document_id: int, tenant_id: int, chunks: list[str]
     ) -> list[int]:
-        """Insert text chunks into document_chunks table, return list of IDs."""
-        chunk_ids: list[int] = []
+        """Insert text chunks into document_chunks table using ORM for robustness."""
+        from app.repositories.document_repo import ChunkRepository
+        
+        chunk_data = []
+        for i, chunk_text in enumerate(chunks):
+            chunk_data.append({
+                "document_id": document_id,
+                "tenant_id": tenant_id,
+                "chunk_index": i,
+                "content": chunk_text,
+                "content_hash": hashlib.md5(chunk_text.encode()).hexdigest(),
+                "token_count": estimate_token_count(chunk_text),
+                "embedding_status": 'pending',
+                "chunk_metadata": {"chunk_type": "text"},
+            })
 
         async with async_session_factory() as session:
-            for i, chunk_text in enumerate(chunks):
-                content_hash = hashlib.md5(chunk_text.encode()).hexdigest()
-                token_count = estimate_token_count(chunk_text)
-
-                result = await session.execute(
-                    text("""
-                        INSERT INTO document_chunks
-                            (document_id, tenant_id, chunk_index, content, content_hash,
-                             token_count, embedding_status, metadata, created_at, updated_at)
-                        VALUES
-                            (:doc_id, :tid, :idx, :content, :hash,
-                             :tokens, 'pending', :meta, NOW(), NOW())
-                    """),
-                    {
-                        "doc_id": document_id,
-                        "tid": tenant_id,
-                        "idx": i,
-                        "content": chunk_text,
-                        "hash": content_hash,
-                        "tokens": token_count,
-                        "meta": '{"chunk_type": "text"}',
-                    },
-                )
-                chunk_ids.append(result.lastrowid)  # type: ignore[arg-type]
-
-            await session.commit()
-
-        return chunk_ids
+            repo = ChunkRepository(session)
+            created_objs = await repo.create_many(chunk_data)
+            return [c.id for c in created_objs]
+        
+        return []
 
     async def _update_document_status(
         self,

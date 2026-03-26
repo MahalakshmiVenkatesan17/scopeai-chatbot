@@ -1,5 +1,5 @@
-import hashlib
 import os
+import hashlib
 import uuid
 import tempfile
 from pathlib import Path
@@ -706,9 +706,29 @@ async def update_document(
     update_data = body.model_dump(exclude_none=True,exclude={"tenant_slug"})
     await repo.update_by_id(document_id, update_data)
  
-    # Refetch updated document
+    # Refetch updated document with category name if needed
     updated_doc = await repo.get_by_id(document_id)
- 
+    
+    # Sync metadata to Weaviate
+    from app.services.document_service import DocumentProcessingService
+    from app.repositories.category_repo import CategoryRepository
+    
+    processing_service = DocumentProcessingService()
+    category_repo = CategoryRepository(db)
+    
+    category_name = None
+    if updated_doc.category_id:
+        cat = await category_repo.get_by_id(updated_doc.category_id)
+        if cat:
+            category_name = cat.name
+
+    await processing_service.sync_document_metadata(
+        document_id=document_id,
+        tenant_id=current_user.tenant_id,
+        title=updated_doc.title,
+        category_name=category_name
+    )
+
     def fmt_ts(val):
         if val is None:
             return None
@@ -751,31 +771,28 @@ async def delete_document(
     if not doc:
         raise NotFoundError("Document not found")
    
-    # Allow super_admin to delete any tenant's document
+    # Role-based access control: only super_admin and tenant_admin can delete
+    if current_user.role not in ["super_admin", "tenant_admin"]:
+        from app.core.exceptions import ForbiddenError
+        raise ForbiddenError("Only admins can delete documents")
+
+    # Allow super_admin to delete any tenant's document, 
+    # but regular tenant_admins must match the document's tenant_id
     if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
         raise NotFoundError("Document not found")
  
-    # Delete file from disk
-    try:
-        if os.path.exists(doc.file_path):
-            os.remove(doc.file_path)
-    except OSError:
-        logger.warning(f"Could not delete file: {doc.file_path}")
- 
-    # Delete chunks from Weaviate
-    import asyncio
-    from app.services.weaviate_service import WeaviateService
- 
-    try:
-        weaviate_svc = WeaviateService.get_instance()
-        await asyncio.to_thread(
-            weaviate_svc.delete_document_chunks, document_id, current_user.tenant_id
-        )
-    except Exception as e:
-        logger.warning(f"Failed to delete Weaviate chunks for doc {document_id}: {e}")
- 
-    # Delete from DB (cascades to chunks)
-    await repo.delete_by_id(document_id)
+    # Unified deletion logic
+    from app.services.document_service import DocumentProcessingService
+    processing_service = DocumentProcessingService()
+    
+    # CRITICAL: We pass the DOCUMENT'S own tenant_id to the service, 
+    # so that the DB and Weaviate queries find the correct records.
+    success = await processing_service.delete_document(document_id, doc.tenant_id)
+    
+    if not success:
+        from app.core.exceptions import InternalError
+        raise InternalError("Failed to delete document fully")
+
     return {"success": True, "message": "Document deleted"}
 @router.get("/{document_id}/view")
 async def view_document(

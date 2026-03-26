@@ -1,4 +1,4 @@
-​"use client";
+"use client";
 
 import React, { useEffect, useState, useMemo } from "react";
 import {
@@ -325,28 +325,28 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
 
     // Optional numeric fields -> validate only if entered
     if (formData.concurrent_users !== "") {
-      if (isNaN(concurrentValue) || concurrentValue < 0) {
-        newErrors.concurrent_users = "Concurrent users must be 0 or greater";
+      if (isNaN(concurrentValue) || concurrentValue <= 0) {
+        newErrors.concurrent_users = "Concurrent users must be greater than 0";
       }
     }
 
     if (formData.document_collections !== "") {
-      if (isNaN(documentCollectionValue) || documentCollectionValue < 0) {
+      if (isNaN(documentCollectionValue) || documentCollectionValue <= 0) {
         newErrors.document_collections =
-          "Document collections must be 0 or greater";
+          "Document collections must be greater than 0";
       }
     }
 
     if (formData.max_file_upload_mb !== "") {
-      if (isNaN(fileUploadValue) || fileUploadValue < 0) {
+      if (isNaN(fileUploadValue) || fileUploadValue <= 0) {
         newErrors.max_file_upload_mb =
-          "Max file upload size must be 0 or greater";
+          "Max file upload size must be greater than 0";
       }
     }
 
     if (formData.storage_limit_gb !== "") {
-      if (isNaN(storageLimitValue) || storageLimitValue < 0) {
-        newErrors.storage_limit_gb = "Storage limit must be 0 or greater";
+      if (isNaN(storageLimitValue) || storageLimitValue <= 0) {
+        newErrors.storage_limit_gb = "Storage limit must be greater than 0";
       }
     }
 
@@ -373,33 +373,38 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
 
     setErrors({});
 
-    const planData = {
-      name: trimmedName,
-      description: trimmedDescription,
-      price: parseFloat(formData.price) || 0,
-      billing_cycle: formData.billing_cycle,
-      concurrent_users:
-        formData.concurrent_users === ""
-          ? undefined
-          : parseInt(formData.concurrent_users, 10),
-      document_collections:
-        formData.document_collections === ""
-          ? undefined
-          : parseInt(formData.document_collections, 10),
-      max_file_upload_mb:
-        formData.max_file_upload_mb === ""
-          ? undefined
-          : parseInt(formData.max_file_upload_mb, 10),
-      storage_limit_gb:
-        formData.storage_limit_gb === ""
-          ? undefined
-          : parseInt(formData.storage_limit_gb, 10),
-      card_border_color: formData.card_border_color,
-      icon_color: formData.icon_color,
-      icon_background: formData.icon_background,
-      features: formData.features,
-      is_active: formData.is_active,
-    };
+ const planData = {
+  name: trimmedName,
+  description: trimmedDescription,
+  price: parseFloat(formData.price) || 0,
+  billing_cycle: formData.billing_cycle,
+
+  concurrent_users:
+    formData.concurrent_users === ""
+      ? null
+      : parseInt(formData.concurrent_users, 10),
+
+  document_collections:
+    formData.document_collections === ""
+      ? null
+      : parseInt(formData.document_collections, 10),
+
+  max_file_upload_mb:
+    formData.max_file_upload_mb === ""
+      ? null
+      : parseInt(formData.max_file_upload_mb, 10),
+
+  storage_limit_gb:
+    formData.storage_limit_gb === ""
+      ? null
+      : parseInt(formData.storage_limit_gb, 10),
+
+  card_border_color: formData.card_border_color,
+  icon_color: formData.icon_color,
+  icon_background: formData.icon_background,
+  features: formData.features,
+  is_active: formData.is_active,
+};
 
     try {
       if (editingPlan) {
@@ -408,15 +413,7 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
         showToast("Plan updated successfully", "success");
       } else {
         // Create new plan
-        const createData = {
-          ...planData,
-          concurrent_users: planData.concurrent_users ?? null,
-          document_collections: planData.document_collections ?? null,
-          max_file_upload_mb: planData.max_file_upload_mb ?? null,
-          storage_limit_gb: planData.storage_limit_gb ?? null,
-        };
-
-        const createdPlan = await apiClient.createPlan(createData as any);
+        const createdPlan = await apiClient.createPlan(planData as any);
 
         // Create plan in Razorpay
         try {
@@ -452,7 +449,7 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
       console.error("Failed to save plan:", error);
       showToast(
         getErrorMessage(error) ||
-          `Failed to ${editingPlan ? "update" : "create"} plan`,
+        `Failed to ${editingPlan ? "update" : "create"} plan`,
         "error",
       );
     }
@@ -511,22 +508,22 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
   const generateFeatures = (plan: SubscriptionPlan): string[] => {
     const features: string[] = [];
     const concurrent =
-      !plan.concurrent_users || plan.concurrent_users === 1
+      plan.concurrent_users == null
         ? "Unlimited concurrent users"
         : `Up to ${plan.concurrent_users} concurrent users`;
 
     const collections =
-      !plan.document_collections || plan.document_collections === 5
+      plan.document_collections == null
         ? "Unlimited document collections"
         : `Up to ${plan.document_collections} document collections`;
 
     const uploads =
-      !plan.max_file_upload_mb || plan.max_file_upload_mb === 10
+      plan.max_file_upload_mb == null
         ? "Unlimited file uploads"
         : `${plan.max_file_upload_mb}MB max file upload`;
 
     const storage =
-      !plan.storage_limit_gb || plan.storage_limit_gb === 1
+      plan.storage_limit_gb == null
         ? "Unlimited storage"
         : `${plan.storage_limit_gb}GB storage`;
 
@@ -586,33 +583,33 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
       const response = await apiClient.getAllPlans();
       const fetchedPlans: SubscriptionPlan[] = Array.isArray(response.data)
         ? response.data.map((plan: ApiPlanResponse) => ({
-            id: plan.id,
-            name: plan.plan_name,
-            description: plan.description,
-            price: parseFloat(plan.price.toString()),
-            billing_cycle: plan.billing_cycle,
-            concurrent_users: plan.concurrent_users,
-            document_collections:
-              plan.document_collections ||
-              plan.document_collections_limit ||
-              null,
-            max_file_upload_mb: plan.max_file_upload_mb,
-            storage_limit_gb: plan.storage_limit_gb,
-            card_border_color: plan.card_color || "#3B82F6",
-            icon_color: plan.icon_color || "#2563EB",
-            icon_background: plan.icon_bg_color || "#DBEAFE",
-            features:
-              typeof plan.features === "string"
+          id: plan.id,
+          name: plan.plan_name,
+          description: plan.description,
+          price: parseFloat(plan.price.toString()),
+          billing_cycle: plan.billing_cycle,
+          concurrent_users: plan.concurrent_users,
+          document_collections:
+            plan.document_collections ||
+            plan.document_collections_limit ||
+            null,
+          max_file_upload_mb: plan.max_file_upload_mb,
+          storage_limit_gb: plan.storage_limit_gb,
+          card_border_color: plan.card_color || "#3B82F6",
+          icon_color: plan.icon_color || "#2563EB",
+          icon_background: plan.icon_bg_color || "#DBEAFE",
+          features:
+            typeof plan.features === "string"
+              ? plan.features
+                ? JSON.parse(plan.features)
+                : []
+              : Array.isArray(plan.features)
                 ? plan.features
-                  ? JSON.parse(plan.features)
-                  : []
-                : Array.isArray(plan.features)
-                  ? plan.features
-                  : [],
-            is_active: !!plan.is_active,
-            razorPay_plan_id: plan.razorPay_plan_id || null,
-            stripePay_price_id: plan.stripePay_price_id || null,
-          }))
+                : [],
+          is_active: !!plan.is_active,
+          razorPay_plan_id: plan.razorPay_plan_id || null,
+          stripePay_price_id: plan.stripePay_price_id || null,
+        }))
         : [];
       setPlans(fetchedPlans);
     } catch (error) {
@@ -645,36 +642,36 @@ const SubscriptionPlansComponent: React.FC<SubscriptionPlansComponentProps> = ({
     }
   }, [isSuperAdmin]);
 
-//   const isActivePlan = (plan: SubscriptionPlan): boolean => {
-// console.log("Checking active plan:", { plan, activeSubscription });
+  //   const isActivePlan = (plan: SubscriptionPlan): boolean => {
+  // console.log("Checking active plan:", { plan, activeSubscription });
 
 
-//     if (isSuperAdmin || !activeSubscription) return false;
-//     return (
-//       (plan.razorPay_plan_id &&
-//         activeSubscription.plan_id === plan.razorPay_plan_id) ||
-//       activeSubscription.plan_name.toLowerCase() === plan.name.toLowerCase()
-//     );
-//   };
+  //     if (isSuperAdmin || !activeSubscription) return false;
+  //     return (
+  //       (plan.razorPay_plan_id &&
+  //         activeSubscription.plan_id === plan.razorPay_plan_id) ||
+  //       activeSubscription.plan_name.toLowerCase() === plan.name.toLowerCase()
+  //     );
+  //   };
 
   const isActivePlan = (plan: SubscriptionPlan): boolean => {
-  // If super admin → no active plan
-  if (isSuperAdmin) return false;
+    // If super admin → no active plan
+    if (isSuperAdmin) return false;
 
-  // ✅ If NO subscription → FREE plan is active
-  if (!activeSubscription) {
-    return plan.price === 0; // or plan.name.toLowerCase() === "free"
-  }
+    // ✅ If NO subscription → FREE plan is active
+    if (!activeSubscription) {
+      return plan.price === 0; // or plan.name.toLowerCase() === "free"
+    }
 
-  // Normal logic
-  return (
-    (plan.razorPay_plan_id &&
-      activeSubscription.plan_id === plan.razorPay_plan_id) ||
-    activeSubscription.plan_name.toLowerCase() === plan.name.toLowerCase()
-  );
-};
+    // Normal logic
+    return (
+      (plan.razorPay_plan_id &&
+        activeSubscription.plan_id === plan.razorPay_plan_id) ||
+      activeSubscription.plan_name.toLowerCase() === plan.name.toLowerCase()
+    );
+  };
 
-const openDeleteModal = (plan: SubscriptionPlan) => {
+  const openDeleteModal = (plan: SubscriptionPlan) => {
     setPlanToDelete(plan);
     setShowDeleteModal(true);
   };
@@ -703,10 +700,14 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
     }
   };
 
+  const visiblePlans = useMemo(() => {
+    return plans.filter((p) => isSuperAdmin || p.is_active);
+  }, [plans, isSuperAdmin]);
+
   const discountValue = useMemo(() => {
-    const paidPlan = plans.find((p) => p.price > 0);
+    const paidPlan = visiblePlans.find((p) => p.price > 0);
     return paidPlan ? getDiscount(paidPlan) : 0;
-  }, [plans]);
+  }, [visiblePlans]);
 
   if (loading) {
     return (
@@ -783,11 +784,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
             {!isSuperAdmin && (
               <div className="flex items-center justify-center gap-4 sm:gap-6">
                 <span
-                  className={`text-sm font-semibold transition-colors ${
-                    billingCycle === "monthly"
-                      ? "primary-color"
-                      : "text-gray-500"
-                  }`}
+                  className={`text-sm font-semibold transition-colors ${billingCycle === "monthly"
+                    ? "primary-color"
+                    : "text-gray-500"
+                    }`}
                 >
                   Pay Monthly
                 </span>
@@ -800,19 +800,17 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                   className="relative inline-flex h-6 w-15 items-center rounded-full bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
                 >
                   <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${
-                      billingCycle === "yearly"
-                        ? "translate-x-9"
-                        : "translate-x-1"
-                    }`}
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${billingCycle === "yearly"
+                      ? "translate-x-9"
+                      : "translate-x-1"
+                      }`}
                   />
                 </button>
                 <span
-                  className={`text-sm font-semibold transition-colors ${
-                    billingCycle === "yearly"
-                      ? "primary-color"
-                      : "text-gray-500"
-                  }`}
+                  className={`text-sm font-semibold transition-colors ${billingCycle === "yearly"
+                    ? "primary-color"
+                    : "text-gray-500"
+                    }`}
                 >
                   Pay Yearly
                 </span>
@@ -845,8 +843,7 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
         <div className="px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="max-w-360 mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
-              {plans
-                .filter((p) => isSuperAdmin || p.is_active)
+              {visiblePlans
                 .map((plan) => {
                   const styling = getPlanStyling(plan.name);
                   const Icon = getPlanIcon(plan.name);
@@ -857,13 +854,12 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
 
                   return (
                     <div key={plan.id} className="h-full">
-                        <div
-                          className={`relative h-full rounded-2xl border shadow-lg hover:shadow-xl overflow-hidden transition-all duration-300 ${
-                            isPlanActive
-                              ? "primary-bg-color primary-color border-transparent"
-                              : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-800"
+                      <div
+                        className={`relative h-full rounded-2xl border shadow-lg hover:shadow-xl overflow-hidden transition-all duration-300 ${isPlanActive
+                          ? "primary-bg-color primary-color border-transparent"
+                          : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-800"
                           }`}
-                        >
+                      >
                         {/* Super Admin: Edit/Delete Actions */}
                         {isSuperAdmin && (
                           <div className="absolute top-4 right-4 z-10 flex gap-2">
@@ -873,27 +869,27 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                             >
                               <Edit2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                             </button>
-                            <button
-                              onClick={() => openDeleteModal(plan)}
-                              className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-md hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors cursor-pointer border border-transparent dark:border-gray-700"
-                            >
-                              <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
-                            </button>
+                            {plan.name.toLowerCase() !== "free" && (
+                              <button
+                                onClick={() => openDeleteModal(plan)}
+                                className="p-2 bg-white dark:bg-slate-800 rounded-full shadow-md hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors cursor-pointer border border-transparent dark:border-gray-700"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
+                              </button>
+                            )}
                           </div>
                         )}
 
                         <div className="p-8 md:p-10 flex flex-col h-full">
                           <h3
-                            className={`text-xl font-bold mb-2 ${
-                              isPlanActive ? "text-white" : "text-gray-900 dark:text-gray-100"
-                            }`}
+                            className={`text-xl font-bold mb-2 ${isPlanActive ? "text-white" : "text-gray-900 dark:text-gray-100"
+                              }`}
                           >
                             {plan.name}
                           </h3>
                           <p
-                            className={`text-sm mb-4 ${
-                              isPlanActive ? "text-white/80" : "text-gray-600 dark:text-gray-400"
-                            }`}
+                            className={`text-sm mb-4 ${isPlanActive ? "text-white/80" : "text-gray-600 dark:text-gray-400"
+                              }`}
                           >
                             {plan.description ||
                               "Perfect for your AI chatbot needs"}
@@ -909,20 +905,18 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                               <div>
                                 <div className="flex items-center gap-2 mb-2">
                                   <span
-                                    className={`text-3xl md:text-5xl font-semibold ${
-                                      !isSuperAdmin && isPlanActive
-                                        ? "text-white"
-                                        : "text-gray-900 dark:text-gray-100"
-                                    }`}
+                                    className={`text-3xl md:text-5xl font-semibold ${!isSuperAdmin && isPlanActive
+                                      ? "text-white"
+                                      : "text-gray-900 dark:text-gray-100"
+                                      }`}
                                   >
                                     $0
                                   </span>
                                   <span
-                                    className={`text-lg font-light ${
-                                      !isSuperAdmin && isPlanActive
-                                        ? "text-white/80"
-                                        : "text-gray-600 dark:text-gray-400"
-                                    }`}
+                                    className={`text-lg font-light ${!isSuperAdmin && isPlanActive
+                                      ? "text-white/80"
+                                      : "text-gray-600 dark:text-gray-400"
+                                      }`}
                                   >
                                     /month
                                   </span>
@@ -935,21 +929,19 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                               <div>
                                 <div className="flex items-center gap-2 mb-2">
                                   <span
-                                    className={`text-3xl md:text-5xl font-semibold text-gray-900 dark:text-gray-100 ${
-                                      isPlanActive
-                                        ? "text-white"
-                                        : "text-gray-900 dark:text-gray-100"
-                                    }`}
+                                    className={`text-3xl md:text-5xl font-semibold text-gray-900 dark:text-gray-100 ${isPlanActive
+                                      ? "text-white"
+                                      : "text-gray-900 dark:text-gray-100"
+                                      }`}
                                   >
                                     $
                                     {isSuperAdmin ? plan.price : getPrice(plan)}
                                   </span>
                                   <span
-                                    className={`text-lg text-gray-600 dark:text-gray-400 font-light ${
-                                      isPlanActive
-                                        ? "text-white/80"
-                                        : "text-gray-600 dark:text-gray-400"
-                                    }`}
+                                    className={`text-lg text-gray-600 dark:text-gray-400 font-light ${isPlanActive
+                                      ? "text-white/80"
+                                      : "text-gray-600 dark:text-gray-400"
+                                      }`}
                                   >
                                     /
                                     {isSuperAdmin
@@ -1006,25 +998,25 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                                 >
                                   Not Available
                                 </button>
-                              ) : !isFree ?(
-                                  <Link
-                                    href={{
-                                      pathname: "/checkout",
-                                      query: {
-                                        plan: plan.name.toLowerCase(),
-                                        billing: billingCycle,
-                                        planId: plan.razorPay_plan_id,
-                                        stripePriceId: plan.stripePay_price_id,
-                                        price: plan.price,
-                                        description: plan.description,
-                                        features: JSON.stringify(features),
-                                      },
-                                    }}
-                                    className="block w-full font-bold py-4 px-6 rounded-lg mb-8 shadow-md hover:scale-100 text-center transition-all bg-white dark:bg-slate-900 border border-primary primary-color dark:text-blue-400 dark:border-blue-500/50 hover:bg-gray-50 dark:hover:bg-slate-800"
-                                  >
-                                    Get Started Now
-                                  </Link>
-                              ):null}
+                              ) : !isFree ? (
+                                <Link
+                                  href={{
+                                    pathname: "/checkout",
+                                    query: {
+                                      plan: plan.name.toLowerCase(),
+                                      billing: billingCycle,
+                                      planId: plan.razorPay_plan_id,
+                                      stripePriceId: plan.stripePay_price_id,
+                                      price: plan.price,
+                                      description: plan.description,
+                                      features: JSON.stringify(features),
+                                    },
+                                  }}
+                                  className="block w-full font-bold py-4 px-6 rounded-lg mb-8 shadow-md hover:scale-100 text-center transition-all bg-white dark:bg-slate-900 border border-primary primary-color dark:text-blue-400 dark:border-blue-500/50 hover:bg-gray-50 dark:hover:bg-slate-800"
+                                >
+                                  Get Started Now
+                                </Link>
+                              ) : null}
                             </>
                           )}
 
@@ -1040,11 +1032,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                                     <Check className="w-4 h-4" />
                                   </div>
                                   <span
-                                    className={`text-sm md:text-base leading-relaxed ${
-                                      isPlanActive
-                                        ? "text-white"
-                                        : "text-gray-900 dark:text-gray-200"
-                                    }`}
+                                    className={`text-sm md:text-base leading-relaxed ${isPlanActive
+                                      ? "text-white"
+                                      : "text-gray-900 dark:text-gray-200"
+                                      }`}
                                   >
                                     {feature}
                                   </span>
@@ -1080,7 +1071,7 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                         <th className="px-6 py-4 text-left font-bold">
                           Feature
                         </th>
-                        {plans.map((plan) => (
+                        {visiblePlans.map((plan) => (
                           <th
                             key={plan.id}
                             className="px-6 py-4 text-center font-bold"
@@ -1094,7 +1085,7 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                       {[
                         {
                           feature: "Concurrent Users",
-                          values: plans.map((p) =>
+                          values: visiblePlans.map((p) =>
                             p.concurrent_users === 0
                               ? "∞"
                               : p.concurrent_users?.toString() || "N/A",
@@ -1102,7 +1093,7 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                         },
                         {
                           feature: "Document Collections",
-                          values: plans.map((p) =>
+                          values: visiblePlans.map((p) =>
                             p.document_collections === 0
                               ? "∞"
                               : p.document_collections?.toString() || "N/A",
@@ -1110,7 +1101,7 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                         },
                         {
                           feature: "Max File Upload",
-                          values: plans.map((p) =>
+                          values: visiblePlans.map((p) =>
                             p.max_file_upload_mb === 0
                               ? "∞"
                               : p.max_file_upload_mb !== null
@@ -1120,16 +1111,16 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                         },
                         {
                           feature: "Storage Limit",
-                          values: plans.map((p) =>
+                          values: visiblePlans.map((p) =>
                             p.storage_limit_gb === 0 ||
-                            p.storage_limit_gb === null
+                              p.storage_limit_gb === null
                               ? "∞"
                               : `${p.storage_limit_gb}GB`,
                           ),
                         },
                         {
                           feature: "Price",
-                          values: plans.map((p) =>
+                          values: visiblePlans.map((p) =>
                             p.price === 0 ? "Free" : `$${p.price}/month`,
                           ),
                         },
@@ -1242,11 +1233,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${
-                        errors.name
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${errors.name
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                        }`}
                     />
                     {errors.name && (
                       <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -1265,11 +1255,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                       onChange={handleInputChange}
                       step="0.01"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors ${
-                        errors.price
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors ${errors.price
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                        }`}
                     />
                     {errors.price && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1306,11 +1295,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
-                        errors.concurrent_users
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.concurrent_users
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                        }`}
                     />
                     {errors.concurrent_users && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1331,11 +1319,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
-                        errors.document_collections
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.document_collections
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                        }`}
                     />
                     {errors.document_collections && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1356,11 +1343,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
-                        errors.max_file_upload_mb
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.max_file_upload_mb
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                        }`}
                     />
                     {errors.max_file_upload_mb && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1381,11 +1367,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                       onChange={handleInputChange}
                       placeholder="Leave empty for unlimited"
                       min="0"
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
-                        errors.storage_limit_gb
-                          ? "border-red-500 focus:ring-red-500"
-                          : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
-                      }`}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.storage_limit_gb
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-300 dark:border-gray-700 focus:border-indigo-500"
+                        }`}
                     />
                     {errors.storage_limit_gb && (
                       <p className="mt-1 text-sm text-red-600">
@@ -1405,11 +1390,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                     value={formData.description}
                     onChange={handleInputChange}
                     rows={3}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${
-                      errors.description
-                        ? "border-red-500 focus:ring-red-500"
-                        : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
-                    }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-colors ${errors.description
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
+                      }`}
                   />
                   {errors.description && (
                     <p className="mt-1 text-sm text-red-600">
@@ -1441,11 +1425,10 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                           }
                         }}
                         placeholder="Add a feature"
-                        className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${
-                          errors.features
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
-                        }`}
+                        className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors placeholder-gray-400 dark:placeholder-gray-500 ${errors.features
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
+                          }`}
                       />
                       <button
                         type="button"
@@ -1544,7 +1527,7 @@ const openDeleteModal = (plan: SubscriptionPlan) => {
                 </span>{" "}
                 plan?
               </p>
- 
+
               <p className="text-sm text-red-600 dark:text-red-400">
                 This action cannot be undone. All plan configurations will be
                 permanently removed.
