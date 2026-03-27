@@ -55,6 +55,10 @@ export function ChatbotWidget({
   const [hasInitialized, setHasInitialized] = useState(false);
   const [hasAutoOpened, setHasAutoOpened] = useState(false); // Add this line
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+  });
 
   // // Auto-open chat on page load
   // useEffect(() => {
@@ -152,6 +156,10 @@ export function ChatbotWidget({
     }
     setHasInitialized(false);
     setShowUserInfoForm(false);
+    setFormData({ name: "", email: "" });
+    // ✅ clear localStorage (THIS IS WHAT YOU MISSED)
+    localStorage.removeItem("chat_name");
+    localStorage.removeItem("chat_email");
     toggleMinimized();
   };
 
@@ -181,7 +189,7 @@ export function ChatbotWidget({
         return "w-96 h-[600px]";
       case "medium":
       default:
-        return "w-80 h-[500px]";
+        return "w-80 h-[600px]";
     }
   };
 
@@ -230,7 +238,18 @@ export function ChatbotWidget({
                 }}
               />
 
-              <ChatBubbleLeftIcon className="w-8 h-8 relative z-10 transform group-hover:scale-110 transition-transform duration-200" />
+                              <ChatBubbleLeftIcon className="w-8 h-8 relative z-10 transform group-hover:scale-110 transition-transform duration-200" />
+
+
+              {/* {config?.chatbotAvatar ? (
+                <img 
+                  src={config.chatbotAvatar} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover relative z-10 transform group-hover:scale-110 transition-transform duration-200" 
+                />
+              ) : (
+                <ChatBubbleLeftIcon className="w-8 h-8 relative z-10 transform group-hover:scale-110 transition-transform duration-200" />
+              )} */}
 
               {/* Notification dot */}
               {messages.length === 0 && (
@@ -261,7 +280,7 @@ export function ChatbotWidget({
         {!isMinimized && (
           <div
             className={clsx(
-              "shadow-2xl rounded-2xl overflow-hidden flex flex-col backdrop-blur-sm",
+              "shadow-2xl rounded-2xl overflow-hidden flex flex-col backdrop-blur-sm w-[350px]",
               "transform transition-all duration-500 ease-out animate-slideIn",
               "border border-white/20",
               getWidgetSizeClasses(),
@@ -291,8 +310,12 @@ export function ChatbotWidget({
               <div className="flex items-center gap-3 relative z-10">
                 {!!config?.showAgentAvatar && (
                   <div className="relative">
-                    <div className="w-10 h-10 text-black rounded-full bg-white bg-opacity-20 flex items-center justify-center text-sm font-bold backdrop-blur-sm border border-white/30">
-                      AI
+                    <div className="w-10 h-10 text-black rounded-full bg-white bg-opacity-20 flex items-center justify-center text-sm font-bold backdrop-blur-sm border border-white/30 overflow-hidden">
+                      {config?.chatbotAvatar ? (
+                        <img src={config.chatbotAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        "AI"
+                      )}
                     </div>
                     {/* Online indicator */}
                     {/* <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white">
@@ -356,7 +379,7 @@ export function ChatbotWidget({
                   <p className="text-red-600 text-sm">{error}</p>
                   <button
                     onClick={clearError}
-                    className="text-red-400 hover:text-red-600 text-sm"
+                    className="text-red-400 hover:text-red-600 text-sm cursor-pointer"
                   >
                     ×
                   </button>
@@ -411,6 +434,8 @@ export function ChatbotWidget({
             {showUserInfoForm && (
               <div className="flex-1">
                 <UserInfoForm
+                  formData={formData}
+                  setFormData={setFormData}
                   onSubmit={handleUserInfoSubmit}
                   onSkip={config?.requireEmail ? undefined : handleUserInfoSkip}
                   requireEmail={config?.requireEmail}
@@ -430,10 +455,14 @@ export function ChatbotWidget({
                     <div className="flex gap-3 mb-4">
                       {!!config.showAgentAvatar && (
                         <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0"
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 overflow-hidden"
                           style={{ backgroundColor: primaryColor }}
                         >
-                          AI
+                          {config?.chatbotAvatar ? (
+                            <img src={config.chatbotAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            "AI"
+                          )}
                         </div>
                       )}
                       <div className="bg-gray-100 px-4 py-2 rounded-2xl rounded-bl-sm max-w-[80%]">
@@ -452,6 +481,7 @@ export function ChatbotWidget({
                       showAvatar={config?.showAgentAvatar}
                       primaryColor={primaryColor}
                       textColor={textColor}
+                      chatbotAvatar={config?.chatbotAvatar}
                     />
                   ))}
 
@@ -460,6 +490,7 @@ export function ChatbotWidget({
                     <TypingIndicator
                       showAvatar={config?.showAgentAvatar}
                       primaryColor={primaryColor}
+                      chatbotAvatar={config?.chatbotAvatar}
                     />
                   )}
 

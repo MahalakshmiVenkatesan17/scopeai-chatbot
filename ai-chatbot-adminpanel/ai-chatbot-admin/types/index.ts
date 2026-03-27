@@ -80,6 +80,7 @@ export interface ChatbotConfig {
   allowedOrigins?: string;
   customCss?: string;
   customJavascript?: string;
+  chatbotAvatar?: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -377,8 +378,8 @@ export interface VisitorSession {
   referrerUrl: string | null;
   messageCount: number;
   visitorId: string;
-
-  lastActivity: string | null
+  sessionId: string;
+  lastActivity: string | null;
 }
 
 export interface ApiSessionResponse {
@@ -765,4 +766,3 @@ export interface SubscriptionPlan {
 
 
 
- 

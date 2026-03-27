@@ -17,6 +17,8 @@ import {
   Bot,
   Sparkles,
   ShieldCheck,
+  Upload,
+  X,
 } from "lucide-react";
 
 function mapBackendConfigToFrontend(data: any): Partial<ChatbotConfig> {
@@ -38,6 +40,7 @@ function mapBackendConfigToFrontend(data: any): Partial<ChatbotConfig> {
     rateLimitWindowMinutes:
       data.rateLimitWindowMinutes ?? data.rate_limit_window_minutes,
     isActive: !!(data.isActive ?? data.is_active),
+    chatbotAvatar: data.chatbotAvatar ?? data.chatbot_avatar ?? null,
   };
 }
 
@@ -59,6 +62,7 @@ function mapFrontendConfigToBackend(config: Partial<ChatbotConfig>) {
     rateLimitMessages: config.rateLimitMessages,
     rateLimitWindowMinutes: config.rateLimitWindowMinutes,
     isActive: !!config.isActive,
+    chatbotAvatar: config.chatbotAvatar,
   };
 }
 
@@ -109,6 +113,7 @@ export default function ChatbotConfigPage() {
     rateLimitMessages: 10,
     rateLimitWindowMinutes: 1,
     isActive: true,
+    chatbotAvatar: null,
   };
 
   const [config, setConfig] = useState<Partial<ChatbotConfig>>(defaultConfig);
@@ -166,6 +171,30 @@ export default function ChatbotConfigPage() {
 
       showToast(backendMsg || "Failed to load configuration", "error");
       setConfig(defaultConfig);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("Image size must be less than 2MB", "error");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const { url } = await apiClient.uploadAsset(file);
+      setConfig({ ...config, chatbotAvatar: url });
+      showToast("Avatar uploaded successfully", "success");
+    } catch (error: any) {
+      console.error("Failed to upload avatar:", error);
+      const backendMsg = error?.response?.data?.error?.message || error?.response?.data?.message;
+      showToast(backendMsg || "Failed to upload avatar", "error");
     } finally {
       setLoading(false);
     }
@@ -328,6 +357,60 @@ export default function ChatbotConfigPage() {
                 </CardTitle>
 
                 <CardContent className="space-y-5">
+                  {/* Chatbot Avatar */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-6 pb-2">
+                    <div className="relative group">
+                      <div className="h-24 w-24 rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 border-2 border-dashed border-gray-300 dark:border-white/10 flex items-center justify-center transition-all group-hover:border-indigo-500/50">
+                        {config.chatbotAvatar ? (
+                          <img
+                            src={config.chatbotAvatar}
+                            alt="Chatbot Avatar"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Bot className="h-10 w-10 text-gray-400 dark:text-gray-600" />
+                        )}
+                      </div>
+                      {config.chatbotAvatar && (
+                        <button
+                          onClick={() => setConfig({ ...config, chatbotAvatar: null })}
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="space-y-2.5 flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                        Chatbot Avatar
+                      </h3>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm">
+                        Upload a profile picture for your chatbot. This will be displayed in the widget header and next to bot messages.
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 px-4 py-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 dark:hover:bg-indigo-500/30 transition-all border border-indigo-500/20">
+                          <Upload className="h-3.5 w-3.5" />
+                          {config.chatbotAvatar ? "Change Avatar" : "Upload Avatar"}
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                          />
+                        </label>
+                        {config.chatbotAvatar && (
+                          <button
+                            onClick={() => setConfig({ ...config, chatbotAvatar: null })}
+                            className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-white/5 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 transition-all border border-gray-200 dark:border-white/10"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid lg:grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

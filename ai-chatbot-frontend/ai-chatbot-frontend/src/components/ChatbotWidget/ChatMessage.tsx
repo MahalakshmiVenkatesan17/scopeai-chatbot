@@ -11,12 +11,14 @@ interface ChatMessageProps {
   showAvatar?: boolean;
   primaryColor?: string;
   textColor?: string;
+  chatbotAvatar?: string | null;
 }
 
 export function ChatMessage({
   message,
   showAvatar = true,
   primaryColor = "#007bff",
+  chatbotAvatar = null,
 }: ChatMessageProps) {
   const isAssistant = message.role === "assistant";
   const avatarVisible = !!showAvatar;
@@ -32,10 +34,14 @@ export function ChatMessage({
       {isAssistant && avatarVisible && (
         <div className="relative shrink-0">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-lg"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold shadow-lg overflow-hidden"
             style={{ backgroundColor: primaryColor }}
           >
-            AI
+            {chatbotAvatar ? (
+              <img src={chatbotAvatar} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              "AI"
+            )}
           </div>
           {/* Online pulse indicator */}
           {/* <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white">

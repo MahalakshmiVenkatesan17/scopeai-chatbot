@@ -139,7 +139,18 @@ class ChatbotAPI {
   /**
    * End a chat session
    */
-  async endSession(sessionToken: string): Promise<void> {
+  async endSession(sessionToken: string, options?: { keepalive?: boolean }): Promise<void> {
+    if (options?.keepalive && typeof fetch !== 'undefined') {
+      // Use fetch API directly for keepalive support during unload
+      const url = `${this.baseURL}/public/chat/session/${sessionToken}/end`;
+      await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true
+      }).catch(console.error);
+      return;
+    }
+
     const response = await this.client.post<ApiResponse<{ message: string }>>(
       `public/chat/session/${sessionToken}/end`
     );

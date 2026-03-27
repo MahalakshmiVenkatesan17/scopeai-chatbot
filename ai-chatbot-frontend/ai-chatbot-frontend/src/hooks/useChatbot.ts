@@ -66,33 +66,45 @@ export function useChatbot({
 
 
   // Error handler
-  const handleError = useCallback((err: unknown) => {
-    let errorMessage = 'An error occurred';
-    if (err && typeof err === 'object' && 'message' in err) {
-      errorMessage = (err as Error).message;
-    } else if (err && typeof err === 'object' && 'response' in err) {
-      const response = (err as { response?: { data?: { error?: { message?: string } } } }).response;
-      errorMessage = response?.data?.error?.message || 'API error occurred';
+const handleError = useCallback((err: unknown) => {
+  console.log(err, 'error check');
+
+  let errorMessage = 'An error occurred';
+
+  if (err && typeof err === 'object') {
+    const axiosError = err as any;
+
+    // ✅ Handle API response error (THIS IS YOUR CASE)
+    if (axiosError.response?.data?.error?.message) {
+      errorMessage = axiosError.response.data.error.message;
     }
-    setError(errorMessage);
-    onError?.(err);
-  }, [onError]);
+    // fallback
+    else if (axiosError.message) {
+      errorMessage = axiosError.message;
+    }
+  }
+
+  setError(errorMessage);
+  onError?.(err);
+}, [onError]);
 
   // Initialize chatbot
   const initialize = useCallback(async (visitorInfo?: VisitorInfo) => {
     if (isInitialized) return;
 
+    const effectiveTenantSlug = (tenantSlug || "").trim() || "";
+
     setIsLoading(true);
     setError(null);
     try {
       // Get configuration
-      const chatbotConfig = await chatbotAPI.getConfig(tenantSlug);
+      const chatbotConfig = await chatbotAPI.getConfig(effectiveTenantSlug);
       setConfig(chatbotConfig);
 
 
       // Initialize session
       const chatSession = await chatbotAPI.initSession(
-        tenantSlug,
+        effectiveTenantSlug,
         visitorInfo,
         window.location.href,
         document.referrer || "https://example.com",
@@ -185,11 +197,20 @@ export function useChatbot({
     }
   }, [autoInit, isInitialized, isLoading, initialize]);
 
-  // Session cleanup on unmount
+  // Session cleanup on unmount and page unload
   useEffect(() => {
-    return () => {
+    const handleUnload = () => {
       if (sessionRef.current) {
-        // Don't await this as component is unmounting
+        // Use keepalive for unload/refresh reliably
+        chatbotAPI.endSession(sessionRef.current.sessionToken, { keepalive: true }).catch(console.error);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleUnload);
+      if (sessionRef.current) {
         chatbotAPI.endSession(sessionRef.current.sessionToken).catch(console.error);
       }
     };

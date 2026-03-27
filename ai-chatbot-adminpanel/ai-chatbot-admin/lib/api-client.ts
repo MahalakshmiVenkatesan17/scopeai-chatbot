@@ -637,6 +637,33 @@ class ApiClient {
     return response.data.data!;
   }
 
+  /**
+   * Upload an asset (image) to the server.
+   * Returns the public URL of the uploaded asset.
+   */
+  async uploadAsset(file: File): Promise<{ url: string }> {
+    const form = new FormData();
+    form.append("file", file);
+
+    // Let axios handle Content-Type with boundary by not setting it
+    // The interceptor will still add the Authorization header
+    const response = await this.client.post<ApiResponse<{ url: string }>>(
+      "/assets/upload",
+      form,
+      {
+        headers: {
+          "Content-Type": undefined,
+        },
+      }
+    );
+
+    if (!response.data || !response.data.data) {
+      throw new Error(response.data?.error?.message || "Upload failed");
+    }
+
+    return response.data.data;
+  }
+
   // Chatbot Configuration APIs
   async getTenantConfig(tenantId: number): Promise<ChatbotConfig | null> {
     const response = await this.client.get<
@@ -1434,14 +1461,14 @@ class ApiClient {
       currency: string;
       status: "pending" | "paid" | "failed" | "refunded";
       subscription_status:
-        | "created"
-        | "authenticated"
-        | "active"
-        | "paused"
-        | "halted"
-        | "cancelled"
-        | "completed"
-        | "expired";
+      | "created"
+      | "authenticated"
+      | "active"
+      | "paused"
+      | "halted"
+      | "cancelled"
+      | "completed"
+      | "expired";
       subscribed_date?: string;
       payment_date?: string;
       start_date?: string;
@@ -1477,14 +1504,14 @@ class ApiClient {
       currency: string;
       status: "pending" | "paid" | "failed" | "refunded";
       subscription_status:
-        | "created"
-        | "authenticated"
-        | "active"
-        | "paused"
-        | "halted"
-        | "cancelled"
-        | "completed"
-        | "expired";
+      | "created"
+      | "authenticated"
+      | "active"
+      | "paused"
+      | "halted"
+      | "cancelled"
+      | "completed"
+      | "expired";
       subscribed_date?: string;
       payment_date?: string;
       start_date?: string;

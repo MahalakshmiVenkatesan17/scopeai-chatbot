@@ -33,6 +33,7 @@
     maxMessageLength: 2000,
     textColor: "#333333",
     backgroundColor: "#ffffff",
+    chatbotAvatar: null,
     customCss: null,
     useAPI: true,
   };
@@ -64,6 +65,15 @@
       this.injectStyles();
       this.createWidget();
       this.attachEventListeners();
+
+      // Add page unload handler to end session
+      window.addEventListener("beforeunload", () => {
+        if (this.sessionToken) {
+          // Use synchronous-ish fetch or keepalive for unload
+          const url = `${this.config.apiUrl}/public/chat/session/${this.sessionToken}/end`;
+          fetch(url, { method: "POST", keepalive: true }).catch(() => { });
+        }
+      });
 
       // Auto-open if configured
       if (this.config.autoOpen) {
@@ -107,6 +117,7 @@
               c.enableFileUpload === 1 || c.enableFileUpload === true;
             this.config.maxMessageLength =
               c.maxMessageLength || this.config.maxMessageLength;
+            this.config.chatbotAvatar = c.chatbotAvatar || null;
             this.config.customCss = c.customCss || null;
           }
         } else {
@@ -241,7 +252,7 @@
           display:flex!important;align-items:center!important;justify-content:center!important;
           font-weight:700!important;font-size:13px!important;color:white!important;
           border:2px solid rgba(255,255,255,0.35)!important;backdrop-filter:blur(4px)!important;
-          flex-shrink:0!important;
+          flex-shrink:0!important;overflow:hidden!important;
         }
         .aicw-online-dot{
           position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;
@@ -284,6 +295,7 @@
           width:28px!important;height:28px!important;border-radius:50%!important;
           background:${p}!important;color:white!important;font-size:11px!important;font-weight:700!important;
           display:flex!important;align-items:center!important;justify-content:center!important;flex-shrink:0!important;
+          overflow:hidden!important;
         }
 
         .aicw-message-v1.aicw-bot-v1{
@@ -369,7 +381,7 @@
         .aicw-field-error-v1{font-size:11px!important;color:#ef4444!important;margin-top:4px!important;}
         .aicw-form-actions-v1{display:flex!important;gap:8px!important;margin-top:16px!important;}
         .aicw-form-submit-v1{
-          flex:1!important;padding:10px!important;border-radius:10px!important;
+          width:100%;padding:10px!important;border-radius:10px!important;
           background:linear-gradient(135deg,${p},${pDark})!important;
           color:white!important;border:none!important;font-weight:600!important;font-size:13px!important;
           cursor:pointer!important;transition:opacity .2s,transform .2s!important;
@@ -378,7 +390,7 @@
         .aicw-form-skip-v1{
           padding:10px 14px!important;border-radius:10px!important;
           background:#f3f4f6!important;color:#6b7280!important;border:none!important;
-          font-size:12px!important;cursor:pointer!important;transition:background .2s!important;
+          font-size:12px!important;cursor:pointer!important;transition:background .2s!important;flex: 1;font-weight: 600;
         }
         .aicw-form-skip-v1:hover{background:#e5e7eb!important;}
         .aicw-form-privacy-v1{font-size:11px!important;color:#9ca3af!important;text-align:center!important;margin-top:12px!important;}
@@ -473,8 +485,9 @@
     createWidget() {
       const avatarHtml = this.config.showAgentAvatar
         ? `<div class="aicw-avatar-wrap">
-             <div class="aicw-avatar-v1">AI</div>
-            
+             <div class="aicw-avatar-v1">
+               ${this.config.chatbotAvatar ? `<img src="${this.config.chatbotAvatar}" style="width:100%;height:100%;object-fit:cover;overflow:hidden;" />` : "AI"}
+             </div>
            </div>`
         : "";
 
@@ -507,7 +520,7 @@
             <a href="https://scopethinkers.ai" target="_blank" rel="noopener noreferrer" class="aicw-branding-link-v1">
               <span>Powered by</span>
               <img src="https://frontend-scopeaichat.scopethinkers.ai/favicon.svg" alt="ScopeThinkers" class="aicw-branding-logo-v1"/>
-              <span style="font-weight:600;">scopethinkers.ai</span>
+              <span style="font-weight:600;">scopeaichat.ai</span>
             </a>
           </div>
         </div>
@@ -532,8 +545,13 @@
       if (!this.hasInitialized && this.config.collectUserInfo) {
         body.innerHTML = this.buildUserInfoForm();
       } else if (!this.hasInitialized) {
-        body.innerHTML = this.buildLoadingState();
-        this.startSession();
+        // Don't start session automatically if minimized
+        if (this.isOpen) {
+          body.innerHTML = this.buildLoadingState();
+          this.startSession();
+        } else {
+          body.innerHTML = ""; // Placeholder until opened
+        }
       } else {
         body.innerHTML = this.buildChatInterface();
         this.renderMessages();
@@ -557,19 +575,21 @@
           <div style="text-align:center;margin-bottom:16px;">
             <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,${this.config.primaryColor},${this.adjustColor(this.config.primaryColor, -20)});
                         color:white;font-weight:700;font-size:18px;display:inline-flex;align-items:center;justify-content:center;
-                        box-shadow:0 6px 20px ${this.config.primaryColor}30;margin-bottom:10px;">AI</div>
+                        box-shadow:0 6px 20px ${this.config.primaryColor}30;margin-bottom:10px;overflow:hidden;">
+              ${this.config.chatbotAvatar ? `<img src="${this.config.chatbotAvatar}" style="width:100%;height:100%;object-fit:cover;" />` : "AI"}
+            </div>
             <p class="aicw-userform-title-v1">Welcome to ${this.config.chatbotName}!</p>
             <p class="aicw-userform-sub-v1">${required ? "✨ Please share your details to get started" : "🎯 Tell us a bit about you (optional)"}</p>
           </div>
 
           <div class="aicw-field-v1">
             <label for="aicw-name-v1">👤 Your Name</label>
-            <input type="text" id="aicw-name-v1" placeholder="What should we call you?" />
+            <input type="text" id="aicw-name-v1" value="${this.tempFormData?.name || ""}" placeholder="What should we call you?" />
           </div>
 
           <div class="aicw-field-v1">
             <label for="aicw-email-v1">📧 Email Address ${required ? '<span style="color:#ef4444">*</span>' : ""}</label>
-            <input type="email" id="aicw-email-v1" placeholder="your@email.com" ${required ? "required" : ""} />
+            <input type="email" id="aicw-email-v1" value="${this.tempFormData?.email || ""}" placeholder="your@email.com" ${required ? "required" : ""} />
             <div class="aicw-field-error-v1" id="aicw-email-error-v1" style="display:none;"></div>
           </div>
 
@@ -686,6 +706,13 @@
 
       // — Minimize: just hides the window, session remains alive
       minBtn.addEventListener("click", () => {
+        // ✅ Save form data
+        const name = this.container.querySelector("#aicw-name-v1")?.value || "";
+        const email =
+          this.container.querySelector("#aicw-email-v1")?.value || "";
+
+        this.tempFormData = { name, email };
+
         const win = this.container.querySelector("#aicw-window-v1");
         win.classList.remove("aicw-open-v1");
         this.isOpen = false;
@@ -753,6 +780,7 @@
       this.hasInitialized = false;
       this.userInfo = null;
       this.messages = [];
+      this.tempFormData = null;
 
       // Reset body back to initial state (form or loading-on-demand)
       const body = this.container.querySelector("#aicw-body-v1");
@@ -847,9 +875,16 @@
 
       // Typing indicator
       const typing = document.createElement("div");
-      typing.className = "aicw-typing-v1";
-      typing.id = "aicw-typing-v1";
-      typing.innerHTML = "<span></span><span></span><span></span>";
+      typing.className = "aicw-message-row-v1";
+      typing.id = "aicw-typing-container-v1";
+      
+      const typingAvatar = this.config.showAgentAvatar
+        ? `<div class="aicw-msg-avatar-v1" style="transform:translateY(10px)">
+             ${this.config.chatbotAvatar ? `<img src="${this.config.chatbotAvatar}" style="width:100%;height:100%;object-fit:cover;" />` : "AI"}
+           </div>`
+        : "";
+        
+      typing.innerHTML = `${typingAvatar}<div class="aicw-typing-v1"><span></span><span></span><span></span></div>`;
       msgDiv.appendChild(typing);
       msgDiv.scrollTop = msgDiv.scrollHeight;
 
@@ -886,7 +921,9 @@
       if (!msgDiv) return;
 
       const avatarHtml = this.config.showAgentAvatar
-        ? `<div class="aicw-msg-avatar-v1">AI</div>`
+        ? `<div class="aicw-msg-avatar-v1">
+             ${this.config.chatbotAvatar ? `<img src="${this.config.chatbotAvatar}" style="width:100%;height:100%;object-fit:cover;" />` : "AI"}
+           </div>`
         : "";
 
       const row = document.createElement("div");

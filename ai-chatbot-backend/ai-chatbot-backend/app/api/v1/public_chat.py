@@ -39,7 +39,7 @@ async def get_chatbot_config(
             sa_text(
                 "SELECT chatbot_name, welcome_message, placeholder_text, widget_position, "
                 "primary_color, secondary_color, text_color, background_color, widget_size, "
-                "auto_open, show_agent_avatar, collect_user_info, require_email, "
+                "auto_open, show_agent_avatar, chatbot_avatar, collect_user_info, require_email, "
                 "enable_file_upload, max_message_length, custom_css "
                 "FROM tenant_chatbot_config WHERE tenant_id = :tid AND is_active = true"
             ),
@@ -67,6 +67,7 @@ async def get_chatbot_config(
             "enableFileUpload": row.get("enable_file_upload", 0),
             "maxMessageLength": row.get("max_message_length", 2000),
             "customCss": row.get("custom_css"),
+            "chatbotAvatar": row.get("chatbot_avatar"),
         }
     else:
         config = {
@@ -86,6 +87,7 @@ async def get_chatbot_config(
             "enableFileUpload": 0,
             "maxMessageLength": 2000,
             "customCss": None,
+            "chatbotAvatar": None,
         }
  
     return {
@@ -164,7 +166,7 @@ async def init_session(
     try:
         result = await db.execute(
             sa_text(
-                "SELECT chatbot_name, welcome_message, placeholder_text, primary_color, secondary_color "
+                "SELECT chatbot_name, welcome_message, placeholder_text, primary_color, secondary_color, chatbot_avatar "
                 "FROM tenant_chatbot_config WHERE tenant_id = :tid"
             ),
             {"tid": tenant.id},
@@ -180,6 +182,7 @@ async def init_session(
             "placeholderText": row.get("placeholder_text", "Type your message here..."),
             "primaryColor": row.get("primary_color", "#007bff"),
             "secondaryColor": row.get("secondary_color", "#6c757d"),
+            "chatbotAvatar": row.get("chatbot_avatar"),
         }
     else:
         config = {

@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 import socketio
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
 # from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
@@ -44,9 +45,13 @@ async def lifespan(app: FastAPI):
     # asyncio.to_thread() calls (Weaviate sync client, PDF extraction, etc.)
     import asyncio
     import concurrent.futures
+    from sqlalchemy import text
+    from app.core.database import async_session_factory
 
     loop = asyncio.get_running_loop()
     loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=4))
+
+
 
     # Startup
     setup_logging()
@@ -58,6 +63,20 @@ async def lifespan(app: FastAPI):
     try:
         await init_database()
         logger.info("Database initialized")
+        
+        # Ensure chatbot_avatar column exists (NOW it's safe to use SessionLocal)
+        try:
+            from sqlalchemy import text
+            async with async_session_factory() as db:
+                result = await db.execute(text("SHOW COLUMNS FROM tenant_chatbot_config LIKE 'chatbot_avatar'"))
+                if not result.first():
+                    logger.info("Adding chatbot_avatar column to tenant_chatbot_config...")
+                    await db.execute(text("ALTER TABLE tenant_chatbot_config ADD COLUMN chatbot_avatar VARCHAR(500) DEFAULT NULL AFTER custom_css"))
+                    await db.commit()
+                    logger.info("Column added successfully.")
+        except Exception as e:
+            logger.error(f"Error checking/adding chatbot_avatar column: {e}")
+
     except Exception as e:
         logger.error(f"Database connection failed (non-fatal at startup): {e}")
         logger.warning("Server will start but database operations will fail until MySQL is available")
@@ -126,18 +145,15 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # -- Rate limiter --
 app.state.limiter = limiter
 
-# -- Middleware stack (order matters — mirrors Node.js middleware/index.ts) --
-# 1. Request ID
+# 1. CORS (mirrors Node.js corsMiddleware)
+# MUST be first to handle preflights correctly before any other logic
+app.add_middleware(DynamicCORSMiddleware)
+
+# 2. Request ID
 app.add_middleware(RequestIDMiddleware)
 
-# 2. Request Logging
+# 3. Request Logging
 app.add_middleware(RequestLoggingMiddleware)
-
-# 3. CORS (mirrors Node.js corsMiddleware)
-app.add_middleware(
-    DynamicCORSMiddleware,
-
-)
 
 # 4. Tenant Context
 app.add_middleware(TenantContextMiddleware)
@@ -186,6 +202,9 @@ async def detailed_health():
 
 # -- Mount API routes --
 app.include_router(api_router)
+
+# -- Mount Static Files --
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # -- Mount Socket.IO (ASGI) --
 socket_app = socketio.ASGIApp(sio, app)

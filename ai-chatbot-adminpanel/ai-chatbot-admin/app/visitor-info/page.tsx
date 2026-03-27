@@ -110,7 +110,12 @@ const VisitorInfo = () => {
   // Fetch session messages when visitor or session changes
   useEffect(() => {
     if (currentVisitor && activeProfileTab === "conversations") {
-      fetchVisitorSessions(currentVisitor.visitorId);
+      if (currentVisitor.sessionId) {
+        setSelectedSessionId(currentVisitor.sessionId);
+        fetchSessionMessages(currentVisitor.sessionId, 1);
+      } else {
+        fetchVisitorSessions(currentVisitor.visitorId);
+      }
     }
   }, [selectedVisitor, activeProfileTab]);
 
@@ -223,6 +228,7 @@ const VisitorInfo = () => {
   ): Promise<void> => {
     try {
       setLoadingMessages(true);
+      setSessionMessages([]); // Clear previous messages
       const response: SessionMessagesResponse =
         await apiClient.getSessionMessages(sessionId, {
           page,

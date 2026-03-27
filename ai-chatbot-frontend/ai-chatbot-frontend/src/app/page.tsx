@@ -4,9 +4,12 @@ import React, { useEffect, useState } from "react";
 import { ChatbotWidget } from "@/components/ChatbotWidget";
 import clsx from "clsx";
 
+const DEFAULT_TENANT_SLUG = process.env.NEXT_PUBLIC_TENANT_SLUG?.trim() || "scope-thinkers";
+
+
 export default function HomePage() {
   const [isEmbedMode, setIsEmbedMode] = useState<boolean | null>(null);
-  const [tenantSlug, setTenantSlug] = useState("scope-thinkers");
+  const [tenantSlug, setTenantSlug] = useState<string>(DEFAULT_TENANT_SLUG);
 
   useEffect(() => {
     // Check if running in embed mode

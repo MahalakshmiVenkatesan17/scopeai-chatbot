@@ -1376,7 +1376,7 @@ async def update_tenant_config(
         "showAgentAvatar": "show_agent_avatar", "collectUserInfo": "collect_user_info",
         "requireEmail": "require_email", "enableFileUpload": "enable_file_upload",
         "maxMessageLength": "max_message_length", "customCss": "custom_css",
-        "isActive": "is_active",
+        "isActive": "is_active", "chatbotAvatar": "chatbot_avatar",
     }
 
     allowed_cols = set(camel_map.values()) | set(camel_map.keys())
@@ -1420,6 +1420,7 @@ async def update_tenant_config(
     except Exception as e:
         logger.error(f"Error updating tenant config: {e}")
         await db.rollback()
+        return {"success": False, "error": {"message": str(e)}}
 
     return {"success": True, "data": {"message": "Configuration updated successfully"}}
 
@@ -1773,14 +1774,19 @@ async def get_visitor_sessions(
     db: AsyncSession = Depends(get_db),
 ):
     """List chat sessions for a visitor."""
-    result = await db.execute(
-        text(
-            "SELECT * FROM chat_sessions "
-            "WHERE JSON_EXTRACT(session_metadata, '$.visitorId') = :vid "
-            "ORDER BY started_at DESC"
-        ),
-        {"vid": visitor_id},
+    query_sql = (
+        "SELECT * FROM chat_sessions "
+        "WHERE JSON_UNQUOTE(JSON_EXTRACT(session_metadata, '$.visitorId')) = :vid"
     )
+    params = {"vid": visitor_id}
+
+    if current_user.role != "super_admin":
+        query_sql += " AND tenant_id = :tid"
+        params["tid"] = current_user.tenant_id
+
+    query_sql += " ORDER BY started_at DESC"
+
+    result = await db.execute(text(query_sql), params)
     rows = result.mappings().all()
 
     sessions = [

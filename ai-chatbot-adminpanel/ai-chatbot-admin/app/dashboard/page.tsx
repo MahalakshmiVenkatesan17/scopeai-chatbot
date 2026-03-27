@@ -466,16 +466,6 @@ export default function DashboardPage() {
                         style={{ cursor: "pointer" }}
                       />
 
-                      {/* Secondary lines (lighter & subtle) */}
-                      <Line
-                        type="monotone"
-                        dataKey="messages"
-                        stroke="#A5B4FC"
-                        strokeWidth={2}
-                        dot={false}
-                        name="Messages"
-                        style={{ cursor: "pointer" }}
-                      />
 
                       <Line
                         type="monotone"
@@ -484,6 +474,18 @@ export default function DashboardPage() {
                         strokeWidth={2}
                         dot={false}
                         name="Documents"
+                        style={{ cursor: "pointer" }}
+                      />
+
+                      
+                      {/* Secondary lines (lighter & subtle) */}
+                      <Line
+                        type="monotone"
+                        dataKey="messages"
+                        stroke="#A5B4FC"
+                        strokeWidth={2}
+                        dot={false}
+                        name="Messages"
                         style={{ cursor: "pointer" }}
                       />
                     </AreaChart>

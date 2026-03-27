@@ -15,6 +15,7 @@ export interface ChatbotConfig {
   enableFileUpload: boolean;
   maxMessageLength: number;
   customCss?: string;
+  chatbotAvatar?: string | null;
 }
 
 export interface ChatSession {
