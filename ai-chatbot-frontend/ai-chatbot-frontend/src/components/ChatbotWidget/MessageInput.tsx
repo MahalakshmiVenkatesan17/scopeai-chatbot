@@ -10,6 +10,8 @@ interface MessageInputProps {
   maxLength?: number;
   disabled?: boolean;
   primaryColor?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 export function MessageInput({
@@ -17,9 +19,13 @@ export function MessageInput({
   placeholder = 'Type your message here...',
   maxLength = 2000,
   disabled = false,
-  primaryColor = '#007bff'
+  primaryColor = '#007bff',
+  value,
+  onChange
 }: MessageInputProps) {
-  const [message, setMessage] = useState('');
+  const [internalMessage, setInternalMessage] = useState('');
+  const message = value !== undefined ? value : internalMessage;
+  const setMessage = onChange !== undefined ? onChange : setInternalMessage;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = () => {

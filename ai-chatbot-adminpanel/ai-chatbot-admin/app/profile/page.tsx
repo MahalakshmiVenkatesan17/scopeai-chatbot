@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Edit3, Info, Lock, Mail, Save, Shield, Users, RotateCw } from "lucide-react";
+import {
+  Edit3,
+  Info,
+  Lock,
+  Mail,
+  Save,
+  Shield,
+  Users,
+  RotateCw,
+} from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -126,7 +135,8 @@ export default function ProfilePage() {
                     Profile Information
                   </h1>
                   <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
-                    Update your personal details and manage your account security
+                    Update your personal details and manage your account
+                    security
                   </p>
                 </div>
               </div>
@@ -221,10 +231,7 @@ export default function ProfilePage() {
                 <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02] px-4 py-3 text-sm text-gray-600 dark:text-slate-400 transition-colors">
                   <span className="font-medium">
                     {user?.last_login
-                      ? format(
-                        new Date(user.last_login),
-                        "MMM d, yyyy HH:mm",
-                      )
+                      ? format(new Date(user.last_login), "MMM d, yyyy HH:mm")
                       : "Never"}
                   </span>
                 </div>
@@ -241,7 +248,7 @@ export default function ProfilePage() {
                 </Button>
 
                 <Button
-                  variant="primary"
+                  variant="main"
                   className="rounded-2xl bg-[#5856d6] hover:bg-[#4f46e5] text-white shadow-lg dark:bg-[#635BDF] dark:hover:bg-[#5856d6]"
                   isLoading={loading}
                   onClick={handleSave}

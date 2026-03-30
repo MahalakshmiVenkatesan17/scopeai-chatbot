@@ -46,7 +46,7 @@ function SubscriptionPageContent() {
 
   return (
     <SubscriptionPlansComponent
-      userRole="tenant_admin"
+      userRole={currentUser?.role === 'super_admin' ? 'super_admin' : 'tenant_admin'}
       currentUser={currentUser}
       sessionId={sessionId}
     />

@@ -199,7 +199,7 @@ class LangGraphService:
                 query_embedding=state["query_embedding"],
                 options=SearchOptions(
                     tenant_id=state["tenant_id"],
-                    limit=5,
+                    limit=10,
                     threshold=0.5,
                 ),
             )
@@ -212,7 +212,7 @@ class LangGraphService:
                 }
 
             # NEW: Only treat context as relevant if best score clears the bar
-            RELEVANCE_THRESHOLD = 0.55  # tune as needed (0.0–1.0 cosine similarity)
+            RELEVANCE_THRESHOLD = 0.50  # tune as needed (0.0–1.0 cosine similarity)
             top_score = search_results[0].score if search_results else 0.0
 
             if top_score < RELEVANCE_THRESHOLD:
@@ -240,7 +240,7 @@ class LangGraphService:
                     "categoryName": r.category_name,
                     "tokenCount": r.token_count,
                 }
-                for r in search_results[:5]
+                for r in search_results[:10]
             ]
 
             context_text = "\n\n".join(c["content"] for c in chunks)
@@ -274,18 +274,22 @@ class LangGraphService:
             if state.get("has_relevant_context") and state.get("context_text"):
                 # ✅ Has relevant docs — use them
                 system_prompt += (
-                    "\n\nCRITICAL: Answer ONLY based on the following context. If the answer is not here, say you don't know.\n\n"
-                    "Context from knowledge base:\n"
-                    + state["context_text"]
+                    "\n\nContext Information:\n"
+                    "--------------------------------\n"
+                    f"{state['context_text']}\n"
+                    "--------------------------------\n"
+                    "Instructions:\n"
+                    "- Answer the user's question using ONLY the information above. Do not invent facts.\n"
+                    "- Do NOT mention 'context information' in your response. Speak naturally.\n"
+                    "- If the information above doesn't contain a direct answer but has related information, offer the related information gracefully.\n"
+                    "- ENSURE YOUR RESPONSE IS NOT EMPTY."
                 )
             else:
                 # ✅ No relevant docs found
                 system_prompt += (
-                    "\n\nNo specific document context was found for this query. "
-                    "If the user is simply greeting you (e.g. 'hi', 'hello'), respond warmly and ask how you can help with their documents. "
-                    "For ANY other question or information request, you MUST respond exactly with: "
-                    "'I'm sorry, I cannot answer that based on the provided documents.' "
-                    "Do NOT use your internal knowledge to answer questions about people, places, or general facts."
+                    "\n\nYou do not have information to answer this query. "
+                    "Respond using the Helpful Refusal formula mentioned in your guidelines. "
+                    "DO NOT mention documents."
                 )
 
             messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
@@ -343,20 +347,26 @@ class LangGraphService:
                 name = row.get("chatbot_name") or "AI Assistant"
                 welcome = row.get("welcome_message") or ""
                 prompt = (
-                    f"You are {name}. "
-                    "Your ONLY role is to answer questions based on the provided documents. "
-                    "1. If the context contains the answer, provide it clearly and concisely. "
-                    "2. If the context does NOT contain the answer, you MUST say: 'I'm sorry, I couldn’t find an answer to that. Try rephrasing your question or ask about related topics."
-                    "3. Do NOT use your own internal knowledge. "
-                    "4. If the user greets you, greet them back and ask how you can help with the documents."
+                    f"You are {name}, an intelligent and conversational AI assistant. "
+                    "Your primary responsibility is to provide accurate answers while maintaining a friendly, natural tone.\n"
+                    "Guidelines:\n"
+                    "1. Be helpful and flexible. Understand the user's intent even if there are typos or alternative phrasing.\n"
+                    "2. Base your factual answers solely on the context provided to you. Do NOT hallucinate data.\n"
+                    "3. If you cannot answer a question reliably, use the 'Helpful Refusal' formula: [Empathy] + [Honesty] + [What You CAN Help With] + [Call to Action]. "
+                    "For example: 'I'm sorry, I don't have an answer to that right now. I can help you with <topics>. Could you try rephrasing your question?'\n"
+                    "4. CRITICAL: NEVER use words like 'documents', 'provided context', 'uploaded files', or 'knowledge base'. The user does not know about the backend system. Answer generically.\n"
+                    "5. Never return an empty response string. Always say something helpful."
                 )
                 if welcome:
-                    prompt += f' Your welcome message is: "{welcome}"'
+                    prompt += f'\nProvide answers in a way that aligns with your welcome message: "{welcome}".'
                 return prompt
         except Exception as e:
             logger.warning("Failed to load tenant chatbot config", tenant_id=tenant_id, error=str(e))
 
-        return "You are a helpful AI assistant. Provide concise, direct answers. Keep responses brief."
+        return (
+            "You are a helpful AI assistant. Answer clearly based on context without mentioning 'context' or 'documents'. "
+            "If you cannot answer, use: [Empathy]+[Honesty]+[Call to Action]."
+        )
 
     async def _load_conversation_history(
         self, session_id: str, db: AsyncSession, limit: int = 10
