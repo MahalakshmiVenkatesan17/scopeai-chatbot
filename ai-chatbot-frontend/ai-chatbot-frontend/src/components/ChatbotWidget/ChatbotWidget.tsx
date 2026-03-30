@@ -184,12 +184,12 @@ export function ChatbotWidget({
     const size = config?.widgetSize || "medium";
     switch (size) {
       case "small":
-        return "w-80 h-96";
+        return "w-[340px] h-96";
       case "large":
-        return "w-96 h-[600px]";
+        return "w-[440px] h-[600px]";
       case "medium":
       default:
-        return "w-80 h-[600px]";
+        return "w-[380px] h-[550px]";
     }
   };
 
@@ -238,8 +238,7 @@ export function ChatbotWidget({
                 }}
               />
 
-                              <ChatBubbleLeftIcon className="w-8 h-8 relative z-10 transform group-hover:scale-110 transition-transform duration-200" />
-
+              <ChatBubbleLeftIcon className="w-8 h-8 relative z-10 transform group-hover:scale-110 transition-transform duration-200" />
 
               {/* {config?.chatbotAvatar ? (
                 <img 
@@ -280,9 +279,10 @@ export function ChatbotWidget({
         {!isMinimized && (
           <div
             className={clsx(
-              "shadow-2xl rounded-2xl overflow-hidden flex flex-col backdrop-blur-sm w-[350px]",
+              "shadow-2xl rounded-2xl overflow-hidden flex flex-col backdrop-blur-sm max-w-[calc(100vw-2rem)]",
               "transform transition-all duration-500 ease-out animate-slideIn",
               "border border-white/20",
+              "max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100vh-2rem)]",
               getWidgetSizeClasses(),
             )}
             style={{
@@ -312,7 +312,11 @@ export function ChatbotWidget({
                   <div className="relative">
                     <div className="w-10 h-10 text-black rounded-full bg-white bg-opacity-20 flex items-center justify-center text-sm font-bold backdrop-blur-sm border border-white/30 overflow-hidden">
                       {config?.chatbotAvatar ? (
-                        <img src={config.chatbotAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                        <img
+                          src={config.chatbotAvatar}
+                          alt="Avatar"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         "AI"
                       )}
@@ -432,7 +436,7 @@ export function ChatbotWidget({
 
             {/* User info form */}
             {showUserInfoForm && (
-              <div className="flex-1">
+              <div className="flex-1 overflow-y-auto">
                 <UserInfoForm
                   formData={formData}
                   setFormData={setFormData}
@@ -459,7 +463,11 @@ export function ChatbotWidget({
                           style={{ backgroundColor: primaryColor }}
                         >
                           {config?.chatbotAvatar ? (
-                            <img src={config.chatbotAvatar} alt="Avatar" className="w-full h-full object-cover" />
+                            <img
+                              src={config.chatbotAvatar}
+                              alt="Avatar"
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             "AI"
                           )}

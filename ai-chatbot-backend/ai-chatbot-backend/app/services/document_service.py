@@ -123,6 +123,7 @@ class DocumentProcessingService:
                 )
             except Exception as e:
                 logger.error(f"Failed to delete Weaviate chunks for doc {document_id}: {e}")
+                return False
 
             # 3. Delete from File System
             try:
@@ -245,6 +246,27 @@ class DocumentProcessingService:
     ) -> None:
         """Generate embeddings for all chunks in batches and store in Weaviate."""
         try:
+            # Fetch document metadata for embedding chunks
+            doc_title = ""
+            doc_filename = ""
+            category_name = ""
+            
+            async with async_session_factory() as session:
+                doc_res = await session.execute(
+                    text("""
+                        SELECT d.title, d.original_filename, c.name as category_name
+                        FROM documents d
+                        LEFT JOIN document_categories c ON d.category_id = c.id
+                        WHERE d.id = :did
+                    """),
+                    {"did": document_id}
+                )
+                doc_row = doc_res.mappings().first()
+                if doc_row:
+                    doc_title = doc_row["title"] or ""
+                    doc_filename = doc_row["original_filename"] or ""
+                    category_name = doc_row["category_name"] or ""
+
             # Process in batches to avoid thread/connection explosion
             for batch_start in range(0, len(chunk_ids), _EMBEDDING_BATCH_SIZE):
                 batch = chunk_ids[batch_start:batch_start + _EMBEDDING_BATCH_SIZE]
@@ -290,9 +312,9 @@ class DocumentProcessingService:
                             content,
                             emb_response.embedding,
                             int(chunk_row["chunk_index"]),
-                            "",  # document_title
-                            "",  # document_filename
-                            "",  # category_name
+                            doc_title,       # document_title
+                            doc_filename,    # document_filename
+                            category_name,   # category_name
                             int(chunk_row["token_count"] or 0),
                             None,
                         )
@@ -436,7 +458,8 @@ class DocumentProcessingService:
                 self.weaviate_service.delete_document_chunks, document_id, tenant_id
             )
         except Exception as e:
-            logger.warning("Failed to delete chunks from Weaviate", error=str(e))
+            logger.error(f"Failed to delete chunks from Weaviate: {e}")
+            raise e
 
         # Delete from DB
         async with async_session_factory() as session:
