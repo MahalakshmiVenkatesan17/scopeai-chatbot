@@ -61,7 +61,7 @@ export function PricingSection() {
               </span>
               <button
                 onClick={toggleBilling}
-                className="relative inline-flex h-7 w-14 items-center rounded-full bg-blue-100 dark:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                className="relative inline-flex h-7 w-14 items-center rounded-full bg-blue-100 dark:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 cursor-pointer"
                 role="switch"
                 aria-checked={billing === "yearly"}
               >
@@ -103,19 +103,55 @@ export function PricingSection() {
               <ul className="mt-8 space-y-3 text-sm text-gray-700 dark:text-gray-300 transition-colors">
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Up to 5 users
+                  Up to 2 users
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  20 document collections
+                  2 document collections
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Unlimited uploads
+                  50MB file upload
                 </li>
-                <li className="flex items-center gap-2">
+                {/* <li className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
                   Unlimited storage
+                </li> */}
+              </ul>
+            </div>
+
+            {/* Silver / Enterprise */}
+            <div className="rounded-2xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Silver</h3>
+              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">For enterprise teams with custom requirements.</p>
+
+              <div className="mt-6 flex items-end gap-1">
+                <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">
+                  {billing === "monthly" ? "$99" : `$${getPrice(99)}`}
+                </span>
+                <span className="mb-1 text-gray-500 dark:text-gray-400 transition-colors">{getPeriodText()}</span>
+              </div>
+
+              <a href="#" className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200">
+                Contact Sales
+              </a>
+
+              <ul className="mt-8 space-y-3 text-sm text-gray-700 dark:text-gray-300">
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  Up to 15 users
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  10 document collections
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  200MB file upload
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
+                  Enterprise onboarding
                 </li>
               </ul>
             </div>
@@ -132,7 +168,7 @@ export function PricingSection() {
 
                 <div className="mt-6 flex items-end gap-1">
                   <span className="text-5xl font-bold text-[#ffffff]">
-                    {billing === "monthly" ? "$99" : `$${getPrice(99)}`}
+                    {billing === "monthly" ? "$299" : `$${getPrice(299)}`}
                   </span>
                   <span className="mb-1 text-[#ffffff]/80">{getPeriodText()}</span>
                 </div>
@@ -169,7 +205,7 @@ export function PricingSection() {
 
               <div className="mt-6 flex items-end gap-1">
                 <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">
-                  {billing === "monthly" ? "$400" : `$${getPrice(400)}`}
+                  {billing === "monthly" ? "$499" : `$${getPrice(499)}`}
                 </span>
                 <span className="mb-1 text-gray-500 dark:text-gray-400 transition-colors">{getPeriodText()}</span>
               </div>
@@ -198,41 +234,7 @@ export function PricingSection() {
               </ul>
             </div>
 
-            {/* Silver / Enterprise */}
-            <div className="rounded-2xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Silver</h3>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">For enterprise teams with custom requirements.</p>
-
-              <div className="mt-6 flex items-end gap-1">
-                <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">
-                  {billing === "monthly" ? "$499" : `$${getPrice(499)}`}
-                </span>
-                <span className="mb-1 text-gray-500 dark:text-gray-400 transition-colors">{getPeriodText()}</span>
-              </div>
-
-              <a href="#" className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200">
-                Contact Sales
-              </a>
-
-              <ul className="mt-8 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Unlimited users
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Custom APIs
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  24/7 SLA support
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Enterprise onboarding
-                </li>
-              </ul>
-            </div>
+            
 
           </div>
         </div>
@@ -258,48 +260,48 @@ export function PricingSection() {
                     <tr>
                       <th className="px-6 py-4 text-sm font-semibold">Feature</th>
                       <th className="px-6 py-4 text-sm font-semibold">Free</th>
+                      <th className="px-6 py-4 text-sm font-semibold">Silver</th>
                       <th className="px-6 py-4 text-sm font-semibold">Gold</th>
                       <th className="px-6 py-4 text-sm font-semibold">Platinum</th>
-                      <th className="px-6 py-4 text-sm font-semibold">Silver</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-blue-100 dark:divide-gray-800 bg-white dark:bg-gray-900 text-sm text-gray-700 dark:text-gray-300 transition-colors">
                     <tr>
                       <td className="px-6 py-4 font-semibold">Users</td>
-                      <td className="px-6 py-4">5</td>
+                      <td className="px-6 py-4">2</td>
+                      <td className="px-6 py-4">15</td>
                       <td className="px-6 py-4">25</td>
                       <td className="px-6 py-4">40</td>
-                      <td className="px-6 py-4">Unlimited</td>
                     </tr>
                     <tr className="bg-blue-50/50 dark:bg-gray-800/30 transition-colors">
                       <td className="px-6 py-4 font-semibold">Collections</td>
-                      <td className="px-6 py-4">20</td>
+                      <td className="px-6 py-4">2</td>
+                      <td className="px-6 py-4">10</td>
                       <td className="px-6 py-4">15</td>
                       <td className="px-6 py-4">40</td>
-                      <td className="px-6 py-4">Custom</td>
                     </tr>
                     <tr>
                       <td className="px-6 py-4 font-semibold">Max Upload</td>
-                      <td className="px-6 py-4">Unlimited</td>
+                      <td className="px-6 py-4">50MB</td>
+                      <td className="px-6 py-4">200MB</td>
                       <td className="px-6 py-4">500MB</td>
                       <td className="px-6 py-4">1000MB</td>
-                      <td className="px-6 py-4">Custom</td>
                     </tr>
                     <tr className="bg-blue-50/50 dark:bg-gray-800/30 transition-colors">
                       <td className="px-6 py-4 font-semibold">Support</td>
                       <td className="px-6 py-4">Basic</td>
-                      <td className="px-6 py-4">7-day</td>
+                      <td className="px-6 py-4">Basic</td>
                       <td className="px-6 py-4">Priority</td>
                       <td className="px-6 py-4">24/7 SLA</td>
                     </tr>
                     <tr>
                       <td className="px-6 py-4 font-semibold">Price</td>
                       <td className="px-6 py-4 font-semibold">Free</td>
-                      <td className="px-6 py-4 font-semibold text-blue-600 dark:text-blue-400">
+                      <td className="px-6 py-4 font-semibold">
                         {billing === "monthly" ? "$99/mo" : `$${getPrice(99)}/yr`}
                       </td>
-                      <td className="px-6 py-4 font-semibold">
-                        {billing === "monthly" ? "$400/mo" : `$${getPrice(400)}/yr`}
+                      <td className="px-6 py-4 font-semibold text-blue-600 dark:text-blue-400">
+                        {billing === "monthly" ? "$299/mo" : `$${getPrice(299)}/yr`}
                       </td>
                       <td className="px-6 py-4 font-semibold">
                         {billing === "monthly" ? "$499/mo" : `$${getPrice(499)}/yr`}

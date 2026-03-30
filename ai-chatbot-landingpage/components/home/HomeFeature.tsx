@@ -13,7 +13,7 @@ export function HomeFeature() {
         customer queries without human intervention.
       </p>
 
-      <div className="space-y-14">
+      <div className="space-y-8">
         {features.map((item, index) => (
           <HomeFeatureCard key={index} {...item} />
         ))}

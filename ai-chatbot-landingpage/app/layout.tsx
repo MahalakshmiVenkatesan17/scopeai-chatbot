@@ -1,11 +1,8 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import CTASection from "@/components/sections/CTASection";
-import { Footer, Navbar } from "@/components/layout";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { AppShell } from "@/components/providers/AppShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,16 +14,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
+export const metadata: Metadata = {
+  title: "ScopeAIChat",
+  description: "AI-powered chat platform for businesses",
+  icons: {
+    icon: "/scopeaichat_logo.svg",
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const isAuthPage = pathname.startsWith("/auth");
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -38,12 +38,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {!isAuthPage && <Navbar />}
-
-          <main>{children}</main>
-
-          {!isAuthPage && <CTASection />}
-          {!isAuthPage && <Footer />}
+          <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>
     </html>

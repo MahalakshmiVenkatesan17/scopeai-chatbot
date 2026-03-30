@@ -17,12 +17,14 @@ export function HeroIntegration() {
               </span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-4 transition-colors">
-              ScopeAIChat Integrations
+            <h2 className="pb-3 text-3xl sm:text-4xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-4 transition-colors">
+              Embed ScopeAIChat
             </h2>
 
             <p className="text-gray-600 dark:text-gray-300 leading-relaxed sm:leading-8 max-w-md mx-auto md:mx-0 mb-6 text-base sm:text-lg transition-colors">
-              Embed your ScopeAIChat on any website in minutes. Works with HTML, React, Next.js, and modern website builders — built for fast deployment and beautiful customer experiences.
+              Embed your ScopeAIChat on any website in minutes. Works with HTML,
+              React, Next.js, and modern website builders — built for fast
+              deployment and beautiful customer experiences.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -32,10 +34,12 @@ export function HeroIntegration() {
                 height="h-12"
                 className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
               />
-              <button className="px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-medium
+              <button
+                className="px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-sm font-medium
                 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800/50 
                 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 
-                transition-all duration-300 cursor-pointer shadow-sm hover:shadow">
+                transition-all duration-300 cursor-pointer shadow-sm hover:shadow"
+              >
                 View Documentation
               </button>
             </div>
@@ -43,14 +47,34 @@ export function HeroIntegration() {
             {/* Trust indicators */}
             <div className="mt-8 flex items-center justify-center md:justify-start gap-4 text-xs text-gray-500 dark:text-gray-400">
               <div className="flex items-center gap-1">
-                <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-4 h-4 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 <span>No credit card required</span>
               </div>
               <div className="flex items-center gap-1">
-                <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-4 h-4 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 <span>2-minute setup</span>
               </div>

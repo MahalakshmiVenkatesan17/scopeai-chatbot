@@ -19,13 +19,11 @@ export default function Context() {
           </div>
 
           <h1 className="mt-6 text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Context Engineering
+            How ScopeAIChat Understands Context
           </h1>
 
           <p className="mt-5 max-w-3xl mx-auto text-lg leading-8 text-gray-600 dark:text-gray-400 transition-colors">
-            The art and science of shaping intelligent AI conversations - designing what
-            the model knows, remembers, and prioritizes at every interaction to deliver
-            human-like understanding.
+            See how ScopeAIChat combines document context, conversation memory, and structured prompts to deliver accurate, human-like responses.
           </p>
 
           {/* Stats */}
@@ -127,7 +125,7 @@ export default function Context() {
               <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Capabilities</span>
             </div>
             <h2 className="mt-4 text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              Core Context Engineering Features
+              How ScopeAIChat Improves Responses
             </h2>
             <p className="mt-5 mx-auto max-w-3xl text-lg leading-8 text-gray-600 dark:text-gray-400 transition-colors">
               Advanced tools and techniques that transform basic chatbots into intelligent

@@ -17,15 +17,16 @@ export function Navbar() {
     { label: "Home", href: "/" },
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Integration", href: "/integration" },
+    { label: "Widget Code", href: "/integration" },
     { label: "Knowledge Base", href: "/knowledgeBase" },
     { label: "Contact us", href: "/contact" },
   ];
 
   const linkClass = (href: string) =>
-    `text-[14px] font-medium transition-all duration-200 relative ${pathname === href
-      ? "text-[#5856d6] dark:text-[#5856d6]"
-      : "text-gray-700 dark:text-gray-300 hover:text-[#5856d6] dark:hover:text-[#5856d6]"
+    `text-[14px] font-medium transition-all duration-200 relative ${
+      pathname === href
+        ? "text-[#5856d6] dark:text-[#5856d6]"
+        : "text-gray-700 dark:text-gray-300 hover:text-[#5856d6] dark:hover:text-[#5856d6]"
     }`;
 
   const activeIndicatorClass = (href: string) =>
@@ -33,14 +34,12 @@ export function Navbar() {
       ? "absolute -bottom-1 left-0 right-0 h-0.5 bg-[#5856d6] rounded-full"
       : "";
 
-
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
 
   return (
     <header className="w-full z-50 sticky top-0">
@@ -52,7 +51,8 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-3 flex-wrap relative z-10">
           <Sparkles className="w-4 h-4 text-[#ffffff] animate-pulse" />
           <p className="text-[#ffffff] text-[13px] font-medium text-center">
-            ScopeAIChat: Human-Like Agent Voices for Real Conversations, Sales & Support
+            ScopeAIChat: Human-Like Agent Voices for Real Conversations, Sales &
+            Support
           </p>
           <Link
             href="/contact"
@@ -68,7 +68,7 @@ export function Navbar() {
       <div className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 transition-colors sticky top-0 z-40">
         <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center h-full group">
+          <Link href="/" className="flex items-center h-full group cursor-pointer">
             <Image
               src={
                 mounted && resolvedTheme === "dark"
@@ -89,10 +89,12 @@ export function Navbar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`${linkClass(item.href)} relative group`}
+                className={`${linkClass(item.href)} relative group cursor-pointer`}
               >
                 {item.label}
-                <span className={`${activeIndicatorClass(item.href)} transition-all duration-300 group-hover:opacity-100 ${pathname === item.href ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}></span>
+                <span
+                  className={`${activeIndicatorClass(item.href)} transition-all duration-300 group-hover:opacity-100 ${pathname === item.href ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                ></span>
               </Link>
             ))}
           </nav>

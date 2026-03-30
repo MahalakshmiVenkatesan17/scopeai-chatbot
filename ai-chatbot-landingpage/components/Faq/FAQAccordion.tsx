@@ -71,11 +71,11 @@ export default function FAQAccordion() {
           })}
         </div>
       </div>
-      <Button
+      {/* <Button
         radius="rounded-lg"
         text={"Still have questions? Let’s talk."}
         className="mx-auto"
-      ></Button>
+      ></Button> */}
     </section>
   );
 }

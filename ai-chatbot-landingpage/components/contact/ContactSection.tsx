@@ -1,6 +1,20 @@
 "use client";
 
-import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin, Send, ArrowRight, MessageCircle, Globe, User, AtSign } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  Twitter,
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  ArrowRight,
+  MessageCircle,
+  Globe,
+  User,
+  AtSign,
+} from "lucide-react";
 
 const socialLinks = [
   { icon: Facebook, href: "#", label: "Facebook" },
@@ -17,7 +31,9 @@ export default function ContactForm() {
         <div className="text-center mb-14">
           <div className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 mb-4 transition-colors">
             <MessageCircle className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
-            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Get in Touch</span>
+            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+              Get in Touch
+            </span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent transition-colors">
@@ -25,7 +41,8 @@ export default function ContactForm() {
           </h1>
 
           <p className="mt-4 text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto transition-colors">
-            Have questions about ScopeAIChat, integrations, or pricing? Our team is here to help
+            Have questions about ScopeAIChat, widget setup, or pricing? Our team
+            is here to help
           </p>
         </div>
 
@@ -205,7 +222,8 @@ export default function ContactForm() {
               </button>
 
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">
-                By submitting this form, you agree to our privacy policy and terms of service.
+                By submitting this form, you agree to our privacy policy and
+                terms of service.
               </p>
             </form>
           </div>

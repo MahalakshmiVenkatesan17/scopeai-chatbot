@@ -35,7 +35,7 @@ export function PrivacySecurity() {
             compliant with SOC 2, GDPR, ISO, and HIPAA.
           </p>
 
-          {/* Security badges */}
+          {/* Security badges
           <div className="mt-8 flex flex-wrap gap-3 justify-center md:justify-start">
             {securityBadges.map((badge, idx) => {
               const Icon = badge.icon;
@@ -51,7 +51,7 @@ export function PrivacySecurity() {
                 </div>
               );
             })}
-          </div>
+          </div> */}
 
           {/* Trust indicators */}
           <div className="mt-8 flex flex-wrap gap-4 justify-center md:justify-start">

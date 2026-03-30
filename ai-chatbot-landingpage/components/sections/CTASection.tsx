@@ -28,9 +28,9 @@ export default function CTASection() {
 
           {/* Heading */}
           <h2 className="text-[#ffffff] font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight tracking-tight mb-4">
-            Still scrolling? We both know
+             Need help getting started with
             <br />
-            <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">you're interested.</span>
+            <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">ScopeAIChat?</span>
           </h2>
 
           {/* Feature list */}
@@ -59,7 +59,7 @@ export default function CTASection() {
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </a>
 
-          {/* Badges */}
+          {/* Badges
           <div className="flex items-center justify-center gap-4 sm:gap-6 flex-wrap">
             {[
               { src: "/images/CTA/badge-1.svg", alt: "G2 High Performer", width: 72, height: 88 },
@@ -75,7 +75,7 @@ export default function CTASection() {
                   height={badge.height}
                   className="w-14 sm:w-16 md:w-20 h-auto opacity-90 group-hover:opacity-100 transition-opacity"
                 />
-                {/* Tooltip */}
+                Tooltip
                 <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
                   <span className="text-[10px] font-medium bg-gray-900 text-white px-2 py-1 rounded shadow-lg">
                     {badge.alt}
@@ -83,7 +83,7 @@ export default function CTASection() {
                 </div>
               </div>
             ))}
-          </div>
+          </div> */}
 
           {/* Bottom decorative element */}
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>

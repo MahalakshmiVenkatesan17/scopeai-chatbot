@@ -3,18 +3,26 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export  function Breadcrumb() {
+export function Breadcrumb() {
   const pathname = usePathname();
 
   // Split path into segments
   const segments = pathname.split("/").filter(Boolean);
 
+  // Map specific URLs to custom display names
+  const customLabels: Record<string, string> = {
+    analytics: "Analytics & Dashboard",
+    integration: "Widget Code",
+  };
+
   // Build breadcrumb paths
   const breadcrumbs = segments.map((segment, index) => {
     const href = "/" + segments.slice(0, index + 1).join("/");
-    const label = segment
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+
+    // Use custom label if it exists, otherwise use default formatting
+    const label =
+      customLabels[segment] ||
+      segment.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
     return { href, label };
   });
@@ -23,11 +31,17 @@ export  function Breadcrumb() {
   if (segments.length === 0) return null;
 
   return (
-    <nav aria-label="Breadcrumb" className="w-full bg-gray-50 dark:bg-gray-900/50 transition-colors">
+    <nav
+      aria-label="Breadcrumb"
+      className="w-full bg-gray-50 dark:bg-gray-900/50 transition-colors"
+    >
       <div className="max-w-7xl mx-auto px-6 py-4">
         <ol className="flex items-center flex-wrap gap-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">
           <li>
-            <Link href="/" className="hover:text-[var(--foundation-blue-blue-600)] dark:hover:text-blue-400 font-medium transition-colors">
+            <Link
+              href="/"
+              className="hover:text-[var(--foundation-blue-blue-600)] dark:hover:text-blue-400 font-medium transition-colors"
+            >
               Home
             </Link>
           </li>

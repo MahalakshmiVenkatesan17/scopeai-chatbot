@@ -32,7 +32,7 @@ export function HeroSection() {
         <h1 className="mx-auto max-w-5xl text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent transition-colors">
           AI-Powered Knowledge Base
           <br />
-          for Smarter Chatbots
+          for Smarter Responses
         </h1>
 
         {/* Description */}

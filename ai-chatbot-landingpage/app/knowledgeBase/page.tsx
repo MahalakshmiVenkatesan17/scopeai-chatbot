@@ -10,7 +10,7 @@ export default function PricingPage() {
     <>
       <Breadcrumb />
       <HeroSection />
-      <StatsSection />
+      {/* <StatsSection /> */}
       <UploadSection />
       <VersionControlSection />
       <BenefitsSection />

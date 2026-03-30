@@ -1,11 +1,25 @@
 "use client";
 
-import { Check, ArrowUpRight, BarChart2, Users, FileText, Code2, Eye, CreditCard, Brain, Zap, BookOpen, DollarSign } from "lucide-react";
+import {
+  Check,
+  ArrowUpRight,
+  BarChart2,
+  Users,
+  FileText,
+  Code2,
+  Eye,
+  CreditCard,
+  Brain,
+  Zap,
+  BookOpen,
+  DollarSign,
+} from "lucide-react";
 
 import { otherFeatures } from "@/lib/Constants";
 import Image from "next/image";
 import { primaryFeatures } from "@/lib/Constants";
 import { Button } from "../common";
+import FeatureBlock from "./FeatureBlock";
 /* ---------------------------------- */
 /* DATA CONFIG */
 /* ---------------------------------- */
@@ -126,7 +140,27 @@ const featuresTeam = [
   },
 ];
 
-
+export const systemAdminControls = [
+  {
+    title: "Monitor Your System in Real-Time",
+    description:
+      "Gain deep insights into your infrastructure with automated alerts and live event logs. High reliability, zero guesswork for admin-focused uptime and health monitoring.",
+    image: "/images/features/system-monitoring.png", // replace with correct asset
+    btnText: "View Dashboard",
+    reverse: true,
+    badgeText: "System Admin Only",
+    badgeIcon: Zap,
+  },
+  {
+    title: "Track Active Plans and Subscription Performance",
+    description:
+      "Gain intelligent insights into active plans, subscription trends, and platform-wide billing insights across all tenants.",
+    image: "/images/features/subscription-analytics.png", // replace with correct asset
+    btnText: "Analyze Plans",
+    badgeText: "System Admin Only",
+    badgeIcon: CreditCard,
+  },
+];
 /* ---------------------------------- */
 /* COMPONENT */
 /* ---------------------------------- */
@@ -146,12 +180,16 @@ export function Features() {
               Everything you need to manage and scale ScopeAIChat operations
             </h2>
             <p className="text-gray-500 dark:text-gray-400 leading-relaxed sm:leading-8 max-w-md mx-auto md:mx-0 mb-4 transition-colors">
-              Manage tenants, users, documents, analytics, visitor intelligence, widget deployment, subscriptions, and billing — all from one unified platform built for modern businesses.
+              Manage tenants, users, documents, analytics, visitor intelligence,
+              widget deployment, subscriptions, and billing — all from one
+              unified platform built for modern businesses.
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
               {/* <Button radius="rounded-xl" text="Start Free" height="h-12" /> */}
-              <a href="/contact" className=" px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-medium bg-[var(--foundation-blue-blue-50)] dark:bg-blue-600
-                            text-gray-700 dark:text-white hover:bg-[var(--foundation-blue-blue-600)] dark:hover:bg-blue-700 transition cursor-pointer">
+              <a
+                href="/contact"
+                className="inline-flex items-center rounded-2xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200"
+              >
                 Book a demo
               </a>
             </div>
@@ -177,7 +215,6 @@ export function Features() {
             />
           </div>
         </div>
-
       </section>
 
       {/* core platform features */}
@@ -195,9 +232,9 @@ export function Features() {
             Built to run your entire ScopeAIChat platform
           </h2>
           <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed mb-12 max-w-2xl transition-colors">
-            Every core capability from the admin platform is reimagined here as a
-            customer-facing product advantage — from analytics and team access to
-            documents, widget deployment, and billing.
+            Every core capability from the admin platform is reimagined here as
+            a customer-facing product advantage — from analytics and team access
+            to documents, widget deployment, and billing.
           </p>
 
           {/* Grid */}
@@ -213,7 +250,10 @@ export function Features() {
                   <div
                     className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${item.iconBg}`}
                   >
-                    <Icon className={`w-5 h-5 ${item.iconColor}`} strokeWidth={2.5} />
+                    <Icon
+                      className={`w-5 h-5 ${item.iconColor}`}
+                      strokeWidth={2.5}
+                    />
                   </div>
 
                   {/* Title */}
@@ -259,18 +299,25 @@ export function Features() {
               </h2>
 
               <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-8 transition-colors">
-                Monitor KPI metrics, weekly activity, cost trends, request volume,
-                and performance indicators in one premium dashboard experience
-                designed for fast decision-making.
+                Monitor KPI metrics, weekly activity, cost trends, request
+                volume, and performance indicators in one premium dashboard
+                experience designed for fast decision-making.
               </p>
 
               <ul className="flex flex-col gap-4">
                 {checkItems.map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <Check className="w-4 h-4 text-gray-700 dark:text-gray-400 mt-1 flex-shrink-0 transition-colors" strokeWidth={2.5} />
+                    <Check
+                      className="w-4 h-4 text-gray-700 dark:text-gray-400 mt-1 flex-shrink-0 transition-colors"
+                      strokeWidth={2.5}
+                    />
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-white text-sm transition-colors">{item.title}</p>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors">{item.desc}</p>
+                      <p className="font-semibold text-gray-900 dark:text-white text-sm transition-colors">
+                        {item.title}
+                      </p>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm transition-colors">
+                        {item.desc}
+                      </p>
                     </div>
                   </li>
                 ))}
@@ -282,11 +329,16 @@ export function Features() {
               {/* Top stats */}
               <div className="grid grid-cols-2 gap-3">
                 {stats.map((s, i) => (
-                  <div key={i} className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors">
+                  <div
+                    key={i}
+                    className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors"
+                  >
                     <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold tracking-widest mb-1 transition-colors">
                       {s.label}
                     </p>
-                    <p className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">{s.value}</p>
+                    <p className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">
+                      {s.value}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -295,8 +347,12 @@ export function Features() {
               <div className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors">
                 <div className="flex items-center justify-between mb-1">
                   <div>
-                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 transition-colors">Cost Overview</p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">Monthly trend</p>
+                    <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 transition-colors">
+                      Cost Overview
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 transition-colors">
+                      Monthly trend
+                    </p>
                   </div>
                   <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium px-3 py-1 rounded-full transition-colors">
                     Stable
@@ -304,7 +360,11 @@ export function Features() {
                 </div>
 
                 {/* SVG Chart */}
-                <svg viewBox="0 0 300 80" className="w-full mt-3" xmlns="http://www.w3.org/2000/svg">
+                <svg
+                  viewBox="0 0 300 80"
+                  className="w-full mt-3"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
                   <path
                     d="M0,60 C30,55 60,30 90,28 C120,26 150,20 180,22 C210,24 240,45 270,40 C285,37 295,35 300,33"
                     fill="none"
@@ -318,11 +378,16 @@ export function Features() {
               {/* Bottom stats */}
               <div className="grid grid-cols-3 gap-3">
                 {bottomStats.map((s, i) => (
-                  <div key={i} className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors">
+                  <div
+                    key={i}
+                    className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-100 dark:border-gray-800 transition-colors"
+                  >
                     <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold tracking-widest mb-1 transition-colors">
                       {s.label}
                     </p>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white transition-colors">{s.value}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white transition-colors">
+                      {s.value}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -347,7 +412,8 @@ export function Features() {
           </h2>
 
           <p className="text-gray-500 dark:text-gray-400 text-base mb-12 max-w-xl mx-auto transition-colors">
-            Replace fragmented tools with one connected platform for ScopeAIChat management.
+            Replace fragmented tools with one connected platform for ScopeAIChat
+            management.
           </p>
 
           {/* Cards */}
@@ -362,7 +428,10 @@ export function Features() {
                   <div
                     className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 ${item.iconBg}`}
                   >
-                    <Icon className={`w-5 h-5 ${item.iconColor}`} strokeWidth={2.5} />
+                    <Icon
+                      className={`w-5 h-5 ${item.iconColor}`}
+                      strokeWidth={2.5}
+                    />
                   </div>
                   <h3 className="font-bold text-gray-900 dark:text-white text-base mb-2 transition-colors">
                     {item.title}
@@ -374,6 +443,22 @@ export function Features() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* System Admin Controls */}
+      <section className="py-28 px-2 bg-white dark:bg-gray-950 transition-colors">
+        <h2 className="md:text-4xl text-2xl font-bold text-center mb-2 text-black dark:text-white">
+          System Admin Controls
+        </h2>
+        <p className="text-gray-500 dark:text-gray-400 text-center mb-10 max-w-2xl mx-auto">
+          Platform-wide monitoring and reporting tools built for system
+          administrators.
+        </p>
+        <div className="space-y-14">
+          {systemAdminControls.map((item, index) => (
+            <FeatureBlock key={index} {...item} />
+          ))}
         </div>
       </section>
     </div>

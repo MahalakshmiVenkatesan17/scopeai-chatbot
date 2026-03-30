@@ -1,11 +1,18 @@
-import { MonitorSmartphone, Paintbrush, RefreshCw, Rocket, ShieldOff, Zap } from "lucide-react";
+import {
+  MonitorSmartphone,
+  Paintbrush,
+  RefreshCw,
+  Rocket,
+  ShieldOff,
+  Zap,
+} from "lucide-react";
 import React from "react";
 
 export function WebsiteBuilders() {
   const data = [
     {
       icon: ShieldOff,
-      title: "No authentication required",
+      title: "No visitor login required",
       desc: "Zero friction for end users. Your chatbot is instantly accessible on your site.",
     },
     {
@@ -51,7 +58,8 @@ export function WebsiteBuilders() {
             Everything included out of the box
           </h2>
           <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed transition-colors">
-            Built to deliver beautiful customer conversations without heavy engineering effort.
+            Built to deliver beautiful customer conversations without heavy
+            engineering effort.
           </p>
         </div>
 
@@ -66,7 +74,10 @@ export function WebsiteBuilders() {
               >
                 {/* Icon with gradient background */}
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
-                  <IconComponent className="w-6 h-6 text-blue-600 dark:text-blue-400 transition-colors" strokeWidth={1.8} />
+                  <IconComponent
+                    className="w-6 h-6 text-blue-600 dark:text-blue-400 transition-colors"
+                    strokeWidth={1.8}
+                  />
                 </div>
 
                 <h3 className="font-bold text-gray-900 dark:text-white mb-2 text-lg transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">

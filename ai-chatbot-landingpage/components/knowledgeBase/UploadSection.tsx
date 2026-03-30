@@ -5,10 +5,10 @@ export const UploadSection = () => {
   const supportedFormats = [
     { icon: FileText, label: "PDF", color: "text-red-500" },
     { icon: File, label: "DOCX", color: "text-blue-500" },
-    { icon: ImageIcon, label: "JPG/PNG", color: "text-green-500" },
-    { icon: Music, label: "MP3", color: "text-purple-500" },
-    { icon: Video, label: "MP4", color: "text-pink-500" },
-    { icon: Archive, label: "ZIP", color: "text-orange-500" },
+    // { icon: ImageIcon, label: "JPG/PNG", color: "text-green-500" },
+    // { icon: Music, label: "MP3", color: "text-purple-500" },
+    // { icon: Video, label: "MP4", color: "text-pink-500" },
+    // { icon: Archive, label: "ZIP", color: "text-orange-500" },
   ];
 
   return (

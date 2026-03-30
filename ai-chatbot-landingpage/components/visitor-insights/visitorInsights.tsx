@@ -24,15 +24,14 @@ export function VisitorInsights() {
           </h1>
 
           <p className="mt-4 max-w-3xl mx-auto text-gray-600 dark:text-gray-400 text-lg transition-colors">
-            Understand visitor behavior, track chatbot interactions, and uncover
-            actionable insights.
+            Understand visitor behavior, review chat interactions, and uncover actionable insights from every conversation.
           </p>
 
           <div className="mt-12 rounded-2xl p-6 relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative">
               <Image
-                src="/images/visitor/visitordashboard.png"
+                src="/images/visitor/visitordashboard.svg"
                 alt="Visitor analytics dashboard showing real-time visitor behavior and chat interactions"
                 width={1200}
                 height={400}
@@ -52,7 +51,7 @@ export function VisitorInsights() {
           </div>
 
           <h2 className="text-3xl xl:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-            AI-Generated Visitor Profiles That Understand Every User
+            AI-Generated Visitor Profiles for Smarter Conversations
           </h2>
           <p className="mt-4 text-gray-600 dark:text-gray-400 max-w-md mx-auto lg:mx-0 text-lg transition-colors">
             AI-generated visitor profiles based on interaction patterns, demographics, and behavior. Each profile helps personalize conversations and predict needs.
@@ -96,7 +95,7 @@ export function VisitorInsights() {
             </div>
 
             <h2 className="text-3xl xl:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-              Why Our Visitor Insight AI Stands Out
+              Why ScopeAIChat Visitor Insights Stand Out
             </h2>
             <p className="mt-4 text-gray-600 dark:text-gray-400 max-w-md mx-auto lg:mx-0 text-lg transition-colors">
               Understand visitor intent instantly and turn conversations into

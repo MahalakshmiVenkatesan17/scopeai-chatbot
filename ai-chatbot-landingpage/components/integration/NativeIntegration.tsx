@@ -65,9 +65,9 @@ export function NativeIntegration() {
                   <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-110 transition-transform duration-300">
                     {i + 1}
                   </div>
-                  <div className="text-blue-600 dark:text-blue-400 opacity-60 group-hover:opacity-100 transition-opacity">
+                  {/* <div className="text-blue-600 dark:text-blue-400 opacity-60 group-hover:opacity-100 transition-opacity">
                     {getIntegrationIcon(item.title)}
-                  </div>
+                  </div> */}
                 </div>
 
                 <div>

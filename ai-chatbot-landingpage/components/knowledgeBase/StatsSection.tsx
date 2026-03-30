@@ -1,63 +1,83 @@
 import { stats } from "../../lib/Constants";
-import { Zap, TrendingUp, Database, Award, Clock } from "lucide-react";
 
 export const StatsSection = () => {
-  // Map of icons to use for each stat
-  const getIconForStat = (value: string, label: string) => {
-    if (value === "50K" || label.includes("Document")) return Database;
-    if (value === "98.6%" || label.includes("Accuracy")) return Award;
-    if (value === "2.4s" || label.includes("Query")) return Clock;
-    if (value === "256TB" || label.includes("Knowledge")) return Database;
-    return TrendingUp;
+  const getCardBg = (label: string, index: number) => {
+    if (label.includes("Document")) return "bg-[#f3f4f6] dark:bg-[#1f2937]";
+    if (label.includes("Accuracy")) return "bg-[#f7f3fb] dark:bg-[#2a2238]";
+    if (label.includes("Query") || label.includes("Response")) return "bg-[#f2f8f4] dark:bg-[#1d2b24]";
+    if (label.includes("Knowledge")) return "bg-[#faf5ef] dark:bg-[#2c241d]";
+
+    // fallback by index
+    const fallback = [
+      "bg-[#f3f4f6] dark:bg-[#1f2937]",
+      "bg-[#f7f3fb] dark:bg-[#2a2238]",
+      "bg-[#f2f8f4] dark:bg-[#1d2b24]",
+      "bg-[#faf5ef] dark:bg-[#2c241d]",
+    ];
+
+    return fallback[index % fallback.length];
+  };
+
+  const getChangeColor = (label: string, sublabel?: string, changeColor?: string) => {
+    if (label.includes("Accuracy") || sublabel?.toLowerCase().includes("premium")) {
+      return "text-violet-500 dark:text-violet-400";
+    }
+
+    if (label.includes("Knowledge")) {
+      return "text-orange-500 dark:text-orange-400";
+    }
+
+    if (changeColor) return changeColor;
+
+    return "text-emerald-500 dark:text-emerald-400";
+  };
+
+  const getBottomText = (item: any) => {
+    if (item.sublabel) return item.sublabel;
+    if (item.change) return item.change;
+    return "";
   };
 
   return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-4 gap-6 px-6 md:px-16 py-6 md:py-16 bg-white dark:bg-gray-950 transition-colors">
-      {stats.map((item, index) => {
-        const IconComponent = getIconForStat(item.value, item.label);
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-4 bg-white dark:bg-gray-950 transition-colors">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {stats.map((item, index) => {
+          const bottomText = getBottomText(item);
 
-        return (
-          <div
-            key={index}
-            className="rounded-2xl p-8 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-          >
-            {/* Icon */}
-            <div className="mb-4">
-              <IconComponent
-                className="w-8 h-8 text-blue-600 dark:text-blue-400"
-                strokeWidth={1.5}
-              />
-            </div>
+          return (
+            <div
+              key={index}
+              className={`rounded-2xl border border-gray-200 dark:border-gray-800 ${getCardBg(
+                item.label,
+                index
+              )} px-4 py-4 min-h-[92px] transition-colors`}
+            >
+              {/* Value */}
+              <h2 className="text-[28px] sm:text-[30px] font-bold leading-none tracking-[-0.03em] text-gray-900 dark:text-white">
+                {item.value}
+              </h2>
 
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white transition-colors">
-              {item.value}
-            </h2>
-
-            <p className="mt-2 text-gray-600 dark:text-gray-400 transition-colors">
-              {item.label}
-            </p>
-
-            {item.sublabel && (
-              <p className="mt-2 text-sm font-medium text-blue-600 dark:text-blue-400 transition-colors">
-                {item.sublabel}
+              {/* Label */}
+              <p className="mt-2 text-[12px] font-medium leading-[1.2] text-gray-500 dark:text-gray-400">
+                {item.label}
               </p>
-            )}
 
-            {item.change && (
-              <div className="flex items-center gap-1 mt-3 text-sm font-medium">
-                {item.icon === "⚡" ? (
-                  <Zap className="w-4 h-4 text-green-600 dark:text-green-400" />
-                ) : item.icon === "📈" ? (
-                  <TrendingUp className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                ) : (
-                  <span className={item.changeColor}>{item.icon}</span>
-                )}
-                <span className={item.changeColor}>{item.change}</span>
-              </div>
-            )}
-          </div>
-        );
-      })}
+              {/* Bottom text */}
+              {bottomText && (
+                <p
+                  className={`mt-1 text-[11px] font-medium leading-none ${getChangeColor(
+                    item.label,
+                    item.sublabel,
+                    item.changeColor
+                  )}`}
+                >
+                  {bottomText}
+                </p>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

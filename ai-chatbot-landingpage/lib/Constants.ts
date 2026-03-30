@@ -369,28 +369,28 @@ export const primaryFeatures = [
 
 export const journeyStats = [
   {
-    value: "10M+",
+    value: "2.5k+",
     label: "customer conversations automated",
     bg: "bg-green-50",
     border: "border-green-300",
     icon: "🌱",
   },
   {
-    value: "800+",
+    value: "20k+",
     label: "teams using our ScopeAIChat daily",
     bg: "bg-pink-50",
     border: "border-pink-300",
     icon: "🤝",
   },
   {
-    value: "40%",
+    value: "25%",
     label: "reduction in support workload",
     bg: "bg-[var(--foundation-blue-blue-50)]",
     border: "border-[var(--foundation--blue-blue-300)]",
     icon: "💬",
   },
   {
-    value: "10+",
+    value: "4 +",
     label: "countries with deployed AI Agents",
     bg: "bg-purple-50",
     border: "border-purple-300",
@@ -427,31 +427,25 @@ export const VendorComparisonFeatures = [
 
 export const integrations = [
   {
-
     icon: "/images/integration/zapier.png",
-
+ 
     title: "Customize Your AI Assistant",
-
+ 
     desc: "Set your welcome message, colors, widget position, and conversation behavior to match your brand.",
-
   },
   {
-
     icon: "/images/integration/webflow.png",
-
-    title: "Choose Your Integration Method",
-
+ 
+    title: "Choose Your Deployment Method",
+ 
     desc: "Install with HTML, React, Next.js, or your favorite website builder using our lightweight widget setup.",
-
   },
   {
-
     icon: "/images/integration/wordpress.png",
-
+ 
     title: "Go Live in Minutes",
-
+ 
     desc: "Publish your widget, start conversations instantly, and deliver support, lead capture, and engagement 24/7.",
-
   },
 ];
 
@@ -641,7 +635,7 @@ export const ContextFeatures = [
   {
     title: "Why Context Engineering Matters",
     description:
-      "Language models reason entirely within the context you provide. Advanced context design ensures clarity, reduces AI hallucinations, and creates consistent, reliable conversational experiences[citation:2].",
+      "Language models reason entirely within the context you provide. Advanced context design ensures clarity, reduces AI hallucinations, and creates consistent, reliable conversational experiences.",
     points: [
       "Reduces hallucinations by 70%+ with proper grounding",
       "Preserves natural conversation flow across sessions",
@@ -653,7 +647,7 @@ export const ContextFeatures = [
   {
     title: "Structured Prompt Layers",
     description:
-      "Modern context engineering orchestrates system rules, memory, user intent, and real-time data into cohesive conversational layers[citation:4].",
+      "Modern context engineering orchestrates system rules, memory, user intent, and real-time data into cohesive conversational layers.",
     points: [
       "System behavior & guardrail definitions",
       "Dynamic user intent & session state tracking",
@@ -665,7 +659,7 @@ export const ContextFeatures = [
   {
     title: "Intelligent Memory Systems",
     description:
-      "Sophisticated memory architectures distinguish short-term conversation context from long-term user knowledge, creating seamless, personalized experiences[citation:8].",
+      "Sophisticated memory architectures distinguish short-term conversation context from long-term user knowledge, creating seamless, personalized experiences.",
     points: [
       "Short-term vs long-term memory separation",
       "Token-efficient context compression",
@@ -680,7 +674,7 @@ export const policyData = {
   title: "Privacy Policy",
   subtitle:
     "We respect your privacy and are committed to protecting your data and maintaining transparency in how information is collected and used.",
-  lastUpdated: "[Date]",
+  lastUpdated: "30/03/2026",
   intro:
     "We value your privacy and are committed to protecting your data while using our ScopeAIChat platform.",
   sections: [
@@ -737,7 +731,7 @@ export const termsConditionsData = {
   title: "Terms & Conditions",
   subtitle:
     "Please read these Terms & Conditions carefully before using our ScopeAIChat platform.",
-  lastUpdated: "[Date]",
+  lastUpdated: "30/03/2026",
   intro:
     'By accessing or using our ScopeAIChat platform ("Service"), you agree to these Terms & Conditions. If you do not agree, please do not use the Service.',
   sections: [

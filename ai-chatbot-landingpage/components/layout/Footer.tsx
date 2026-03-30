@@ -18,7 +18,7 @@ import {
   ArrowRight,
   Sparkles,
   Shield,
-  Globe
+  Globe,
 } from "lucide-react";
 
 export function Footer() {
@@ -30,9 +30,24 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
-    { icon: Instagram, href: "#", label: "Instagram", color: "hover:text-pink-500" },
-    { icon: Facebook, href: "#", label: "Facebook", color: "hover:text-blue-600" },
-    { icon: Linkedin, href: "#", label: "LinkedIn", color: "hover:text-blue-700" },
+    {
+      icon: Instagram,
+      href: "#",
+      label: "Instagram",
+      color: "hover:text-pink-500",
+    },
+    {
+      icon: Facebook,
+      href: "#",
+      label: "Facebook",
+      color: "hover:text-blue-600",
+    },
+    {
+      icon: Linkedin,
+      href: "#",
+      label: "LinkedIn",
+      color: "hover:text-blue-700",
+    },
     { icon: Youtube, href: "#", label: "YouTube", color: "hover:text-red-600" },
   ];
 
@@ -50,7 +65,7 @@ export function Footer() {
       title: "Product",
       links: [
         { label: "Features", href: "/features" },
-        { label: "Integrations", href: "/integration" },
+        { label: "Widget Code", href: "/integration" },
       ],
     },
     {
@@ -58,24 +73,21 @@ export function Footer() {
       links: [
         { label: "Knowledge Base", href: "/knowledgeBase" },
         { label: "Visitor Insights", href: "/visitor-insights" },
-        { label: "Context", href: "/context" },
+        { label: "How it Works", href: "/context" },
       ],
     },
     {
       title: "Platform",
       links: [
-        { label: "Analytics & Dashboard", href: "/analytics" },
+        { label: "Analytics", href: "/analytics" },
         { label: "Pricing", href: "/pricing" },
       ],
     },
     {
       title: "Support",
-      links: [
-        { label: "FAQ", href: "/faq" },
-      ],
+      links: [{ label: "FAQ", href: "/faq" }],
     },
   ];
-
 
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -83,7 +95,6 @@ export function Footer() {
   useEffect(() => {
     setMounted(true);
   }, []);
-
 
   return (
     <footer className="bg-white dark:bg-gray-950 transition-colors relative overflow-hidden">
@@ -187,10 +198,11 @@ export function Footer() {
           </p>
           <p className="text-xs leading-relaxed flex flex-wrap items-center justify-center md:justify-end gap-1">
             <Sparkles className="w-3 h-3 text-blue-500" />
-            Made with <Heart className="w-3 h-3 text-red-500 mx-0.5" /> for better customer conversations
-            <span className="hidden sm:inline mx-1">•</span>
+            Made with <Heart className="w-3 h-3 text-red-500 mx-0.5" /> for
+            better customer conversations
+            {/* <span className="hidden sm:inline mx-1">•</span>
             <Shield className="w-3 h-3 text-green-500 ml-1" />
-            <span>SOC 2 • GDPR Compliant</span>
+            <span>SOC 2 • GDPR Compliant</span> */}
           </p>
         </div>
 
@@ -198,8 +210,12 @@ export function Footer() {
         <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 text-center text-xs text-gray-400 dark:text-gray-500">
           <p className="flex flex-wrap items-center justify-center gap-1">
             <Globe className="w-3 h-3" />
-            We use cookies to enhance your experience. By continuing, you agree to our{" "}
-            <Link href="/privacyPolicy" className="text-[#5856d6] dark:text-blue-400 hover:underline">
+            We use cookies to enhance your experience. By continuing, you agree
+            to our{" "}
+            <Link
+              href="/privacyPolicy"
+              className="text-[#5856d6] dark:text-blue-400 hover:underline"
+            >
               Privacy Policy
             </Link>
             .

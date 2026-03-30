@@ -1,91 +1,73 @@
-"use client";
-import { Plug } from "lucide-react";
-
-import Marquee from "react-fast-marquee";
 import Image from "next/image";
-import { brands } from "@/lib/Constants";
+
+const toolLogos = [
+  { name: "Calendly", src: "/images/integration/calendly.png" },
+  { name: "Slack", src: "/images/integration/slack.png" },
+  { name: "Zapier", src: "/images/integration/zapier.png" },
+  { name: "Monday", src: "/images/integration/airtable.png" },
+  { name: "Outlook", src: "/images/integration/hubspot.png" },
+  { name: "Downloads", src: "/images/integration/googlesheets.png" },
+  { name: "Notion", src: "/images/integration/segment.png" },
+  { name: "Stream", src: "/images/integration/sendgrid.png" },
+];
 
 export function ToolsMarquee() {
   return (
-    <section className="w-full py-28 home-tools-gradient overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/10 dark:bg-blue-500/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-400/10 dark:bg-purple-500/5 rounded-full blur-3xl"></div>
-
-      {/* Heading */}
-      <div className="relative z-10 text-center mb-12">
-        <div className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 mb-4 transition-colors">
-          <Plug className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
-          <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Seamless Integrations</span>
+    <section className="overflow-hidden bg-white px-6 py-18 dark:bg-none dark:bg-transparent md:px-10 md:py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex justify-center md:justify-start">
+          <div className="w-full justify-center inline-flex items-center gap-3 text-center md:text-left">
+            <span className="relative h-4 w-4">
+              <span className="absolute left-1 top-0 h-[1px] w-2 rotate-45 bg-slate-400" />
+              <span className="absolute left-0 top-1.5 h-[1px] w-1.5 rotate-[18deg] bg-slate-400" />
+              <span className="absolute left-2 top-2.5 h-[1px] w-1.5 rotate-[70deg] bg-slate-400" />
+            </span>
+            <h2 className="text-[30px] font-semibold leading-none tracking-[-0.04em] text-black md:text-[48px]">
+              Connect with tools where your data lies
+            </h2>
+          </div>
         </div>
 
-        <h2 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-          Connect your ScopeAIChat to the tools you already use
-        </h2>
+        <div className="relative mt-10 flex min-h-[210px] items-center justify-center md:min-h-[150px]">
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[320px] w-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d7dbef] opacity-55 md:h-[420px] md:w-[420px]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[240px] w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d7dbef] opacity-55 md:h-[320px] md:w-[320px]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[164px] w-[164px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d7dbef] opacity-55 md:h-[220px] md:w-[220px]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[104px] w-[104px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(114,127,221,0.16)_0%,rgba(114,127,221,0.08)_38%,transparent_70%)] blur-xl md:h-[138px] md:w-[138px]" />
 
-        <p className="text-gray-600 dark:text-gray-400 text-center mt-4 max-w-2xl mx-auto transition-colors">
-          Sync knowledge from CRMs, docs, and support tools seamlessly.
-        </p>
-      </div>
+          <div className="relative z-10 flex w-full max-w-[760px] items-center justify-center gap-3 md:gap-5">
+            {toolLogos.slice(0, 4).map((tool) => (
+              <ToolIcon key={tool.name} name={tool.name} src={tool.src} />
+            ))}
 
-      {/* TOP MARQUEE */}
-      <Marquee
-        speed={35}
-        gradient={false}
-        pauseOnHover
-        autoFill
-        className="home-marquee-top"
-      >
-        <div className="flex gap-8 px-8 home-marquee-inner-top">
-          {brands.map((brand, i) => (
-            <IconCard key={i} src={brand.logo} />
-          ))}
-        </div>
-      </Marquee>
+            <div className="relative z-10 mx-1 flex h-[78px] w-[78px] items-center justify-center rounded-full border border-[#2f3447] bg-[radial-gradient(circle,rgba(252,252,255,0.98)_0%,rgba(229,232,247,0.98)_100%)] shadow-[0_12px_36px_rgba(103,111,184,0.18)] md:mx-3 md:h-[92px] md:w-[92px]">
+              <div className="absolute h-[116px] w-[116px] rounded-full bg-[#6d79de]/10 blur-2xl md:h-[142px] md:w-[142px]" />
+              <div className="relative flex h-[46px] w-[46px] items-center justify-center rounded-full border-[3px] border-[#2f3447] bg-white md:h-[56px] md:w-[56px]">
+                <div className="h-3 w-6 rounded-b-full border-x-[3px] border-b-[3px] md:h-4 md:w-7" />
+              </div>
+            </div>
 
-      {/* CENTER HUB */}
-      <div className="relative flex justify-center my-14">
-        <div className="absolute inset-0 flex justify-center items-center">
-          <div className="w-48 h-48 rounded-full border border-[var(--foundation--blue-blue-200)] animate-pulse" />
-          <div className="w-32 h-32 rounded-full border border-[var(--foundation--blue-blue-300)] absolute" />
-        </div>
-
-        <div className="relative z-10 w-20 h-20 rounded-2xl home-tools-core flex items-center justify-center shadow-xl">
-          <Image
-            src="/images/home/Tars Logo.svg"
-            alt="Core"
-            width={40}
-            height={40}
-          />
+            {toolLogos.slice(4).map((tool) => (
+              <ToolIcon key={tool.name} name={tool.name} src={tool.src} />
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* BOTTOM MARQUEE */}
-      <Marquee
-        speed={35}
-        gradient={false}
-        direction="right"
-        pauseOnHover
-        autoFill
-        className="home-marquee-bottom"
-      >
-        <div className="flex gap-8 px-8 home-marquee-inner-bottom">
-          {brands.map((brand, i) => (
-            <IconCard key={i} src={brand.logo} />
-          ))}
-        </div>
-      </Marquee>
     </section>
   );
 }
 
-/* -------------------------------- */
-/* Icon Card */
-/* -------------------------------- */
-export function IconCard({ src }: { src: string }) {
+function ToolIcon({ name, src }: { name: string; src: string }) {
   return (
-    <div className="w-14 h-14 md:w-16 md:h-16 rounded-xl bg-white shadow-md flex items-center justify-center transition-transform hover:scale-110">
-      <Image src={src} alt="icon" width={28} height={28} />
+    <div className="relative z-10 flex h-10 w-10 shrink-0 items-center justify-center md:h-12 md:w-12">
+      <Image
+        src={src}
+        alt={name}
+        width={46}
+        height={46}
+        className="h-auto w-auto object-contain"
+      />
     </div>
   );
 }
+
+export { ToolIcon as IconCard };

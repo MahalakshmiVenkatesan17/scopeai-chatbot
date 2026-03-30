@@ -12,7 +12,7 @@ export function FeaturesSection() {
           title="AI Search, built into your chatbot experience"
           subtitle="Help users find answers instantly through conversational search."
           buttonText="Start optimizing your site for free"
-          image="/images/home/Margin.png"
+          image="/images/home/hero-section.png"
         />
         {/* GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">

@@ -41,7 +41,7 @@ export const BenefitsSection = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(124,58,237,0.05),transparent_25%)] dark:bg-[radial-gradient(circle_at_80%_70%,rgba(124,58,237,0.08),transparent_25%)]"></div>
 
       {/* Title Section */}
-      <div className="text-center mb-14 max-w-7xl mx-auto">
+      <div className="text-left mb-14 max-w-7xl mx-auto">
         <div className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 mb-4 transition-colors">
           <Sparkles className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
           <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Why Choose Us</span>
@@ -51,7 +51,7 @@ export const BenefitsSection = () => {
           Benefits That Speak Volumes
         </h2>
 
-        <p className="text-lg mt-3 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto transition-colors">
+        <p className="text-lg mt-3 text-gray-600 dark:text-gray-400 transition-colors">
           Discover how ScopeAIChat transforms your customer experience with intelligent automation.
         </p>
       </div>
@@ -66,7 +66,7 @@ export const BenefitsSection = () => {
           return (
             <div
               key={index}
-              className="group bg-white dark:bg-gray-900/80 rounded-2xl shadow-lg hover:shadow-xl p-8 border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300 backdrop-blur-sm"
+              className="group bg-white dark:bg-gray-900/80 rounded-2xl shadow-lg hover:shadow-xl p-8 border border-[#E6E7EF] dark:border-[#E6E7EF] hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300 backdrop-blur-sm"
             >
               <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${iconGradient} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
                 <IconComponent className={`w-7 h-7 ${iconColor}`} strokeWidth={1.5} />
@@ -82,7 +82,7 @@ export const BenefitsSection = () => {
         })}
 
         {/* Bottom Row - Benefit 4 (Data-Driven Insights) - Span 2 columns */}
-        <div className="md:col-span-2 group bg-white dark:bg-gray-900/80 rounded-2xl shadow-lg hover:shadow-xl p-8 border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300 backdrop-blur-sm">
+        <div className="md:col-span-2 group bg-white dark:bg-gray-900/80 rounded-2xl shadow-lg hover:shadow-xl p-8 border border-[#E6E7EF] dark:border-[#E6E7EF] hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300 backdrop-blur-sm">
           <div className={`w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-950/50 dark:to-cyan-900/50 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
             <BarChart3 className="w-7 h-7 text-cyan-600 dark:text-cyan-400" strokeWidth={1.5} />
           </div>
@@ -107,7 +107,7 @@ export const BenefitsSection = () => {
         </div>
 
         {/* Bottom Row - Benefit 5 (Data-Driven Insights subtitle) - Span 1 column */}
-        <div className="md:col-span-1 group bg-white dark:bg-gray-900/80 rounded-2xl shadow-lg hover:shadow-xl p-8 border border-gray-100 dark:border-gray-800 hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300 backdrop-blur-sm">
+        <div className="md:col-span-1 group bg-white dark:bg-gray-900/80 rounded-2xl shadow-lg hover:shadow-xl p-8 border border-[#E6E7EF] dark:border-[#E6E7EF] hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300 backdrop-blur-sm">
           <div className={`w-14 h-14 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/50 dark:to-purple-900/50 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
             <Zap className="w-7 h-7 text-purple-600 dark:text-purple-400" strokeWidth={1.5} />
           </div>
