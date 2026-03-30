@@ -20,7 +20,7 @@
 <body>
     <div class="container">
         <h1>🔍 Weaviate Production Explorer</h1>
-        <p>This tool fetches the <strong>50 newest</strong> document chunks directly from your Railway Weaviate database. You can instantly see when a new document is uploaded (it will appear at the top) or when it is deleted (it will disappear).</p>
+        <p>This tool fetches up to <strong>10,000</strong> document chunks directly from your Railway Weaviate database. You can instantly see when a new document is uploaded or when it is deleted.</p>
         
         <button class="button" onclick="fetchLatestChunks()">🔄 Refresh Latest Chunks</button>
         
@@ -42,7 +42,7 @@
             {
               Get {
                 DocumentChunk(
-                  limit: 50
+                  limit: 10000
                   sort: [{path: ["_creationTimeUnix"], order: desc}]
                 ) {
                   documentId

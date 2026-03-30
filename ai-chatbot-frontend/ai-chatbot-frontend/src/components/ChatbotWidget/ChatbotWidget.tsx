@@ -52,6 +52,7 @@ export function ChatbotWidget({
   });
 
   const [showUserInfoForm, setShowUserInfoForm] = useState(false);
+  const [draftMessage, setDraftMessage] = useState("");
   const [hasInitialized, setHasInitialized] = useState(false);
   const [hasAutoOpened, setHasAutoOpened] = useState(false); // Add this line
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -157,6 +158,7 @@ export function ChatbotWidget({
     setHasInitialized(false);
     setShowUserInfoForm(false);
     setFormData({ name: "", email: "" });
+    setDraftMessage("");
     // ✅ clear localStorage (THIS IS WHAT YOU MISSED)
     localStorage.removeItem("chat_name");
     localStorage.removeItem("chat_email");
@@ -398,7 +400,7 @@ export function ChatbotWidget({
                   <div className="relative mb-4">
                     <div className="w-16 h-16 mx-auto rounded-full border-4 border-gray-200">
                       <div
-                        className="w-16 h-16 rounded-full border-4 border-transparent border-t-current animate-spin"
+                        className="w-16 h-16 rounded-full border-4 border-transparent border-t-current animate-spin "
                         style={{ color: primaryColor }}
                       />
                     </div>
@@ -512,6 +514,8 @@ export function ChatbotWidget({
                   maxLength={config?.maxMessageLength}
                   disabled={isTyping}
                   primaryColor={primaryColor}
+                  value={draftMessage}
+                  onChange={setDraftMessage}
                 />
               </>
             )}

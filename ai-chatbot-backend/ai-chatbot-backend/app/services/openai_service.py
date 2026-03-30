@@ -47,6 +47,7 @@ CHAT_PRICING: dict[str, dict[str, float]] = {
     "gpt-3.5-turbo-16k": {"input": 0.003, "output": 0.004},
     "gpt-4o": {"input": 0.005, "output": 0.015},
     "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
+    "gpt-5-mini": {"input": 0.0001, "output": 0.0004},
 }
 
 EMBEDDING_PRICING: dict[str, float] = {

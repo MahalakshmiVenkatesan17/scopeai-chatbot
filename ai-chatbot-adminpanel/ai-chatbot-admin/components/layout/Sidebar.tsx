@@ -55,7 +55,6 @@ const navItems: NavItem[] = [
     icon: ShieldUser,
     subItems: [
       { href: "/masters/categories", label: "Categories" },
-      { href: "/masters/subscriptions", label: "Subscriptions" },
     ],
   },
   { href: "/widget-integration", label: "Widget Code", icon: Settings },
@@ -93,15 +92,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       if (item.href === "/masters" && item.subItems) {
         return {
           ...item,
-          subItems: item.subItems.filter((sub) => {
-            if (
-              sub.href === "/masters/subscriptions" &&
-              user?.role !== "super_admin"
-            ) {
-              return false;
-            }
-            return true;
-          }),
+          subItems: item.subItems,
         };
       }
 
@@ -114,7 +105,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       if (item.href === "/settings")
         return user?.role !== "super_admin" ? item : null;
       if (item.href === "/subscription")
-        return user?.role !== "super_admin" ? item : null;
+        return item; // Visible to both super_admin and tenant_admin
       if (item.href === "/plans-report")
         return user?.role === "super_admin" ? item : null;
 
