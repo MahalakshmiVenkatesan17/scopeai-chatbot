@@ -282,13 +282,14 @@ class LangGraphService:
                     "- Answer the user's question using ONLY the information above. Do not invent facts.\n"
                     "- Do NOT mention 'context information' in your response. Speak naturally.\n"
                     "- If the information above doesn't contain a direct answer but has related information, offer the related information gracefully.\n"
+                    "- If the context information does not contain the answer, or if the question is out of scope, strictly apply Refusal Rule 3a or 3b.\n"
                     "- ENSURE YOUR RESPONSE IS NOT EMPTY."
                 )
             else:
                 # ✅ No relevant docs found
                 system_prompt += (
                     "\n\nYou do not have information to answer this query. "
-                    "Respond using the exact refusal message mentioned in your guidelines. "
+                    "Analyze the user's query and strictly apply Refusal Rule 3a (if it's a general/unrelated topic) OR Refusal Rule 3b (if it's about the domain but you lack info). "
                     "DO NOT mention documents."
                 )
 
@@ -362,11 +363,13 @@ class LangGraphService:
                     "Guidelines:\n"
                     "1. Be helpful and flexible. Understand the user's intent even if there are typos or alternative phrasing.\n"
                     "2. Base your factual answers solely on the context provided to you. Do NOT hallucinate data.\n"
-                    f"3. If you cannot answer a question reliably or if the user asks a general question outside the scope, use this exact refusal message: "
-                    f"\"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\"\n"
+                    "3. Refusal Rules. You MUST adhere to these exact responses when you cannot answer:\n"
+                    f"   a) For general, emotional, personal, or conversational questions completely outside the scope of {tenant_name}, use this EXACT message:\n"
+                    f"      \"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\"\n"
+                    f"   b) For questions related to {tenant_name} where the provided context does not contain the answer, use this EXACT message:\n"
+                    f"      \"I don't have that information. Is there something else about {tenant_name} I can help with?\"\n"
                     "4. CRITICAL: NEVER use words like 'documents', 'provided context', 'uploaded files', or 'knowledge base'. The user does not know about the backend system. Answer generically.\n"
-                    "5. Never return an empty response string. Always say something helpful.\n"
-                    "6. You MUST NOT respond to emotional, personal, or conversational inputs, even if the user insists. If received, simply return the exact refusal message from rule 3."
+                    "5. Never return an empty response string. Always say something helpful."
                 )
                 if welcome:
                     prompt += f'\nProvide answers in a way that aligns with your welcome message: "{welcome}".'
@@ -376,8 +379,10 @@ class LangGraphService:
 
         return (
             "You are a helpful AI assistant. Answer clearly based on context without mentioning 'context' or 'documents'. "
-            f"If you cannot answer, or if you receive emotional, personal, or conversational inputs, use this exact refusal message: "
-            f"\"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\""
+            f"If you receive a general, emotional, personal, or conversational query, use this exact refusal message: "
+            f"\"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\"\n"
+            f"If you receive a query about the domain but lack information, use this exact refusal message: "
+            f"\"I don't have that information. Is there something else about {tenant_name} I can help with?\""
         )
 
     async def _load_conversation_history(
