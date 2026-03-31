@@ -7,7 +7,7 @@ import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Instagram,
+  Twitter,
   Facebook,
   Linkedin,
   Youtube,
@@ -31,61 +31,60 @@ export function Footer() {
 
   const socialLinks = [
     {
-      icon: Instagram,
-      href: "#",
-      label: "Instagram",
-      color: "hover:text-pink-500",
-    },
-    {
       icon: Facebook,
-      href: "#",
+      href: "https://www.facebook.com/login",
       label: "Facebook",
       color: "hover:text-blue-600",
     },
     {
       icon: Linkedin,
-      href: "#",
+      href: "https://www.linkedin.com/home",
       label: "LinkedIn",
       color: "hover:text-blue-700",
     },
-    { icon: Youtube, href: "#", label: "YouTube", color: "hover:text-red-600" },
+    {
+      icon: Twitter,
+      href: "https://x.com/",
+      label: "Twitter",
+      color: "hover:text-gray-900",
+    },
+    {
+      icon: Youtube,
+      href: "https://www.youtube.com/",
+      label: "YouTube",
+      color: "hover:text-red-600",
+    },
   ];
 
   const footerSections = [
     {
-      title: "Company",
+      title: "Product",
       links: [
         { label: "Home", href: "/" },
-        { label: "Contact Us", href: "/contact" },
+        { label: "Features", href: "/features" },
+        { label: "Pricing", href: "/pricing" },
+        { label: "FAQ", href: "/faq" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [{ label: "Contact Us", href: "/contact" }],
+    },
+    {
+      title: "Legal",
+      links: [
         { label: "Privacy Policy", href: "/privacyPolicy" },
         { label: "Terms and Condition", href: "/termsCondition" },
       ],
     },
     {
-      title: "Product",
+      title: "Account",
       links: [
-        { label: "Features", href: "/features" },
-        { label: "Widget Code", href: "/integration" },
+        {
+          label: "Login",
+          href: "https://admin-scopeaichat.scopethinkers.ai/login",
+        },
       ],
-    },
-    {
-      title: "Resources",
-      links: [
-        { label: "Knowledge Base", href: "/knowledgeBase" },
-        { label: "Visitor Insights", href: "/visitor-insights" },
-        { label: "How it Works", href: "/context" },
-      ],
-    },
-    {
-      title: "Platform",
-      links: [
-        { label: "Analytics", href: "/analytics" },
-        { label: "Pricing", href: "/pricing" },
-      ],
-    },
-    {
-      title: "Support",
-      links: [{ label: "FAQ", href: "/faq" }],
     },
   ];
 
@@ -132,11 +131,11 @@ export function Footer() {
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 <Mail className="w-4 h-4" />
-                <span>hello@scopeai.chat</span>
+                <span>info@scopethinkers.com</span>
               </div>
               <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 <Phone className="w-4 h-4" />
-                <span>+91 98765 43210</span>
+                <span> +91 7305 672226</span>
               </div>
             </div>
 
@@ -148,6 +147,8 @@ export function Footer() {
                   <a
                     key={idx}
                     href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={social.label}
                     className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 ${social.color} hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-110`}
                   >

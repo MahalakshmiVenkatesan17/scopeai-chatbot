@@ -5,7 +5,7 @@ import { plans } from "@/lib/Constants";
 import { Check } from "lucide-react";
 
 export function PricingSection() {
-  const [billing, setBilling] = useState<"yearly" | "monthly">("yearly");
+  const [billing, setBilling] = useState<"yearly" | "monthly">("monthly");
 
   // Helper function to get price based on billing cycle
   const getPrice = (monthlyPrice: number, yearlyDiscount: number = 20) => {
@@ -31,21 +31,23 @@ export function PricingSection() {
   return (
     <section className="w-full pb-20 bg-gray-50 dark:bg-gray-950 transition-colors">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 dark:from-blue-950/30 via-white dark:via-gray-950 to-purple-50 dark:to-purple-950/30 transition-colors">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#3e3d98] via-[#302f76] to-[#6e11b0]">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(124,58,237,0.12),transparent_25%),radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.08),transparent_25%)] dark:bg-[radial-gradient(circle_at_80%_20%,rgba(124,58,237,0.2),transparent_25%),radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.15),transparent_25%)]"></div>
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             <span className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 transition-colors">
-              Simple & scalable pricing
+              ScopeAIChat — AI chatbots for real conversations, sales & support
             </span>
 
-            <h1 className="mt-6 text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl transition-colors">
-              Choose a plan that grows with your ScopeAIChat
+            {/* <h1 className="mt-6 text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl transition-colors"> */}
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-[#ffffff] sm:text-5xl lg:text-6xl transition-colors">
+              Choose a plan that grows with your AI chatbot needs
             </h1>
 
-            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-400 transition-colors">
-              Start free, scale as usage grows, and unlock advanced features when your chatbot becomes business-critical.
+            {/* <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-gray-600 dark:text-gray-400 transition-colors"> */}
+              <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[#ffffff] transition-colors">
+              Start free, scale as usage grows, and unlock advanced controls, analytics, and enterprise features as your chatbot operations expand.
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -53,9 +55,15 @@ export function PricingSection() {
                 Talk to Sales
               </a>
             </div>
+          </div>
+        </div>
+      </section>
 
+      {/* Pricing Cards */}
+      <section className="py-16 sm:py-20 pb-0!">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             {/* Billing Toggle UI */}
-            <div className="mt-10 inline-flex items-center gap-4 rounded-full border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-900/80 px-5 py-3 shadow-sm transition-colors backdrop-blur-sm">
+            <div className="mb-10 flex w-fit items-center gap-4 rounded-full border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-900/80 px-5 py-3 shadow-sm transition-colors backdrop-blur-sm mx-auto">
               <span className={`text-sm font-semibold transition-colors ${billing === "monthly" ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-500"}`}>
                 Monthly
               </span>
@@ -77,287 +85,135 @@ export function PricingSection() {
                 Save 20%
               </span>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Cards */}
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4">
-
-            {/* Free */}
-            <div className="rounded-2xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Free</h3>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">Best for trying out your first chatbot.</p>
-
-              <div className="mt-6 flex items-end gap-1">
-                <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">$0</span>
-                <span className="mb-1 text-gray-500 dark:text-gray-400 transition-colors">/month</span>
-              </div>
-
-              <a href="#" className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-blue-50 dark:bg-gray-800 px-5 py-3 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700 transition-all duration-200">
-                Start Free
-              </a>
-
-              <ul className="mt-8 space-y-3 text-sm text-gray-700 dark:text-gray-300 transition-colors">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Up to 2 users
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  2 document collections
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  50MB file upload
-                </li>
-                {/* <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Unlimited storage
-                </li> */}
-              </ul>
-            </div>
-
-            {/* Silver / Enterprise */}
-            <div className="rounded-2xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Silver</h3>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">For enterprise teams with custom requirements.</p>
-
-              <div className="mt-6 flex items-end gap-1">
-                <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">
-                  {billing === "monthly" ? "$99" : `$${getPrice(99)}`}
-                </span>
-                <span className="mb-1 text-gray-500 dark:text-gray-400 transition-colors">{getPeriodText()}</span>
-              </div>
-
-              <a href="#" className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200">
-                Contact Sales
-              </a>
-
-              <ul className="mt-8 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Up to 15 users
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  10 document collections
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  200MB file upload
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Enterprise onboarding
-                </li>
-              </ul>
-            </div>
-
-            {/* Gold (Recommended) */}
-            <div className="relative rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 p-[1px] shadow-2xl">
-              <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 p-6 text-white">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-[#ffffff]">Gold</h3>
-                  <span className="rounded-full bg-white/20 backdrop-blur-sm px-3 py-1 text-xs font-semibold">Recommended</span>
-                </div>
-
-                <p className="mt-2 text-sm text-[#ffffff]/80">Perfect for growing teams and active deployments.</p>
+            {plans.map((plan, idx) => (
+              <div key={idx} className={`rounded-2xl border ${plan.highlighted ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/20' : 'border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50'} p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm relative`}>
+                {plan.tag && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="inline-flex items-center rounded-full bg-blue-600 dark:bg-blue-500 px-3 py-1 text-xs font-semibold text-white">
+                      {plan.tag}
+                    </span>
+                  </div>
+                )}
+                
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">{plan.name}</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">{plan.description}</p>
 
                 <div className="mt-6 flex items-end gap-1">
-                  <span className="text-5xl font-bold text-[#ffffff]">
-                    {billing === "monthly" ? "$299" : `$${getPrice(299)}`}
-                  </span>
-                  <span className="mb-1 text-[#ffffff]/80">{getPeriodText()}</span>
+                  {plan.custom ? (
+                    <>
+                      <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">Custom</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">
+                        {formatPrice(getPrice(plan.price.monthly))}
+                      </span>
+                      <span className="mb-1 text-gray-500 dark:text-gray-400 transition-colors">{getPeriodText()}</span>
+                    </>
+                  )}
                 </div>
 
-                <a href="#" className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-all duration-200">
-                  Get Started
+                <a href="#" className={`mt-6 inline-flex w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200 ${
+                  plan.highlighted 
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 shadow-lg hover:shadow-xl' 
+                    : plan.custom
+                    ? 'border border-blue-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700'
+                    : 'bg-blue-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-gray-700'
+                }`}>
+                  {plan.button}
                 </a>
 
-                <ul className="mt-8 space-y-3 text-sm text-[#ffffff]">
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" />
-                    Up to 25 users
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" />
-                    15 document collections
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" />
-                    500MB file upload
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" />
-                    Unlimited storage
-                  </li>
+                <ul className="mt-8 space-y-3 text-sm text-gray-700 dark:text-gray-300 transition-colors">
+                  {plan.features.map((feature, featureIdx) => (
+                    <li key={featureIdx} className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
+                      {feature}
+                    </li>
+                  ))}
                 </ul>
               </div>
-            </div>
-
-            {/* Platinum */}
-            <div className="rounded-2xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white transition-colors">Platinum</h3>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 transition-colors">For teams needing higher limits and support.</p>
-
-              <div className="mt-6 flex items-end gap-1">
-                <span className="text-5xl font-bold text-gray-900 dark:text-white transition-colors">
-                  {billing === "monthly" ? "$499" : `$${getPrice(499)}`}
-                </span>
-                <span className="mb-1 text-gray-500 dark:text-gray-400 transition-colors">{getPeriodText()}</span>
-              </div>
-
-              <a href="#" className="mt-6 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 text-sm font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-all duration-200">
-                Book Demo
-              </a>
-
-              <ul className="mt-8 space-y-3 text-sm text-gray-700 dark:text-gray-300">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Up to 40 users
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  40 document collections
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  1000MB file upload
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-500 dark:text-green-400" />
-                  Priority support
-                </li>
-              </ul>
-            </div>
-
-            
-
-          </div>
-        </div>
-      </section>
-
-      {/* Compact Comparison Table */}
-      <section className="pb-16 sm:pb-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6 shadow-lg sm:p-8 transition-all duration-300 backdrop-blur-sm">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl transition-colors">
-                Compare plans at a glance
-              </h2>
-              <p className="mt-3 text-lg text-gray-600 dark:text-gray-400 transition-colors">
-                Pick the right fit based on team size, usage, and support needs.
-              </p>
-            </div>
-
-            <div className="mt-8 overflow-hidden rounded-xl border border-blue-100 dark:border-gray-800 transition-colors">
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-left">
-                  <thead className="bg-blue-600 dark:bg-blue-700 text-white transition-colors">
-                    <tr>
-                      <th className="px-6 py-4 text-sm font-semibold">Feature</th>
-                      <th className="px-6 py-4 text-sm font-semibold">Free</th>
-                      <th className="px-6 py-4 text-sm font-semibold">Silver</th>
-                      <th className="px-6 py-4 text-sm font-semibold">Gold</th>
-                      <th className="px-6 py-4 text-sm font-semibold">Platinum</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-blue-100 dark:divide-gray-800 bg-white dark:bg-gray-900 text-sm text-gray-700 dark:text-gray-300 transition-colors">
-                    <tr>
-                      <td className="px-6 py-4 font-semibold">Users</td>
-                      <td className="px-6 py-4">2</td>
-                      <td className="px-6 py-4">15</td>
-                      <td className="px-6 py-4">25</td>
-                      <td className="px-6 py-4">40</td>
-                    </tr>
-                    <tr className="bg-blue-50/50 dark:bg-gray-800/30 transition-colors">
-                      <td className="px-6 py-4 font-semibold">Collections</td>
-                      <td className="px-6 py-4">2</td>
-                      <td className="px-6 py-4">10</td>
-                      <td className="px-6 py-4">15</td>
-                      <td className="px-6 py-4">40</td>
-                    </tr>
-                    <tr>
-                      <td className="px-6 py-4 font-semibold">Max Upload</td>
-                      <td className="px-6 py-4">50MB</td>
-                      <td className="px-6 py-4">200MB</td>
-                      <td className="px-6 py-4">500MB</td>
-                      <td className="px-6 py-4">1000MB</td>
-                    </tr>
-                    <tr className="bg-blue-50/50 dark:bg-gray-800/30 transition-colors">
-                      <td className="px-6 py-4 font-semibold">Support</td>
-                      <td className="px-6 py-4">Basic</td>
-                      <td className="px-6 py-4">Basic</td>
-                      <td className="px-6 py-4">Priority</td>
-                      <td className="px-6 py-4">24/7 SLA</td>
-                    </tr>
-                    <tr>
-                      <td className="px-6 py-4 font-semibold">Price</td>
-                      <td className="px-6 py-4 font-semibold">Free</td>
-                      <td className="px-6 py-4 font-semibold">
-                        {billing === "monthly" ? "$99/mo" : `$${getPrice(99)}/yr`}
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-blue-600 dark:text-blue-400">
-                        {billing === "monthly" ? "$299/mo" : `$${getPrice(299)}/yr`}
-                      </td>
-                      <td className="px-6 py-4 font-semibold">
-                        {billing === "monthly" ? "$499/mo" : `$${getPrice(499)}/yr`}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="pb-16 sm:pb-20 transition-colors">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl transition-colors">
-              Frequently asked questions
-            </h2>
-            <p className="mt-3 text-lg text-gray-600 dark:text-gray-400 transition-colors">
-              Everything you need to know before choosing a plan.
-            </p>
-          </div>
-
-          <div className="mt-10 space-y-4">
-            {[
-              {
-                question: "Can I change plans later?",
-                answer: "Yes, you can upgrade or downgrade anytime as your chatbot usage changes."
-              },
-              {
-                question: "Do you offer yearly billing?",
-                answer: "Yes, yearly billing is available and typically includes discounted pricing (save 20%)."
-              },
-              {
-                question: "Do you offer enterprise plans?",
-                answer: "Yes, enterprise customers can get custom onboarding, SLAs, and tailored integrations."
-              },
-              {
-                question: "Can I cancel anytime?",
-                answer: "Absolutely. Your plan remains active until the end of your billing cycle."
-              }
-            ].map((faq, index) => (
-              <div
-                key={index}
-                className="rounded-xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6 shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
-              >
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white transition-colors">
-                  {faq.question}
-                </h3>
-                <p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400 transition-colors">
-                  {faq.answer}
-                </p>
-              </div>
             ))}
+          </div>
+
+          {/* Comparison Table */}
+          <div className="mt-20 overflow-hidden rounded-2xl border border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900/50 shadow-lg backdrop-blur-sm">
+            <div className="px-6 py-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Compare all features</h3>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">See exactly what's included in each plan</p>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-800/50 border-t border-blue-100 dark:border-gray-700">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Features</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-white">Free</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-white">Silver</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">Gold</th>
+                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900 dark:text-white">Platinum</th>
+                  </tr>
+                </thead>
+                <tbody className="">
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Chatbots</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">1</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">3</td>
+                    <td className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">10</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Unlimited</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Team Members</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">2</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">10</td>
+                    <td className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">25</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Unlimited</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Document Collections</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">2</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">10</td>
+                    <td className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">Unlimited</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Unlimited</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Widget Deployment</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Basic</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Advanced</td>
+                    <td className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">Advanced</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">White-label</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Analytics & Insights</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Basic</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Visitor insights</td>
+                    <td className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">Advanced</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Enterprise</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Multi-Tenant Controls</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">-</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">-</td>
+                    <td className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">Basic</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Advanced</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Support</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Community</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Email</td>
+                    <td className="px-6 py-4 text-center text-sm font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white">Priority</td>
+                    <td className="px-6 py-4 text-center text-sm text-gray-600 dark:text-gray-400">Dedicated</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Price</td>
+                    <td className="px-6 py-4 text-center text-sm font-bold text-gray-900 dark:text-white">$0</td>
+                    <td className="px-6 py-4 text-center text-sm font-bold text-gray-900 dark:text-white">$29/mo</td>
+                    <td className="px-6 py-4 text-center text-sm font-bold bg-gradient-to-r from-blue-600 to-blue-700 text-white">$79/mo</td>
+                    <td className="px-6 py-4 text-center text-sm font-bold text-gray-900 dark:text-white">Custom</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>

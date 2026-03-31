@@ -17,8 +17,7 @@ export function Navbar() {
     { label: "Home", href: "/" },
     { label: "Features", href: "/features" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Widget Code", href: "/integration" },
-    { label: "Knowledge Base", href: "/knowledgeBase" },
+    { label: "FAQ", href: "/faq" },
     { label: "Contact us", href: "/contact" },
   ];
 
@@ -68,7 +67,10 @@ export function Navbar() {
       <div className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 transition-colors sticky top-0 z-40">
         <div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center h-full group cursor-pointer">
+          <Link
+            href="/"
+            className="flex items-center h-full group cursor-pointer"
+          >
             <Image
               src={
                 mounted && resolvedTheme === "dark"

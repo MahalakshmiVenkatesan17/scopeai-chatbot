@@ -25,31 +25,40 @@ const socialLinks = [
 
 export default function ContactForm() {
   return (
-    <section className="w-full bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-950 py-20 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 mb-4 transition-colors">
-            <MessageCircle className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
-            <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
-              Get in Touch
-            </span>
+    <section className="w-full transition-colors">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#3e3d98] via-[#302f76] to-[#6e11b0]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(124,58,237,0.12),transparent_25%),radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.08),transparent_25%)] dark:bg-[radial-gradient(circle_at_80%_20%,rgba(124,58,237,0.2),transparent_25%),radial-gradient(circle_at_20%_30%,rgba(99,102,241,0.15),transparent_25%)]"></div>
+
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="inline-flex items-center rounded-full border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/40 px-4 py-1.5 mb-4 transition-colors">
+              <MessageCircle className="w-4 h-4 mr-2 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                Get in Touch
+              </span>
+            </div>
+
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-[#ffffff] sm:text-5xl lg:text-6xl transition-colors">
+              Talk to our ScopeAIChat Experts
+            </h1>
+
+            <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-[#ffffff] transition-colors">
+              Have questions about ScopeAIChat, widget setup, or pricing? Our team
+              is here to help
+            </p>
           </div>
-
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent transition-colors">
-            Talk to our ScopeAIChat Experts
-          </h1>
-
-          <p className="mt-4 text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto transition-colors">
-            Have questions about ScopeAIChat, widget setup, or pricing? Our team
-            is here to help
-          </p>
         </div>
+      </section>
+
+      {/* Contact Form Section */}
+      <section className="bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-950 py-20 transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Card */}
         <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-xl transition-colors">
           {/* LEFT PANEL - Text colors fixed to white */}
-          <div className="bg-gradient-to-br from-[#4c51bf] to-[#3b3fa3] dark:from-[#5b67e0] dark:to-[#4c51bf] px-8 py-12 relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[#3e3d98] via-[#302f76] to-[#6e11b0] px-8 py-12 relative overflow-hidden">
             {/* Decorative shapes */}
             <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/5 rounded-full"></div>
             <div className="absolute top-1/2 -right-6 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
@@ -79,7 +88,7 @@ export default function ContactForm() {
                     EMAIL US
                   </p>
                   <p className="text-base font-medium text-[#ffffff] group-hover:text-white/90 transition-colors">
-                    info@scopeai.chat
+                    info@scopethinkers.com
                   </p>
                 </div>
               </div>
@@ -94,7 +103,7 @@ export default function ContactForm() {
                     PHONE NUMBER
                   </p>
                   <p className="text-base font-medium text-[#ffffff] group-hover:text-white/90 transition-colors">
-                    +91 9876543210
+                    +91 7305 672226
                   </p>
                 </div>
               </div>
@@ -109,9 +118,11 @@ export default function ContactForm() {
                     LOCATION
                   </p>
                   <p className="text-sm leading-relaxed font-medium text-[#ffffff] group-hover:text-white/90 transition-colors">
-                    123 Business Park, Tech Hub
+                    Sterling Technopolis, 6th Floor 4/293, SH 49A,
                     <br />
-                    Bangalore, India - 560001
+                    Old Mahabalipuram Road,
+                    <br />
+                    Perungudi, Chennai, Tamil Nadu 600096.
                   </p>
                 </div>
               </div>
@@ -130,6 +141,8 @@ export default function ContactForm() {
                 <a
                   key={i}
                   href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 hover:scale-110 transition-all duration-300"
                 >
@@ -229,6 +242,7 @@ export default function ContactForm() {
           </div>
         </div>
       </div>
+      </section>
     </section>
   );
 }

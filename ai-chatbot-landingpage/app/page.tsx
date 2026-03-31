@@ -1,27 +1,9 @@
-import {
-  Hero,
-  BrandMarquee,
-  HomeFeature,
-  Journey,
-  PrivacySecurity,
-  Testimonial,
-  FeaturesSection,
-  ToolsMarquee,
-  VendorComparison,
-} from "@/components/home";
+import { Hero } from "@/components/home";
 
 export default function Home() {
   return (
-    <div>
+    <div className="min-h-screen">
       <Hero />
-      <BrandMarquee />
-      <HomeFeature />
-      <ToolsMarquee />
-      <PrivacySecurity />
-      <Journey />
-      <Testimonial />
-      <FeaturesSection />
-      <VendorComparison />
     </div>
   );
 }

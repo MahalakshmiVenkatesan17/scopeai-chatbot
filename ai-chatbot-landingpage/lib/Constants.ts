@@ -78,51 +78,62 @@ export const plans = [
     price: { monthly: 0, yearly: 0 },
     highlights: [],
     features: [
-      "ScopeAIChat + Autoreply",
-      "Basic Workflow Automation",
-      "1 seat",
-      "200 conversations/month",
+      "1 chatbot",
+      "Up to 2 users",
+      "2 document collections",
+      "Basic widget deployment",
+      "Basic analytics",
     ],
     button: "Sign up free",
     highlighted: false,
+    description: "Best for trying your first AI chatbot",
   },
   {
-    name: "Starter",
-    price: { monthly: 39, yearly: 29 },
+    name: "Silver",
+    price: { monthly: 29, yearly: 290 },
     features: [
       "Everything in Free",
-      "Live Chat + Helpdesk",
-      "5 seats",
-      "5,000 conversations/month",
+      "Up to 3 chatbots",
+      "Up to 10 users",
+      "10 document collections",
+      "Chatbot configuration",
+      "Visitor insights",
     ],
     button: "Get Started",
     highlighted: false,
+    description: "For small teams launching production-ready chatbots",
   },
   {
-    name: "Team",
-    price: { monthly: 89, yearly: 69 },
+    name: "Gold",
+    price: { monthly: 79, yearly: 790 },
     features: [
-      "Everything in Starter",
-      "Smart Ticketing + Mailbox",
-      "Teams & Roles",
-      "15 seats",
-      "15,000 conversations/month",
+      "Everything in Silver",
+      "Up to 10 chatbots",
+      "Up to 25 users",
+      "Advanced analytics & reporting",
+      "Multi-role access",
+      "Priority support",
     ],
+    button: "Get Started",
     tag: "Most Popular",
     highlighted: true,
+    description: "For growing businesses that need analytics, collaboration, and scale",
   },
   {
-    name: "Business",
-    price: { monthly: 249, yearly: 199 },
+    name: "Platinum",
+    price: { monthly: 0, yearly: 0 }, // Custom pricing
     features: [
-      "Everything in Team",
-      "Bot for multiple brands",
-      "White-label options",
-      "Unlimited seats",
-      "60,000 conversations/month",
+      "Everything in Gold",
+      "Unlimited workspaces",
+      "Unlimited users",
+      "Multi-tenant controls",
+      "System health & usage reports",
+      "Dedicated onboarding / SLA",
     ],
-    button: "Start Now",
+    button: "Contact Sales",
     highlighted: false,
+    description: "For multi-tenant teams that need advanced controls, governance, and support",
+    custom: true,
   },
 ];
 
@@ -453,32 +464,68 @@ export const faqs = [
   {
     question: "What is ScopeAIChat and how does it work?",
     answer:
-      "ScopeAIChat is an advanced ScopeAIChat builder that allows you to train intelligent agents using your website content, files, and documentation. It leverages natural language processing to understand user queries and provide accurate, context-aware responses in real-time. The platform automates customer conversations, provides instant support, and integrates seamlessly into your workflow.",
+      "ScopeAIChat is an advanced AI chatbot platform that allows you to train intelligent agents using your website content, files, and documentation. It leverages natural language processing to understand user queries and provide accurate, context-aware responses in real-time. The platform automates customer conversations, provides instant support, and integrates seamlessly into your workflow.",
+    category: "Getting Started"
   },
   {
-    question: "Does ScopeAIChat support multiple languages?",
+    question: "Can I upload my own documents to train the chatbot?",
     answer:
-      "Yes, ScopeAIChat supports multiple languages, allowing you to engage with users globally and provide localized support experiences.",
+      "Yes! ScopeAIChat supports document uploads including PDFs, Word documents, text files, and web pages. You can create knowledge bases by uploading multiple documents, and our AI will index and learn from your content to provide accurate, context-aware responses based on your specific information.",
+    category: "Setup & Deployment"
+  },
+  {
+    question: "Does ScopeAIChat support multi-tenant or team access?",
+    answer:
+      "Absolutely. ScopeAIChat offers multi-tenant architecture with role-based access control. You can create separate workspaces for different teams or clients, assign user roles (Admin, Support Agent, Knowledge Editor), and manage permissions to ensure proper data access and collaboration.",
+    category: "Features & Customization"
+  },
+  {
+    question: "Can I customize the chatbot's appearance and behavior?",
+    answer:
+      "Yes, extensive customization options are available. You can modify the chatbot's branding (colors, logos, widget appearance), configure prompts and response behavior, set up conversation flows, and adjust workspace settings. Advanced admin controls allow for fine-tuning of AI behavior and response patterns.",
+    category: "Features & Customization"
+  },
+  {
+    question: "What analytics and visitor insights are available?",
+    answer:
+      "ScopeAIChat provides comprehensive analytics including visitor sessions, engagement rates, response times, usage costs, and conversation patterns. You can track performance metrics, monitor chatbot effectiveness, analyze user behavior, and generate detailed reports to optimize your chatbot operations.",
+    category: "Features & Customization"
+  },
+  {
+    question: "Is my data secure?",
+    answer:
+      "Security is our top priority. ScopeAIChat uses enterprise-grade encryption for data at rest and in transit, complies with data protection regulations, and offers secure authentication methods. Your data is isolated in dedicated workspaces, and we provide regular security audits and compliance reports for enterprise customers.",
+    category: "Security & Support"
+  },
+  {
+    question: "Can I upgrade my plan later?",
+    answer:
+      "Yes, you can upgrade, downgrade, or customize your plan at any time. Changes take effect immediately, and we prorate billing for mid-cycle upgrades. You can also add additional features or users as your needs grow, ensuring your chatbot operations scale with your business.",
+    category: "Pricing & Billing"
   },
   {
     question: "Do I need coding skills to use ScopeAIChat?",
     answer:
-      "No coding skills are required. ScopeAIChat is designed with a user-friendly interface so anyone can set it up and manage it easily.",
+      "No coding skills are required. ScopeAIChat is designed with a user-friendly interface so anyone can set it up and manage it easily. The platform offers no-code deployment, intuitive configuration tools, and comprehensive documentation to help you get started quickly.",
+    category: "Getting Started"
   },
   {
     question: "How do I embed the chatbot into my website?",
     answer:
-      "You can embed the chatbot by copying a simple script or iframe provided in your dashboard and pasting it into your website’s HTML.",
+      "You can embed the chatbot by copying a simple script or iframe provided in your dashboard and pasting it into your website's HTML. The process takes just a few minutes, and our platform supports integration with popular website builders like WordPress, Webflow, Shopify, and more.",
+    category: "Setup & Deployment"
   },
   {
-    question: "Is there a free trial available?",
+    question: "Does ScopeAIChat support multiple languages?",
     answer:
-      "Yes, we offer a free trial so you can explore all features before choosing a plan.",
+      "Yes, ScopeAIChat supports multiple languages, allowing you to engage with users globally and provide localized support experiences. The AI can detect and respond in different languages based on your training data and user preferences.",
+    category: "Features & Customization"
   },
   {
     question: "What kind of support do you offer?",
     answer:
-      "We offer email support, live chat, and comprehensive documentation to help you get started and succeed.",
+      "We offer tiered support including community forums, email support, priority support for paid plans, and dedicated onboarding with SLA for enterprise customers. Comprehensive documentation, video tutorials, and a knowledge base are available to help you succeed.",
+    category: "Security & Support"
   },
 ];
 
