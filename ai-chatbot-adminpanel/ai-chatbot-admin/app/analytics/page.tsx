@@ -146,12 +146,12 @@ export default function AnalyticsPage() {
           <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gradient-to-r from-gray-50 to-white dark:from-[#0F172A] dark:via-[#0B1220] dark:to-[#111827] px-6 py-5 shadow-sm dark:shadow-2xl">
             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-5">
               <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#635BDF] text-white shadow-[0_0_24px_rgba(99,91,223,0.25)]">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#635BDF] text-white shadow-[0_0_24px_rgba(99,91,223,0.25)] shrink-0">
                   <BarChart3 className="h-7 w-7" />
                 </div>
 
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                     Analytics & Usage
                   </h1>
                   <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
@@ -164,11 +164,17 @@ export default function AnalyticsPage() {
 
               <div className="flex flex-col sm:flex-row gap-3">
                 {tenantsLoading ? (
-                  <select disabled className={`${premiumSelectClass} min-w-[220px] opacity-70`}>
+                  <select
+                    disabled
+                    className={`${premiumSelectClass} min-w-[220px] opacity-70`}
+                  >
                     <option>Loading tenants...</option>
                   </select>
                 ) : tenantsError ? (
-                  <select disabled className={`${premiumSelectClass} min-w-[220px] opacity-70`}>
+                  <select
+                    disabled
+                    className={`${premiumSelectClass} min-w-[220px] opacity-70`}
+                  >
                     <option>Error loading tenants</option>
                   </select>
                 ) : (
@@ -251,7 +257,9 @@ export default function AnalyticsPage() {
           )}
 
           {!selectedTenantId ? (
-            <div className={`${premiumCardClass} flex items-center justify-center h-64`}>
+            <div
+              className={`${premiumCardClass} flex items-center justify-center h-64`}
+            >
               <p className="text-gray-500 dark:text-slate-400 transition-colors">
                 {safeTenants.length === 0 && !tenantsLoading
                   ? "No tenants available"
@@ -259,7 +267,9 @@ export default function AnalyticsPage() {
               </p>
             </div>
           ) : loading ? (
-            <div className={`${premiumCardClass} flex items-center justify-center h-64`}>
+            <div
+              className={`${premiumCardClass} flex items-center justify-center h-64`}
+            >
               <div className="text-center">
                 <div className="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-[#635BDF] border-r-transparent"></div>
                 <p className="mt-4 text-gray-500 dark:text-slate-400">

@@ -203,11 +203,11 @@ class AuthService:
             })
         else:
             # Default tenant
-            tenant = await self.tenant_repo.get_by_slug("default")
+            tenant = await self.tenant_repo.get_by_slug("superadmin")
             if not tenant:
                 tenant = await self.tenant_repo.create({
-                    "name": "Default",
-                    "slug": "default",
+                    "name": "Superadmin",
+                    "slug": "superadmin",
                     "status": "active",
                     "subscription_plan": "free",
                 })

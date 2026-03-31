@@ -346,11 +346,11 @@ export default function TenantsPage() {
           {/* Page Header */}
           <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gradient-to-r from-gray-50 to-white dark:from-[#0F172A] dark:via-[#0B1220] dark:to-[#111827] px-5 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 transition-colors">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#635BDF] text-white shadow-[0_0_24px_rgba(99,91,223,0.25)]">
+              <div className="shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#635BDF] text-white shadow-[0_0_24px_rgba(99,91,223,0.25)]">
                 <Building2 className="h-7 w-7" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                   Tenants Management
                 </h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
@@ -569,10 +569,11 @@ export default function TenantsPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={`${modalInputClass} ${errors.name
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                    : ""
-                    }`}
+                  className={`${modalInputClass} ${
+                    errors.name
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
+                  }`}
                   placeholder="Acme Corporation"
                 />
               </div>
@@ -585,10 +586,11 @@ export default function TenantsPage() {
                   type="text"
                   value={formData.slug}
                   onChange={(e) => handleInputChange("slug", e.target.value)}
-                  className={`${modalInputClass} ${errors.slug
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                    : ""
-                    }`}
+                  className={`${modalInputClass} ${
+                    errors.slug
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
+                  }`}
                   placeholder="acme-corporation"
                 />
               </div>
@@ -618,10 +620,11 @@ export default function TenantsPage() {
                   onChange={(e) =>
                     handleInputChange("billing_email", e.target.value)
                   }
-                  className={`${modalInputClass} ${errors.billing_email
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                    : ""
-                    }`}
+                  className={`${modalInputClass} ${
+                    errors.billing_email
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
+                  }`}
                   placeholder="billing@acme.com"
                 />
               </div>
@@ -660,10 +663,11 @@ export default function TenantsPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  className={`${modalInputClass} ${errors.name
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                    : ""
-                    }`}
+                  className={`${modalInputClass} ${
+                    errors.name
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
+                  }`}
                 />
               </div>
 
@@ -704,10 +708,11 @@ export default function TenantsPage() {
                   onChange={(e) =>
                     handleInputChange("billing_email", e.target.value)
                   }
-                  className={`${modalInputClass} ${errors.billing_email
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                    : ""
-                    }`}
+                  className={`${modalInputClass} ${
+                    errors.billing_email
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
+                  }`}
                 />
               </div>
             </div>

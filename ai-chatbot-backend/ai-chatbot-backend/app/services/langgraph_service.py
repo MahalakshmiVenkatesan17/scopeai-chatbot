@@ -288,7 +288,7 @@ class LangGraphService:
                 # ✅ No relevant docs found
                 system_prompt += (
                     "\n\nYou do not have information to answer this query. "
-                    "Respond using the Helpful Refusal formula mentioned in your guidelines. "
+                    "Respond using the exact refusal message mentioned in your guidelines. "
                     "DO NOT mention documents."
                 )
 
@@ -333,7 +333,17 @@ class LangGraphService:
     # ------------------------------------------------------------------
     async def _get_system_prompt(self, tenant_id: int, db: AsyncSession) -> str:
         """Load tenant chatbot config and build system prompt."""
+        tenant_name = "our company"
         try:
+            # Get tenant name for the refusal message
+            tenant_result = await db.execute(
+                text("SELECT name FROM tenants WHERE id = :tid"),
+                {"tid": tenant_id},
+            )
+            tenant_row = tenant_result.mappings().first()
+            if tenant_row and tenant_row.get("name"):
+                tenant_name = tenant_row.get("name")
+
             result = await db.execute(
                 text(
                     "SELECT chatbot_name, welcome_message FROM tenant_chatbot_config "
@@ -352,8 +362,8 @@ class LangGraphService:
                     "Guidelines:\n"
                     "1. Be helpful and flexible. Understand the user's intent even if there are typos or alternative phrasing.\n"
                     "2. Base your factual answers solely on the context provided to you. Do NOT hallucinate data.\n"
-                    "3. If you cannot answer a question reliably, use the 'Helpful Refusal' formula: [Empathy] + [Honesty] + [What You CAN Help With] + [Call to Action]. "
-                    "For example: 'I'm sorry, I don't have an answer to that right now. I can help you with <topics>. Could you try rephrasing your question?'\n"
+                    f"3. If you cannot answer a question reliably or if the user asks a general question outside the scope, use this exact refusal message: "
+                    f"\"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\"\n"
                     "4. CRITICAL: NEVER use words like 'documents', 'provided context', 'uploaded files', or 'knowledge base'. The user does not know about the backend system. Answer generically.\n"
                     "5. Never return an empty response string. Always say something helpful."
                 )
@@ -365,7 +375,8 @@ class LangGraphService:
 
         return (
             "You are a helpful AI assistant. Answer clearly based on context without mentioning 'context' or 'documents'. "
-            "If you cannot answer, use: [Empathy]+[Honesty]+[Call to Action]."
+            f"If you cannot answer, use this exact refusal message: "
+            f"\"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\""
         )
 
     async def _load_conversation_history(
