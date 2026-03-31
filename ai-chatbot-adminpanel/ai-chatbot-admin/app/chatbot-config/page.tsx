@@ -193,7 +193,8 @@ export default function ChatbotConfigPage() {
       showToast("Avatar uploaded successfully", "success");
     } catch (error: any) {
       console.error("Failed to upload avatar:", error);
-      const backendMsg = error?.response?.data?.error?.message || error?.response?.data?.message;
+      const backendMsg =
+        error?.response?.data?.error?.message || error?.response?.data?.message;
       showToast(backendMsg || "Failed to upload avatar", "error");
     } finally {
       setLoading(false);
@@ -270,7 +271,7 @@ export default function ChatbotConfigPage() {
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:backdrop-blur-xl dark:shadow-2xl">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20">
+                <div className="shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20">
                   <Bot className="h-7 w-7" />
                 </div>
 
@@ -373,7 +374,9 @@ export default function ChatbotConfigPage() {
                       </div>
                       {config.chatbotAvatar && (
                         <button
-                          onClick={() => setConfig({ ...config, chatbotAvatar: null })}
+                          onClick={() =>
+                            setConfig({ ...config, chatbotAvatar: null })
+                          }
                           className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
                         >
                           <X className="h-3.5 w-3.5" />
@@ -386,12 +389,15 @@ export default function ChatbotConfigPage() {
                         Chatbot Avatar
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm">
-                        Upload a profile picture for your chatbot. This will be displayed in the widget header and next to bot messages.
+                        Upload a profile picture for your chatbot. This will be
+                        displayed in the widget header and next to bot messages.
                       </p>
                       <div className="flex flex-wrap gap-2 pt-1">
                         <label className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 px-4 py-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/20 dark:hover:bg-indigo-500/30 transition-all border border-indigo-500/20">
                           <Upload className="h-3.5 w-3.5" />
-                          {config.chatbotAvatar ? "Change Avatar" : "Upload Avatar"}
+                          {config.chatbotAvatar
+                            ? "Change Avatar"
+                            : "Upload Avatar"}
                           <input
                             type="file"
                             className="hidden"
@@ -401,7 +407,9 @@ export default function ChatbotConfigPage() {
                         </label>
                         {config.chatbotAvatar && (
                           <button
-                            onClick={() => setConfig({ ...config, chatbotAvatar: null })}
+                            onClick={() =>
+                              setConfig({ ...config, chatbotAvatar: null })
+                            }
                             className="inline-flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-white/5 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 transition-all border border-gray-200 dark:border-white/10"
                           >
                             Remove
@@ -451,10 +459,16 @@ export default function ChatbotConfigPage() {
                         }
                         className={inputClass}
                       >
-                        <option value="bottom-right" className="dark:bg-[#111827]">
+                        <option
+                          value="bottom-right"
+                          className="dark:bg-[#111827]"
+                        >
                           Bottom Right
                         </option>
-                        <option value="bottom-left" className="dark:bg-[#111827]">
+                        <option
+                          value="bottom-left"
+                          className="dark:bg-[#111827]"
+                        >
                           Bottom Left
                         </option>
                         <option value="top-right" className="dark:bg-[#111827]">
@@ -479,7 +493,10 @@ export default function ChatbotConfigPage() {
                           type="color"
                           value={config.primaryColor}
                           onChange={(e) =>
-                            setConfig({ ...config, primaryColor: e.target.value })
+                            setConfig({
+                              ...config,
+                              primaryColor: e.target.value,
+                            })
                           }
                           className="sr-only"
                         />
@@ -584,7 +601,8 @@ export default function ChatbotConfigPage() {
                             Collect Contact & User Info
                           </label>
                           <p className="text-xs font-normal text-gray-600 dark:text-gray-400 mt-1">
-                            Ask for user contact information before starting conversation
+                            Ask for user contact information before starting
+                            conversation
                           </p>
                         </div>
 
@@ -656,7 +674,9 @@ export default function ChatbotConfigPage() {
 
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Tenant:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Tenant:
+                        </span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium text-right">
                           {selectedTenantDetails
                             ? `${selectedTenantDetails.name} (${selectedTenantDetails.slug})`
@@ -665,14 +685,18 @@ export default function ChatbotConfigPage() {
                       </div>
 
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Chatbot Name:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Chatbot Name:
+                        </span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium text-right">
                           {config.chatbotName || "—"}
                         </span>
                       </div>
 
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Primary Color:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Primary Color:
+                        </span>
                         <span className="flex items-center gap-2 text-gray-900 dark:text-gray-100 font-medium">
                           <span
                             className="h-3 w-3 rounded-full border border-gray-200 dark:border-white/10"
@@ -683,7 +707,9 @@ export default function ChatbotConfigPage() {
                       </div>
 
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Widget Position:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Widget Position:
+                        </span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium capitalize text-right">
                           {config.widgetPosition?.replace("-", " ") || "—"}
                         </span>
@@ -701,28 +727,36 @@ export default function ChatbotConfigPage() {
 
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Show Avatar:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Show Avatar:
+                        </span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
                           {config.showAgentAvatar ? "Yes" : "No"}
                         </span>
                       </div>
 
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Collect User Info:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Collect User Info:
+                        </span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
                           {config.collectUserInfo ? "Yes" : "No"}
                         </span>
                       </div>
 
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Max Input Length:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Max Input Length:
+                        </span>
                         <span className="text-gray-900 dark:text-gray-100 font-medium">
                           {config.maxMessageLength} characters
                         </span>
                       </div>
 
                       <div className="flex justify-between gap-4">
-                        <span className="text-gray-600 dark:text-gray-400">Status:</span>
+                        <span className="text-gray-600 dark:text-gray-400">
+                          Status:
+                        </span>
                         <span className="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400">
                           Active
                         </span>
@@ -738,7 +772,10 @@ export default function ChatbotConfigPage() {
           {selectedTenant && (
             <div className="rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:backdrop-blur-xl dark:shadow-2xl sm:flex items-center justify-between gap-4">
               <div className="text-gray-500 dark:text-gray-400 text-sm mb-3 sm:mb-0">
-                Changes are applied when you click <span className="font-medium text-gray-700 dark:text-gray-300">Save Configuration</span>
+                Changes are applied when you click{" "}
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  Save Configuration
+                </span>
               </div>
 
               <div className="flex gap-3 justify-end">

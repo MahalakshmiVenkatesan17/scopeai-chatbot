@@ -346,7 +346,7 @@ curl -X GET "${getApiUrl()}/public/chat/config/${selectedTenant.slug}"
           <div className={shellCard + " p-5"}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20 shrink-0">
                   <Bot className="h-7 w-7" />
                 </div>
 

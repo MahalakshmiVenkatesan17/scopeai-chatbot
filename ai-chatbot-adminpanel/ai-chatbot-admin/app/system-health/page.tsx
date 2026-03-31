@@ -32,9 +32,13 @@ export default function SystemHealthPage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "healthy":
-        return <CheckCircle className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />;
+        return (
+          <CheckCircle className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+        );
       case "degraded":
-        return <AlertCircle className="h-5 w-5 text-amber-500 dark:text-amber-400" />;
+        return (
+          <AlertCircle className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+        );
       default:
         return <XCircle className="h-5 w-5 text-rose-500 dark:text-rose-400" />;
     }
@@ -47,7 +51,10 @@ export default function SystemHealthPage() {
       unhealthy: "danger",
     };
     return (
-      <Badge variant={variants[status] || "default"} className="border capitalize">
+      <Badge
+        variant={variants[status] || "default"}
+        className="border capitalize"
+      >
         {status}
       </Badge>
     );
@@ -100,17 +107,18 @@ export default function SystemHealthPage() {
         <div className="space-y-6">
           {/* Header */}
           <div className="rounded-3xl border border-gray-200 bg-white px-6 py-5 shadow-sm dark:border-white/[0.06] dark:bg-[#0F172A] dark:shadow-[0_0_30px_rgba(0,0,0,0.18)] transition-colors">
-            <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5856d6] shadow-lg dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.25)]">
+            <div className="flex items-start gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5856d6] shadow-lg dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.25)] shrink-0">
                 <Activity className="h-7 w-7 text-white" />
               </div>
 
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white transition-colors">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white transition-colors">
                   System Health
                 </h1>
                 <p className="mt-1 text-sm text-gray-600 dark:text-slate-400 transition-colors">
-                  Monitor real-time platform status, service availability, and memory usage
+                  Monitor real-time platform status, service availability, and
+                  memory usage
                 </p>
               </div>
             </div>
@@ -129,7 +137,7 @@ export default function SystemHealthPage() {
               <CardContent>
                 <div
                   className={`mb-5 rounded-2xl p-5 transition-colors ${getStatusBg(
-                    health?.status || "unknown"
+                    health?.status || "unknown",
                   )}`}
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -142,7 +150,9 @@ export default function SystemHealthPage() {
                         <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-slate-400">
                           Current Status
                         </p>
-                        <div className="mt-1">{getStatusBadge(health?.status || "unknown")}</div>
+                        <div className="mt-1">
+                          {getStatusBadge(health?.status || "unknown")}
+                        </div>
                       </div>
                     </div>
 
@@ -267,7 +277,9 @@ export default function SystemHealthPage() {
                           </div>
                         </div>
 
-                        <div className="shrink-0">{getStatusBadge(info.status)}</div>
+                        <div className="shrink-0">
+                          {getStatusBadge(info.status)}
+                        </div>
                       </div>
                     </div>
                   ))}

@@ -312,9 +312,9 @@ export default function MastersPage() {
 
         <div className="relative rounded-2xl border border-gray-200 bg-white dark:bg-white/[0.04] dark:backdrop-blur-xl shadow-sm dark:shadow-2xl space-y-6 p-4 sm:p-6 dark:border-white/10 transition-colors">
           {/* HEADER */}
-          <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex sm:flex-row flex-col sm:items-center sm:justify-between gap-4">
             <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20">
+              <div className="shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20">
                 <Layers3 className="h-7 w-7" />
               </div>
 
@@ -328,15 +328,13 @@ export default function MastersPage() {
               </div>
             </div>
 
-            <div className="flex gap-3 flex-wrap">
-              <Button
-                variant="main"
-                onClick={openAddModal}
-                className="rounded-xl primary-bg-color shadow-lg shadow-violet-500/20"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Add Category
-              </Button>
-            </div>
+            <Button
+              variant="main"
+              onClick={openAddModal}
+              className="rounded-xl primary-bg-color shadow-lg shadow-violet-500/20"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add Category
+            </Button>
           </div>
           {/* Tenant filter — super admin only */}
           {isSuperAdmin && (

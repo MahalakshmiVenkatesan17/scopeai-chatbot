@@ -148,16 +148,13 @@ export default function ActivePlansReportPage() {
     const colors: { [key: string]: string } = {
       Enterprise:
         "bg-violet-50 text-violet-700 border border-violet-200 dark:bg-violet-500/10 dark:text-violet-300 dark:border-violet-500/20",
-      Pro:
-        "bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20",
+      Pro: "bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20",
       Basic:
         "bg-slate-50 text-slate-700 border border-slate-200 dark:bg-white/[0.04] dark:text-slate-300 dark:border-white/[0.06]",
       Silver:
         "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20",
-      Free:
-        "bg-gray-50 text-gray-700 border border-gray-200 dark:bg-white/[0.04] dark:text-slate-300 dark:border-white/[0.06]",
-      Gold:
-        "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20",
+      Free: "bg-gray-50 text-gray-700 border border-gray-200 dark:bg-white/[0.04] dark:text-slate-300 dark:border-white/[0.06]",
+      Gold: "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20",
       Platinum:
         "bg-zinc-100 text-zinc-800 border border-zinc-300 dark:bg-zinc-500/10 dark:text-zinc-200 dark:border-zinc-500/20",
     };
@@ -261,17 +258,18 @@ export default function ActivePlansReportPage() {
           {/* Header */}
           <div className="rounded-3xl border border-gray-200 bg-white px-6 py-5 shadow-sm dark:border-white/[0.06] dark:bg-[#0F172A] dark:shadow-[0_0_30px_rgba(0,0,0,0.18)] transition-colors">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5856d6] shadow-lg dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.25)]">
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5856d6] shadow-lg dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.25)] shrink-0">
                   <FileBarChart2 className="h-7 w-7 text-white" />
                 </div>
 
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                     Active Plans Report
                   </h1>
                   <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
-                    Overview of subscription plans, billing cycles, and revenue insights
+                    Overview of subscription plans, billing cycles, and revenue
+                    insights
                   </p>
                 </div>
               </div>
@@ -385,7 +383,9 @@ export default function ActivePlansReportPage() {
           <Card className="border-gray-200 bg-white dark:border-white/[0.06] dark:bg-[#0F172A] transition-colors">
             <CardHeader className="!border-b-0">
               <CardTitle className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <span className="text-gray-900 dark:text-white">Subscriptions</span>
+                <span className="text-gray-900 dark:text-white">
+                  Subscriptions
+                </span>
                 <Badge className="w-fit text-sm bg-gray-100 dark:bg-white/[0.04] text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-white/[0.06]">
                   {filteredData.length} of {pagination.total} subscriptions
                 </Badge>
@@ -488,7 +488,9 @@ export default function ActivePlansReportPage() {
                                   : "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-500/20"
                               }
                             >
-                              {subscription.billing_cycle.charAt(0).toUpperCase() +
+                              {subscription.billing_cycle
+                                .charAt(0)
+                                .toUpperCase() +
                                 subscription.billing_cycle.slice(1)}
                             </Badge>
                           </TableCell>
@@ -504,13 +506,13 @@ export default function ActivePlansReportPage() {
                               <span className="text-xs text-gray-500 dark:text-slate-400">
                                 {subscription.billing_cycle === "yearly"
                                   ? `${formatCurrency(
-                                    subscription.amount / 12,
-                                    subscription.currency,
-                                  )}/mo`
+                                      subscription.amount / 12,
+                                      subscription.currency,
+                                    )}/mo`
                                   : `${formatCurrency(
-                                    subscription.amount * 12,
-                                    subscription.currency,
-                                  )}/yr`}
+                                      subscription.amount * 12,
+                                      subscription.currency,
+                                    )}/yr`}
                               </span>
                             </div>
                           </TableCell>
@@ -519,7 +521,9 @@ export default function ActivePlansReportPage() {
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-1.5 text-sm text-gray-700 dark:text-slate-300">
                                 <Calendar className="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" />
-                                <span>{formatDate(subscription.created_at)}</span>
+                                <span>
+                                  {formatDate(subscription.created_at)}
+                                </span>
                               </div>
                               <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400">
                                 <span>→</span>

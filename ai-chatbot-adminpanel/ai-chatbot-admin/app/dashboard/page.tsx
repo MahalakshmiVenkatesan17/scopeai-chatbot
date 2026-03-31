@@ -239,13 +239,13 @@ export default function DashboardPage() {
           {/* Page Header */}
           <div className="rounded-3xl border border-gray-200 bg-white px-6 py-5 shadow-sm dark:border-white/[0.06] dark:bg-[#0F172A] dark:shadow-[0_0_30px_rgba(0,0,0,0.18)] transition-colors">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5856d6] shadow-lg dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.25)]">
+              <div className="flex items-start gap-4">
+                <div className="shrink-0 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#5856d6] shadow-lg dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.25)]">
                   <LayoutDashboard className="h-7 w-7 text-white" />
                 </div>
 
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                     Dashboard
                   </h1>
                   <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
@@ -466,7 +466,6 @@ export default function DashboardPage() {
                         style={{ cursor: "pointer" }}
                       />
 
-
                       <Line
                         type="monotone"
                         dataKey="documents"
@@ -477,7 +476,6 @@ export default function DashboardPage() {
                         style={{ cursor: "pointer" }}
                       />
 
-                      
                       {/* Secondary lines (lighter & subtle) */}
                       <Line
                         type="monotone"

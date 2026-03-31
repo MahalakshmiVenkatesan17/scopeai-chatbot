@@ -126,7 +126,9 @@ const VisitorInfo = () => {
       const response = await apiClient.getTenants({ page: 1, limit: 100 });
 
       const items: Tenant[] = response.items ?? [];
-      const activeTenants = items.filter((t: Tenant) => t.status !== "suspended");
+      const activeTenants = items.filter(
+        (t: Tenant) => t.status !== "suspended",
+      );
 
       setTenants(activeTenants);
 
@@ -159,8 +161,8 @@ const VisitorInfo = () => {
       )) as VisitorInfoResponse;
 
       if (response.data && response.data.sessions) {
-        const transformedVisitors: VisitorSession[] = response.data.sessions.map(
-          (session, index) => ({
+        const transformedVisitors: VisitorSession[] =
+          response.data.sessions.map((session, index) => ({
             id: index,
             name: session.visitorName || `Visitor ${index + 1}`,
             visitorEmail: session.visitorEmail,
@@ -183,8 +185,7 @@ const VisitorInfo = () => {
             visitorId: session.visitorId,
             lastActivity: session.lastActivity,
             sessionId: session.id,
-          }),
-        );
+          }));
 
         setVisitors(transformedVisitors);
 
@@ -350,13 +351,13 @@ const VisitorInfo = () => {
           {/* Header */}
           <header className="mx-4 mt-4 mb-4 rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm dark:border-white/10 dark:bg-white/[0.04] dark:backdrop-blur-xl dark:shadow-2xl transition-colors">
             <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20">
+              <div className="flex items-start gap-4">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-violet-500/20 shrink-0">
                   <Bot className="h-7 w-7" />
                 </div>
 
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                     Visitor Intelligence
                   </h1>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -421,7 +422,9 @@ const VisitorInfo = () => {
 
           <div className="flex flex-1 overflow-hidden px-4 pb-4 gap-4">
             {/* Sidebar */}
-            <div className={`w-[340px] flex flex-col ${panelClass} overflow-hidden`}>
+            <div
+              className={`w-[340px] flex flex-col ${panelClass} overflow-hidden`}
+            >
               <div className="p-5 border-b border-gray-100 dark:border-white/10 flex justify-between items-center">
                 <div>
                   <h2 className="font-semibold text-gray-800 dark:text-gray-100">
@@ -438,10 +441,11 @@ const VisitorInfo = () => {
 
               <div className="flex border-b border-gray-100 dark:border-white/10">
                 <button
-                  className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === "all"
-                    ? "text-violet-600 dark:text-violet-300 border-b-2 border-violet-500"
-                    : "text-gray-600 dark:text-gray-400"
-                    }`}
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
+                    activeTab === "all"
+                      ? "text-violet-600 dark:text-violet-300 border-b-2 border-violet-500"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
                 >
                   All visitors
                 </button>
@@ -462,10 +466,11 @@ const VisitorInfo = () => {
                   visitors.map((visitor: VisitorSession, index: number) => (
                     <div
                       key={`${visitor.visitorId || "unknown"}_${index}`}
-                      className={`p-4 rounded-2xl cursor-pointer transition-all border ${selectedVisitor === index
-                        ? "bg-violet-50 border-violet-200 shadow-sm dark:bg-violet-500/10 dark:border-violet-500/20"
-                        : "border-transparent hover:bg-gray-50 dark:hover:bg-white/[0.03]"
-                        }`}
+                      className={`p-4 rounded-2xl cursor-pointer transition-all border ${
+                        selectedVisitor === index
+                          ? "bg-violet-50 border-violet-200 shadow-sm dark:bg-violet-500/10 dark:border-violet-500/20"
+                          : "border-transparent hover:bg-gray-50 dark:hover:bg-white/[0.03]"
+                      }`}
                       onClick={() => setSelectedVisitor(index)}
                     >
                       <div className="flex justify-between items-center mb-2">
@@ -501,7 +506,9 @@ const VisitorInfo = () => {
             </div>
 
             {/* Main Area */}
-            <div className={`flex-1 flex flex-col ${panelClass} overflow-hidden`}>
+            <div
+              className={`flex-1 flex flex-col ${panelClass} overflow-hidden`}
+            >
               {currentVisitor ? (
                 <>
                   {/* Top visitor header */}
@@ -541,17 +548,18 @@ const VisitorInfo = () => {
                     {["Profile", "Conversations"].map((tab) => (
                       <button
                         key={tab}
-                        className={`px-5 py-3 text-sm font-medium transition-colors ${activeProfileTab === tab.toLowerCase()
-                          ? "text-violet-600 dark:text-violet-300 border-b-2 border-violet-500"
-                          : "text-gray-600 dark:text-gray-400"
-                          }`}
+                        className={`px-5 py-3 text-sm font-medium transition-colors ${
+                          activeProfileTab === tab.toLowerCase()
+                            ? "text-violet-600 dark:text-violet-300 border-b-2 border-violet-500"
+                            : "text-gray-600 dark:text-gray-400"
+                        }`}
                         onClick={() =>
                           setActiveProfileTab(
                             tab.toLowerCase() as
-                            | "profile"
-                            | "conversations"
-                            | "calls"
-                            | "activities",
+                              | "profile"
+                              | "conversations"
+                              | "calls"
+                              | "activities",
                           )
                         }
                       >
@@ -573,24 +581,36 @@ const VisitorInfo = () => {
                           </div>
 
                           <div className="space-y-0">
-                            {renderInfoRow("Visitor ID", currentVisitor?.visitorId)}
-                            {renderInfoRow("Email", currentVisitor?.visitorEmail || "N/A")}
+                            {renderInfoRow(
+                              "Visitor ID",
+                              currentVisitor?.visitorId,
+                            )}
+                            {renderInfoRow(
+                              "Email",
+                              currentVisitor?.visitorEmail || "N/A",
+                            )}
                             {renderInfoRow(
                               "Started at",
                               currentVisitor?.startedAt
-                                ? new Date(currentVisitor.startedAt).toLocaleString()
+                                ? new Date(
+                                    currentVisitor.startedAt,
+                                  ).toLocaleString()
                                 : "--",
                             )}
                             {renderInfoRow(
                               "Ended at",
                               currentVisitor?.endedAt
-                                ? new Date(currentVisitor.endedAt).toLocaleString()
+                                ? new Date(
+                                    currentVisitor.endedAt,
+                                  ).toLocaleString()
                                 : "--",
                             )}
                             {renderInfoRow(
                               "Last visit",
                               currentVisitor?.lastActivity
-                                ? new Date(currentVisitor.lastActivity).toLocaleString()
+                                ? new Date(
+                                    currentVisitor.lastActivity,
+                                  ).toLocaleString()
                                 : "--",
                             )}
                             {renderInfoRow(
@@ -609,8 +629,14 @@ const VisitorInfo = () => {
                           </div>
 
                           <div className="space-y-0">
-                            {renderInfoRow("Messages", currentVisitor?.messageCount)}
-                            {renderInfoRow("IP Address", currentVisitor?.ipAddress)}
+                            {renderInfoRow(
+                              "Messages",
+                              currentVisitor?.messageCount,
+                            )}
+                            {renderInfoRow(
+                              "IP Address",
+                              currentVisitor?.ipAddress,
+                            )}
                             {renderInfoRow("Page URL", currentVisitor?.pageUrl)}
                             {renderInfoRow(
                               "Referrer",
@@ -676,27 +702,31 @@ const VisitorInfo = () => {
                               {sessionMessages.map((msg) => (
                                 <div
                                   key={msg.id}
-                                  className={`flex ${msg.messageType === "user"
-                                    ? "justify-start"
-                                    : msg.messageType === "system"
-                                      ? "justify-center"
-                                      : "justify-end"
-                                    }`}
+                                  className={`flex ${
+                                    msg.messageType === "user"
+                                      ? "justify-start"
+                                      : msg.messageType === "system"
+                                        ? "justify-center"
+                                        : "justify-end"
+                                  }`}
                                 >
                                   <div
-                                    className={`${msg.messageType === "system"
-                                      ? "max-w-[85%]"
-                                      : "max-w-[75%]"
-                                      } px-5 py-4 rounded-2xl shadow-sm transition-colors ${getMessageTypeClass(
-                                        msg.messageType,
-                                      )}`}
+                                    className={`${
+                                      msg.messageType === "system"
+                                        ? "max-w-[85%]"
+                                        : "max-w-[75%]"
+                                    } px-5 py-4 rounded-2xl shadow-sm transition-colors ${getMessageTypeClass(
+                                      msg.messageType,
+                                    )}`}
                                   >
                                     <div className="text-sm break-words whitespace-pre-wrap leading-6">
                                       {msg.content}
                                     </div>
 
                                     <div className="flex items-center justify-between mt-2 text-xs opacity-75 gap-3 flex-wrap">
-                                      <span>{formatMessageTime(msg.createdAt)}</span>
+                                      <span>
+                                        {formatMessageTime(msg.createdAt)}
+                                      </span>
                                       {msg.tokenCount ? (
                                         <span>{msg.tokenCount} tokens</span>
                                       ) : null}
