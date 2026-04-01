@@ -190,10 +190,16 @@ class ApiClient {
 
   // Auth APIs
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    // Obfuscate password in payload using Base64
+    const obfuscated = {
+      ...credentials,
+      password: btoa(credentials.password),
+    };
+
     // backend returns { data: { user, accessToken, refreshToken } }
     const response = await this.client.post<
       ApiResponse<{ user: User; accessToken: string; refreshToken: string }>
-    >("/auth/login", credentials);
+    >("/auth/login", obfuscated);
     const data = response.data.data!;
     const token: string | undefined = data?.accessToken;
     const refreshToken: string | undefined = data?.refreshToken;
@@ -234,7 +240,12 @@ class ApiClient {
     token: string;
     new_password: string;
   }): Promise<void> {
-    await this.client.post("/auth/reset-password", data);
+    // Obfuscate password in payload using Base64
+    const obfuscated = {
+      ...data,
+      newPassword: btoa(data.new_password),
+    };
+    await this.client.post("/auth/reset-password", obfuscated);
   }
 
   async verifyEmail(token: string): Promise<void> {
@@ -371,9 +382,12 @@ class ApiClient {
     tenantSlug?: string | null;
     role: string;
   }): Promise<User> {
+    // Obfuscate password in payload
+    const obfuscated = { ...data, password: btoa(data.password) };
+
     const response = await this.client.post<ApiResponse<{ user: User }>>(
       "/auth/register",
-      data,
+      obfuscated,
     );
     return response.data.data!.user;
   }

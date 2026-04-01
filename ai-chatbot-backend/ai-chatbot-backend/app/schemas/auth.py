@@ -1,17 +1,17 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, SecretStr
 
 
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=1)
+    password: SecretStr = Field(min_length=1)
 
 
 class RegisterRequest(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=6)
+    password: SecretStr = Field(min_length=6)
     firstName: Optional[str] = None
     lastName: Optional[str] = None
     tenantSlug: Optional[str] = None
@@ -32,7 +32,7 @@ class ForgotPasswordRequest(BaseModel):
 
 class ResetPasswordRequest(BaseModel):
     token: str
-    new_password: str = Field(min_length=6, alias="newPassword")
+    new_password: SecretStr = Field(min_length=6, alias="newPassword")
 
     model_config = {"populate_by_name": True}
 

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+import base64
 
 from app.api.deps import CurrentUser, get_current_user
 from app.core.database import get_db
@@ -18,9 +19,18 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/login")
 async def login(body: LoginRequest, request: Request, db: AsyncSession = Depends(get_db)):
     service = AuthService(db)
+    
+    # Decode Base64 password (it's masked in network payload)
+    try:
+        raw_pw = body.password.get_secret_value()
+        decoded_password = base64.b64decode(raw_pw).decode('utf-8')
+    except Exception:
+        # Fallback to cleartext if decoding fails
+        decoded_password = body.password.get_secret_value()
+
     result = await service.login(
         email=body.email,
-        password=body.password,
+        password=decoded_password,
         ip_address=request.client.host if request.client else None,
         user_agent=request.headers.get("User-Agent"),
     )
@@ -30,9 +40,17 @@ async def login(body: LoginRequest, request: Request, db: AsyncSession = Depends
 @router.post("/register")
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     service = AuthService(db)
+
+    # Decode Base64 password
+    try:
+        raw_pw = body.password.get_secret_value()
+        decoded_password = base64.b64decode(raw_pw).decode('utf-8')
+    except Exception:
+        decoded_password = body.password.get_secret_value()
+
     result = await service.register(
         email=body.email,
-        password=body.password,
+        password=decoded_password,
         first_name=body.firstName,
         last_name=body.lastName,
         tenant_slug=body.tenantSlug,
@@ -69,7 +87,15 @@ async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depend
 @router.post("/reset-password")
 async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
     service = AuthService(db)
-    await service.reset_password(body.token, body.new_password)
+
+    # Decode Base64 password
+    try:
+        raw_pw = body.new_password.get_secret_value()
+        decoded_password = base64.b64decode(raw_pw).decode('utf-8')
+    except Exception:
+        decoded_password = body.new_password.get_secret_value()
+
+    await service.reset_password(body.token, decoded_password)
     return {"success": True, "message": "Password reset successful"}
 
 
