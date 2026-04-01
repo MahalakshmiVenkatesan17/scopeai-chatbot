@@ -94,13 +94,32 @@ class RazorpayWebhookService:
                 {"status": "active", "id": db_id},
             )
 
-            # Store webhook payload as metadata
-            await self.db.execute(
-                text(
-                    "UPDATE subscriptions SET invoice_data = :data WHERE id = :id"
-                ),
-                {"data": json.dumps({"webhook_event": "subscription.activated", "payload": subscription}), "id": db_id},
-            )
+            # Store webhook payload as metadata (preserving existing invoice_data if possible)
+            try:
+                # Best effort: update existing JSON if it's there, else set new
+                res_inv = await self.db.execute(text("SELECT invoice_data FROM subscriptions WHERE id = :id"), {"id": db_id})
+                row_inv = res_inv.first()
+                if row_inv and row_inv[0]:
+                    inv_json = json.loads(row_inv[0])
+                    if isinstance(inv_json, dict):
+                        inv_json["subscription_webhook"] = "activated"
+                        inv_json["status"] = "paid" # Activated usually means first payment successful
+                        await self.db.execute(
+                            text("UPDATE subscriptions SET invoice_data = :data WHERE id = :id"),
+                            {"data": json.dumps(inv_json), "id": db_id},
+                        )
+                    else:
+                         await self.db.execute(
+                            text("UPDATE subscriptions SET invoice_data = :data WHERE id = :id"),
+                            {"data": json.dumps({"webhook_event": "subscription.activated", "payload": subscription}), "id": db_id},
+                        )
+                else:
+                    await self.db.execute(
+                        text("UPDATE subscriptions SET invoice_data = :data WHERE id = :id"),
+                        {"data": json.dumps({"webhook_event": "subscription.activated", "payload": subscription}), "id": db_id},
+                    )
+            except Exception as e:
+                logger.warning(f"Failed to update metadata in subscription.activated: {e}")
 
             await self.db.commit()
             logger.info(f"subscription.activated: subscription {sub_id} marked active")
@@ -181,12 +200,21 @@ class RazorpayWebhookService:
                 {"period_end": period_end, "id": db_id},
             )
 
-            # Store full invoice payload
+            # Store full invoice payload in a way that list_subscription_invoices understands
+            inv_payload = {
+                "invoice_id": invoice_id,
+                "invoice_number": invoice_number,
+                "amount": amount_due,
+                "currency": currency,
+                "status": status,
+                "paid_at": now.isoformat() + "Z",
+            }
+
             await self.db.execute(
                 text(
                     "UPDATE subscriptions SET invoice_data = :data WHERE id = :id"
                 ),
-                {"data": json.dumps(invoice), "id": db_id},
+                {"data": json.dumps(inv_payload), "id": db_id},
             )
 
             await self.db.commit()

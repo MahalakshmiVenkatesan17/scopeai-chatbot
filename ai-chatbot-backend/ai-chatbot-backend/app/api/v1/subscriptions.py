@@ -7,6 +7,7 @@ Prefix: /subscriptions
 
 import hmac
 import hashlib
+import json
 
 from fastapi import APIRouter, Depends, Query, Request, HTTPException
 from sqlalchemy import text
@@ -271,6 +272,7 @@ async def create_subscription(
         subscription_db_id = result.lastrowid
         
         # Create a payment record (for invoice tracking)
+        invoice_number = f"INV-{subscription_db_id}-{int(time.time())}"
         payment_result = await db.execute(
             text(
                 "INSERT INTO invoices "
@@ -280,7 +282,7 @@ async def create_subscription(
             {
                 "tid": current_user.tenant_id,
                 "sub_db_id": subscription_db_id,
-                "invoice_num": f"INV-{subscription_db_id}-{int(time.time())}",
+                "invoice_num": invoice_number,
                 "amount": amount,
                 "currency": currency,
             },
@@ -293,7 +295,9 @@ async def create_subscription(
         import json
 
         invoice_payload = {
-            "id": f"INV-{subscription_db_id}-{int(time.time())}",
+            "id": invoice_number,
+            "invoice_id": invoice_number,
+            "invoice_number": invoice_number,
             "db_id": payment_record_id,
             "amount": amount,
             "currency": currency,
@@ -394,6 +398,33 @@ async def verify_payment(
                 ),
                 {"status": "paid", "sub_id": subscription_db_id}
             )
+            
+            # Also synchronize the invoice_data field on the subscription
+            try:
+                # Fetch current invoice_data
+                res = await db.execute(
+                    text("SELECT invoice_data FROM subscriptions WHERE id = :id"),
+                    {"id": subscription_db_id}
+                )
+                row_inv = res.first()
+                if row_inv and row_inv[0]:
+                    inv_json = json.loads(row_inv[0])
+                    if isinstance(inv_json, dict):
+                        inv_json["status"] = "paid"
+                        inv_json["payment_id"] = payment_id
+                        await db.execute(
+                            text("UPDATE subscriptions SET invoice_data = :data WHERE id = :id"),
+                            {"data": json.dumps(inv_json), "id": subscription_db_id}
+                        )
+                    elif isinstance(inv_json, list) and len(inv_json) > 0:
+                        # If list (Stripe style), update the first/matching one
+                        inv_json[0]["status"] = "paid"
+                        await db.execute(
+                            text("UPDATE subscriptions SET invoice_data = :data WHERE id = :id"),
+                            {"data": json.dumps(inv_json), "id": subscription_db_id}
+                        )
+            except Exception as e:
+                logger.warning(f"Failed to sync invoice_data in verify_payment: {e}")
         
         await db.commit()
         
@@ -1125,16 +1156,19 @@ async def cancel_subscription(
         after = verify_result.mappings().first()
         logger.info(f"Tenant AFTER cancel: {dict(after) if after else None}")
 
-        plan_ok = after and after.get("subscription_plan") == "free"
+        after_plan = after.get("subscription_plan") if after else None
+        # Case-insensitive check to avoid "Free" vs "free" issues or different plan names
+        plan_ok = after and str(after_plan).lower() == str(next_plan_name).lower()
+
         if not plan_ok:
             logger.error(
                 f"tenant.subscription_plan did NOT persist! "
-                f"Got: {after.get('subscription_plan') if after else 'N/A'}"
+                f"Got: {after_plan}"
             )
             raise HTTPException(
                 status_code=500,
                 detail=(
-                    f"DB commit succeeded but re-read shows plan='{after.get('subscription_plan')}'. "
+                    f"DB commit succeeded but re-read shows plan='{after_plan}'. "
                     "Possible column name mismatch or read-replica lag."
                 ),
             )

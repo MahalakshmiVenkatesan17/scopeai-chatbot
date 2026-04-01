@@ -301,9 +301,9 @@ class LangGraphService:
                 ChatCompletionRequest(
                     messages=messages,
                     tenant_id=state["tenant_id"],
-                    model="gpt-4o-mini",
-                    max_tokens=800,
-                    temperature=0.7,
+                    model=settings.OPENAI_MODEL,
+                    max_tokens=settings.OPENAI_MAX_TOKENS,
+                    temperature=settings.OPENAI_TEMPERATURE,
                 )
             )
 
@@ -371,8 +371,6 @@ class LangGraphService:
                     "4. CRITICAL: NEVER use words like 'documents', 'provided context', 'uploaded files', or 'knowledge base'. The user does not know about the backend system. Answer generically.\n"
                     "5. Never return an empty response string. Always say something helpful."
                 )
-                if welcome:
-                    prompt += f'\nProvide answers in a way that aligns with your welcome message: "{welcome}".'
                 return prompt
         except Exception as e:
             logger.warning("Failed to load tenant chatbot config", tenant_id=tenant_id, error=str(e))

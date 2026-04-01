@@ -515,7 +515,7 @@ export default function AnalyticsPage() {
                       <p className="text-slate-600 dark:text-slate-400 text-sm font-medium tracking-wide uppercase">
                         Avg Response Time
                       </p>
-                      <p className="mt-3 text-4xl font-bold text-cyan-700 dark:text-cyan-400 tracking-tight">
+                      <p className="mt-3 text-4xl font-bold text-cyan-700 dark:text-cyan-400 tracking-tight truncate">
                         {metrics?.averageResponseTime || 0}ms
                       </p>
                     </div>
