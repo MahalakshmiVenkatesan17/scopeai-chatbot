@@ -71,14 +71,17 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    // Start showing messages one by one
+    // Start showing messages one by one in an endless loop
     const messageInterval = setInterval(() => {
       setVisibleMessages((prev) => {
         if (prev < chatMessages.length) {
           return prev + 1;
         } else {
-          clearInterval(messageInterval);
-          return prev;
+          // Reset to 0 to restart the loop after a brief pause
+          setTimeout(() => {
+            setVisibleMessages(0);
+          }, 1500); // 3 second pause before restart
+          return prev; // Keep current messages visible during pause
         }
       });
     }, 2000); // Show new message every 2 seconds
@@ -103,18 +106,18 @@ export function Hero() {
   }, [visibleMessages, isTyping]);
 
   const features = [
-    { icon: LayoutDashboard, title: "Centralized Dashboard", desc: "Track usage, sessions, costs, activity, and performance in one centralized workspace." },
-    { icon: FileText, title: "Knowledge Base & Documents", desc: "Upload and manage documents to power accurate, context-aware chatbot responses." },
-    { icon: Settings, title: "Chatbot Configuration", desc: "Adjust prompts, branding, tone, and behavior settings without complexity." },
-    { icon: Code, title: "Widget Deployment", desc: "Deploy your chatbot anywhere using a lightweight embed code for fast launch." },
-    { icon: LineChart, title: "Visitor Insights & Analytics", desc: "Store visitor conversations, view engagement history, and track visitor profiles for better follow-up and support visibility." },
-    { icon: Users, title: "Multi-Tenant & Role Management", desc: "Manage workspaces, users, permissions, subscriptions, and reports from one platform." }
+    { icon: LayoutDashboard, title: "Centralized Dashboard", desc: "Track Usage, Sessions, Costs, Activity, And Performance In One Centralized Workspace." },
+    { icon: FileText, title: "Knowledge Base & Documents", desc: "Upload And Manage Documents To Power Accurate, Context-Aware Chatbot Responses." },
+    { icon: Settings, title: "Chatbot Configuration", desc: "Adjust Prompts, Branding, Tone, And Behavior Settings Without Complexity." },
+    { icon: Code, title: "Widget Deployment", desc: "Deploy Your Chatbot Anywhere Using A Lightweight Embed Code For Fast Launch." },
+    { icon: LineChart, title: "Visitor Insights & Analytics", desc: "Store Visitor Conversations, View Engagement History, And Track Visitor Profiles For Better Follow-Up And Support Visibility." },
+    { icon: Users, title: "Multi-Tenant & Role Management", desc: "Manage Workspaces, Users, Permissions, Subscriptions, And Reports From One Platform." }
   ];
 
   const enterpriseFeatures = [
-    { icon: Shield, title: "System Health Monitoring", desc: "Track platform uptime, service stability, and operational confidence." },
-    { icon: CreditCard, title: "Plans, Billing & Usage Reports", desc: "Get visibility into active plans, usage limits, billing, and subscription growth." },
-    { icon: Lock, title: "Role-Based Access", desc: "Secure permissions for platform admins, tenant admins, and operational teams." }
+    { icon: Shield, title: "System Health Monitoring", desc: "Track Platform Uptime, Service Stability, And Operational Confidence." },
+    { icon: CreditCard, title: "Plans, Billing & Usage Reports", desc: "Get Visibility Into Active Plans, Usage Limits, Billing, And Subscription Growth." },
+    { icon: Lock, title: "Role-Based Access", desc: "Secure Permissions For Platform Admins, Tenant Admins, And Operational Teams." }
   ];
 
   return (
@@ -148,16 +151,16 @@ export function Hero() {
 
               {/* Heading */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.2]">
-                <span className="text-gray-900 dark:text-white">Build, deploy, and scale </span>
+                <span className="text-gray-900 dark:text-white">Unified platform for Build, Deploy, And Scale </span>
                 <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-gradient-x">
-                  AI chatbots
+                  AI Chatbots
                 </span>
-                <br />
-                <span className="text-gray-900 dark:text-white">from one unified platform</span>
+                {/* <br />
+                <span className="text-gray-900 dark:text-white">From One Unified Platform</span> */}
               </h1>
 
               <p className="text-xl text-gray-600 dark:text-gray-300 mt-6">
-                Upload documents, configure chatbot behavior, deploy with widget code, manage users and workspaces, and monitor analytics, costs, and system health — all in one AI chatbot platform.
+                All-in-one AI chatbot platform—upload, customize, deploy, and monitor everything in one place.
               </p>
 
               {/* CTA Buttons */}
@@ -203,12 +206,12 @@ export function Hero() {
                 {/* Chat Header */}
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
                       <Bot className="w-6 h-6 text-white" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-[#ffffff]">ScopeAI Assistant</h3>
-                      <span className="text-sm text-[#ffffff]/80">ScopeAIChat — AI chatbots for real conversations, sales, and support</span>
+                      {/* <span className="text-sm text-[#ffffff]/80">ScopeAIChat — AI chatbots for real conversations, sales, and support</span> */}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -317,17 +320,17 @@ export function Hero() {
               <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Simple Setup</span>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
-              Launch your AI chatbot in
-              <span className="text-indigo-600 dark:text-indigo-400"> 3 simple steps</span>
+              Launch Your AI Chatbot In
+              <span className="text-indigo-600 dark:text-indigo-400"> 3 Simple Steps</span>
             </h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">A clean workflow designed for fast setup, easy management, and scalable growth.</p>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">A Clean Workflow Designed for Fast Setup, Easy Management, and Scalable Growth.</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: Upload, step: "1", title: "Add Your Knowledge", desc: "Create a powerful knowledge base with PDFs, docs, and structured content sources.", color: "from-blue-500 to-cyan-500" },
-              { icon: Settings, step: "2", title: "Customize Your Chatbot", desc: "Customize branding, prompts, behavior, settings, and workspace controls.", color: "from-indigo-500 to-purple-500" },
-              { icon: Code, step: "3", title: "Deploy & Optimize", desc: "Deploy using widget code and improve performance using analytics and visitor insights.", color: "from-purple-500 to-pink-500" }
+              { icon: Upload, step: "1", title: "Add Your Knowledge", desc: "Create a Powerful Knowledge Base With PDFs, Docs, and Structured Content Sources.", color: "from-blue-500 to-cyan-500" },
+              { icon: Settings, step: "2", title: "Customize Your Chatbot", desc: "Customize Branding, Prompts, Behavior, Settings, and Workspace Controls.", color: "from-indigo-500 to-purple-500" },
+              { icon: Code, step: "3", title: "Deploy & Optimize", desc: "Deploy Using Widget Code and Improve Performance Using Analytics and Visitor Insights.", color: "from-purple-500 to-pink-500" }
             ].map((step, idx) => (
               <div key={idx} className="group relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -358,10 +361,10 @@ export function Hero() {
               <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Core Features</span>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
-              Everything you need to run
-              <span className="text-indigo-600 dark:text-indigo-400"> AI chatbots at scale</span>
+              Everything You Need to Run
+              <span className="text-indigo-600 dark:text-indigo-400"> AI Chatbots at Scale</span>
             </h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">A unified platform that combines chatbot operations, team management, and enterprise-grade control.</p>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">A Unified Platform that Combines Chatbot Operations, Team Management, and Enterprise-Grade Control.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -372,11 +375,11 @@ export function Hero() {
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{feature.title}</h3>
                 <p className="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">{feature.desc}</p>
-                <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="text-sm text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
                     Learn more <ArrowRight className="w-3 h-3" />
                   </span>
-                </div>
+                </div> */}
               </div>
             ))}
           </div>
@@ -393,11 +396,11 @@ export function Hero() {
                 <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Team & Workspace</span>
               </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
-                Bring teams, tenants, and operations into
-                <span className="text-indigo-600 dark:text-indigo-400"> one shared control center</span>
+                Bring Teams, Tenants, and Operations into
+                <span className="text-indigo-600 dark:text-indigo-400"> One Shared Control Center</span>
               </h2>
               <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                Manage users, assign roles, switch workspaces, and keep collaboration secure while maintaining full operational visibility.
+                Manage Users, Assign Roles, Switch Workspaces, and Keep Collaboration Secure While Maintaining Full Operational Visibility.
               </p>
               <ul className="mt-8 space-y-4">
                 {[
@@ -423,16 +426,16 @@ export function Hero() {
                 </div>
                 <div className="space-y-4">
                   {[
-                    { role: "Admins", desc: "Platform & tenant control", count: "6", color: "from-indigo-500 to-purple-500" },
-                    { role: "Support Agents", desc: "Daily chatbot operations", count: "42", color: "from-blue-500 to-cyan-500" },
-                    { role: "Knowledge Editors", desc: "Knowledge & configuration contributors", count: "18", color: "from-purple-500 to-pink-500" }
+                    { role: "Admins", desc: "Platform & Tenant Control", count: "6", color: "from-indigo-500 to-purple-500" },
+                    { role: "Support Agents", desc: "Daily Chatbot Operations", count: "42", color: "from-blue-500 to-cyan-500" },
+                    { role: "Knowledge Editors", desc: "Knowledge & Configuration Contributors", count: "18", color: "from-purple-500 to-pink-500" }
                   ].map((item, idx) => (
                     <div key={idx} className="rounded-2xl bg-white border border-slate-200 dark:border-gray-700 p-5 flex items-center justify-between group hover:shadow-md transition-all">
                       <div>
                         <p className="font-semibold text-gray-900 dark:text-white">{item.role}</p>
                         <p className="text-xs text-gray-600 dark:text-gray-400">{item.desc}</p>
                       </div>
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${item.color} flex items-center justify-center`}>
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${item.color} flex items-center justify-center flex-shrink-0`}>
                         <span className="text-xl font-bold text-[#ffffff]">{item.count}</span>
                       </div>
                     </div>
@@ -453,9 +456,9 @@ export function Hero() {
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-3xl blur-2xl"></div>
                 <div className="relative rounded-3xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-8 shadow-xl">
                   <div className="flex items-start gap-2 mb-6">
-                    <Palette className="w-6 h-6 text-indigo-500 mt-2" />
+                    <Palette className="w-6 h-6 text-indigo-500 mt-2 shrink-0" />
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      Build, deploy, and scale AI chatbots from one unified platform
+                      Build, Deploy, and Scale AI Chatbots from One Unified Platform
                     </h1>
                   </div>
                   <div className="grid sm:grid-cols-2 gap-4">
@@ -481,18 +484,18 @@ export function Hero() {
                 <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Customization</span>
               </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
-                Tailor your chatbot to your
-                <span className="text-indigo-600 dark:text-indigo-400"> brand and workflows</span>
+                Tailor Your Chatbot to Your
+                <span className="text-indigo-600 dark:text-indigo-400"> Brand and Workflows</span>
               </h2>
               <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                Configure chatbot behavior, widget appearance, tenant settings, and advanced modules to create a consistent customer experience.
+                Configure Chatbot Behavior, Widget Appearance, Tenant Settings, and Advanced Modules to Create a Consistent Customer Experience.
               </p>
               <ul className="mt-8 space-y-4">
                 {[
-                  "Fine-tune chatbot behavior without engineering effort",
-                  "Keep branding consistent across all widget experiences",
-                  "Scale operations using centralized advanced controls",
-                  "Create reusable templates for different use cases"
+                  "Fine-Tune Chatbot Behavior Without Engineering Effort",
+                  "Keep Branding Consistent Across All Widget Experiences",
+                  "Scale Operations Using Centralized Advanced Controls",
+                  "Create Reusable Templates for Different Use Cases"
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-start gap-3 group">
                     <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-0.5 group-hover:scale-110 transition-transform" />
@@ -514,18 +517,18 @@ export function Hero() {
               <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Analytics & Insights</span>
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
-              See what visitors are doing
-              <span className="text-indigo-600 dark:text-indigo-400"> in real time</span>
+              See What Visitors Are Doing
+              <span className="text-indigo-600 dark:text-indigo-400"> in Real Time</span>
             </h2>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">Measure engagement, optimize chatbot performance, and make smarter decisions with clear analytics.</p>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">Measure Engagement, Optimize Chatbot Performance, and Make Smarter Decisions with Clear Analytics.</p>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6">
             {[
               { label: "Visitor Sessions", value: "5,812", change: "+18.4% this month", trend: "up", color: "from-emerald-500 to-green-500" },
-              { label: "Avg Response Time", value: "1.1s", change: "Fast & optimized", trend: "up", color: "from-blue-500 to-cyan-500" },
-              { label: "Engagement Rate", value: "72%", change: "Strong interaction quality", trend: "up", color: "from-purple-500 to-pink-500" },
-              { label: "Usage Cost", value: "$428.65", change: "Transparent cost tracking", trend: "neutral", color: "from-indigo-500 to-purple-500" }
+              { label: "Avg Response Time", value: "1.1s", change: "Fast & Optimized", trend: "up", color: "from-blue-500 to-cyan-500" },
+              { label: "Engagement Rate", value: "72%", change: "Strong Interaction Quality", trend: "up", color: "from-purple-500 to-pink-500" },
+              { label: "Usage Cost", value: "$428.65", change: "Transparent Cost Tracking", trend: "neutral", color: "from-indigo-500 to-purple-500" }
             ].map((stat, idx) => (
               <div key={idx} className="group rounded-3xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <p className="text-sm text-slate-500 dark:text-gray-400">{stat.label}</p>
@@ -550,18 +553,18 @@ export function Hero() {
                 <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Enterprise Ready</span>
               </div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white">
-                Built for reliability,
-                <span className="text-indigo-600 dark:text-indigo-400"> governance, and scale</span>
+                Built for Reliability,
+                <span className="text-indigo-600 dark:text-indigo-400"> Governance, and Scale</span>
               </h2>
               <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                From system health monitoring to active plan reports and role-based access, ScopeAIChat is designed for production-ready AI deployments.
+                From System Health Monitoring to Active Plan Reports and Role-Based Access, ScopeAIChat is Designed for Production-Ready AI Deployments.
               </p>
 
               <div className="mt-8 space-y-4">
                 {enterpriseFeatures.map((feature, idx) => (
                   <div key={idx} className="rounded-2xl bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-700 p-5 hover:shadow-md transition-all group">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
                         <feature.icon className="w-5 h-5 text-[#ffffff]" />
                       </div>
                       <div>
@@ -578,15 +581,15 @@ export function Hero() {
               <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-3xl blur-2xl"></div>
               <div className="relative rounded-3xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-8 shadow-xl">
                 <div className="flex items-center gap-2 mb-6">
-                  <Briefcase className="w-6 h-6 text-indigo-500" />
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Why teams choose ScopeAIChat</h3>
+                  <Briefcase className="w-6 h-6 text-indigo-500 shrink-0" />
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Why Teams Choose ScopeAIChat</h3>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {[
-                    { title: "1-line", desc: "widget deployment", icon: Code },
-                    { title: "Multi-role", desc: "tenant & admin architecture", icon: Users },
-                    { title: "Analytics", desc: "for usage & cost visibility", icon: LineChart },
-                    { title: "99.9%", desc: "system health visibility", icon: Shield }
+                    { title: "1-line", desc: "Widget Deployment", icon: Code },
+                    { title: "Multi-role", desc: "Tenant & Admin Architecture", icon: Users },
+                    { title: "Analytics", desc: "For Usage & Cost Visibility", icon: LineChart },
+                    { title: "99.9%", desc: "System Health Visibility", icon: Shield }
                   ].map((item, idx) => (
                     <div key={idx} className="rounded-2xl bg-gradient-to-br from-slate-50 to-white dark:from-gray-800 dark:to-gray-800/80 p-5 border border-slate-200 dark:border-gray-700 group hover:shadow-md transition-all">
                       <item.icon className="w-8 h-8 text-indigo-600 dark:text-indigo-400 mb-3 group-hover:scale-110 transition-transform" />

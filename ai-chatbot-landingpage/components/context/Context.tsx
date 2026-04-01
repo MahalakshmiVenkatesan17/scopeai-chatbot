@@ -7,7 +7,17 @@ export default function Context() {
     <div className="w-full min-h-screen bg-white dark:bg-gray-950 transition-colors">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/80 via-white to-white dark:from-gray-950 dark:via-gray-950 dark:to-gray-950 transition-colors">
-        {/* Decorative elements */}
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-400/40 dark:bg-indigo-600/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/35 dark:bg-purple-600/25 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-400/25 dark:bg-blue-600/20 rounded-full blur-2xl animate-pulse delay-500"></div>
+          <div className="absolute top-40 right-1/3 w-48 h-48 bg-cyan-400/20 dark:bg-cyan-600/15 rounded-full blur-3xl animate-pulse delay-700"></div>
+          {/* Animated Grid Pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808025_1px,transparent_1px),linear-gradient(to_bottom,#80808025_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#40404025_1px,transparent_1px),linear-gradient(to_bottom,#40404025_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        </div>
+        
+        {/* Existing Decorative elements */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-400/20 dark:bg-blue-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-400/20 dark:bg-purple-500/10 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.03),transparent_70%)]"></div>

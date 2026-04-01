@@ -11,11 +11,13 @@ import { Menu, X, ChevronRight, Sparkles, LogIn } from "lucide-react";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [announcementOpen, setAnnouncementOpen] = useState(true);
   const pathname = usePathname();
 
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Features", href: "/features" },
+    { label: "Context", href: "/context" },
     { label: "Pricing", href: "/pricing" },
     { label: "FAQ", href: "/faq" },
     { label: "Contact us", href: "/contact" },
@@ -43,25 +45,36 @@ export function Navbar() {
   return (
     <header className="w-full z-50 sticky top-0">
       {/* Announcement Bar */}
-      <div className="bg-gradient-to-r from-[#5856d6] to-[#7c3aed] py-2.5 relative overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.1),transparent_25%)]"></div>
+      {announcementOpen && (
+        <div className="bg-gradient-to-r from-[#5856d6] to-[#7c3aed] py-2.5 relative overflow-hidden">
+          {/* Animated background */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.1),transparent_25%)]"></div>
 
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-3 flex-wrap relative z-10">
-          <Sparkles className="w-4 h-4 text-[#ffffff] animate-pulse" />
-          <p className="text-[#ffffff] text-[13px] font-medium text-center">
-            ScopeAIChat: Human-Like Agent Voices for Real Conversations, Sales &
-            Support
-          </p>
-          <Link
-            href="/contact"
-            className="group bg-white/10 backdrop-blur-sm text-[#ffffff] text-[12px] font-semibold px-4 py-1.5 rounded-full hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-1"
-          >
-            Check now
-            <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-3 flex-wrap relative z-10">
+            <Sparkles className="w-4 h-4 text-[#ffffff] animate-pulse" />
+            <p className="text-[#ffffff] text-[13px] font-medium text-center">
+              ScopeAIChat: Human-Like Agent Voices for Real Conversations, Sales &
+              Support
+            </p>
+            <Link
+              href="/contact"
+              className="group bg-white/10 backdrop-blur-sm text-[#ffffff] text-[12px] font-semibold px-4 py-1.5 rounded-full hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-1"
+            >
+              Check now
+              <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setAnnouncementOpen(false)}
+              className="absolute right-4 top-4 sm:top-1/2 -translate-y-1/2 text-white/80 hover:text-white transition-colors"
+              aria-label="Close announcement"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Navbar */}
       <div className="bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 transition-colors sticky top-0 z-40">

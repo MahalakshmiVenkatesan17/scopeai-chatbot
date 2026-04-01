@@ -62,6 +62,7 @@ export function Footer() {
       links: [
         { label: "Home", href: "/" },
         { label: "Features", href: "/features" },
+        { label: "Context", href: "/context" },
         { label: "Pricing", href: "/pricing" },
         { label: "FAQ", href: "/faq" },
       ],

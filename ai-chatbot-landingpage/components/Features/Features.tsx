@@ -384,13 +384,152 @@ export function Features() {
         </div>
       </section>
 
-      {/* ── WIDGET CODE ───────────────────────────────────── */}
+      {/* ── UNIFIED DASHBOARD & ANALYTICS ─────────────────── */}
       <section className="py-24 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <SectionBadge>Unified Dashboard & Analytics</SectionBadge>
+            <h2 className="mt-5 text-4xl font-bold text-slate-900 leading-tight">
+              Monitor performance from one unified dashboard
+            </h2>
+            <p className="mt-5 text-slate-500 leading-relaxed">
+              Track chatbot activity, team usage, request volume, response speed,
+              token consumption, and cost metrics from a centralized analytics
+              view built for both tenant admins and platform operators.
+            </p>
+            <ul className="mt-8 space-y-4 text-slate-700">
+              {[
+                "View chat sessions, active users, and document activity in one place",
+                "Track total requests, average response time, and usage trends",
+                "Monitor token usage, total cost, and weekly activity visibility",
+                "Review performance snapshots across tenants and workspaces",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <div className="mt-1 w-2.5 h-2.5 rounded-full bg-indigo-600 flex-shrink-0"></div>
+                  <span className="text-sm">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200 bg-white dark:bg-gray-900 p-8 shadow-xl">
+            <h3 className="text-2xl font-bold text-black/90 dark:text-white">Dashboard Snapshot</h3>
+            <div className="mt-8 grid grid-cols-2 gap-4">
+              {[
+                { label: "Chat Sessions", value: "3,642" },
+                { label: "Total Requests", value: "18,420" },
+                { label: "Avg Response", value: "1.1s" },
+                { label: "Avg Tokens", value: "482" },
+              ].map((item) => (
+                <div key={item.label} className="rounded-2xl bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 p-5">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">{item.label}</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 p-5">
+              <div className="flex items-end gap-2 h-24">
+                {[40, 58, 46, 72, 60, 48, 82].map((height, i) => (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-t-lg bg-indigo-200 dark:bg-indigo-600 transition-all duration-300 hover:bg-indigo-300 dark:hover:bg-indigo-500 cursor-pointer"
+                    style={{ height: `${height}%` }}
+                  />
+                ))}
+              </div>
+              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+                Weekly activity and usage overview
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── VISITOR CONVERSATIONS & INSIGHTS ────────────────── */}
+      <section className="py-24 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div className="">
+            <img 
+              src="/images/features/visitor-conversations-insights-4k-compressed.webp" 
+              alt="Visitor Conversations & Insights" 
+              className="w-full h-auto rounded-2xl object-cover"
+            />
+          </div>
+
+          <div className="order-1 lg:order-2">
+            <SectionBadge>Visitor Conversations & Insights</SectionBadge>
+            <h2 className="mt-5 text-4xl font-bold text-black leading-tight">
+              Keep every conversation in context
+            </h2>
+            <p className="mt-5 text-black/50 leading-relaxed">
+              Store visitor conversations, review interaction history, and access
+              visitor profiles to improve support quality, sales follow-up, and
+              customer understanding across every chatbot interaction.
+            </p>
+            <ul className="mt-8 space-y-4 text-black/50">
+              {[
+                "View saved chat sessions and conversation history by visitor",
+                "Access visitor profiles, engagement trends, and repeat activity",
+                "Understand conversation patterns for better follow-up",
+                "Centralize support visibility across teams and workspaces",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <div className="mt-1 w-2.5 h-2.5 rounded-full bg-indigo-600 flex-shrink-0"></div>
+                  <span className="text-sm">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ── ADVANCED CONTEXT CONTROLS ─────────────────────── */}
+      <section className="py-24 border-t bg-slate-50 border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <SectionBadge>Advanced Context Controls</SectionBadge>
+            <h2 className="mt-5 text-4xl font-bold text-slate-900 leading-tight">
+              Fine-tune how your chatbot understands context
+            </h2>
+            <p className="mt-5 text-slate-500 leading-relaxed">
+              Control prompts, knowledge behavior, response rules, and
+              conversation context to improve answer quality, maintain
+              consistency, and reduce irrelevant outputs across real customer
+              conversations.
+            </p>
+            <ul className="mt-8 space-y-4 text-slate-700">
+              {[
+                "Adjust system prompts and advanced response behavior",
+                "Control how uploaded knowledge is retrieved and applied",
+                "Fine-tune tone, brand voice, and conversation style",
+                "Reuse advanced context settings across scalable deployments",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <div className="mt-1 w-2.5 h-2.5 rounded-full bg-indigo-600 flex-shrink-0"></div>
+                  <span className="text-sm">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="">
+            <img 
+              src="/images/features/context-engineering-4k-compressed.webp"
+              alt="Advanced Context Controls" 
+              className="w-full h-auto rounded-2xl object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ── WIDGET CODE ───────────────────────────────────── */}
+      <section className="py-24 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="min-w-0 w-full">
               <SectionBadge>Widget Code Deployment</SectionBadge>
-              <h2 className="mt-5 text-4xl font-bold text-slate-900 leading-tight">
+              <h2 className="mt-5 text-4xl font-bold text-black/90 leading-tight">
                 Deploy your chatbot
                 <br />
                 with a simple embed
@@ -491,11 +630,11 @@ export function Features() {
       </section>
 
       {/* ── ANALYTICS ─────────────────────────────────────── */}
-      <section className="py-24 border-t border-slate-100">
+      <section className="py-24 bg-slate-50 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <SectionBadge>Insights & Analytics</SectionBadge>
-            <h2 className="mt-5 text-4xl font-bold text-black/90">
+            <h2 className="mt-5 text-4xl font-bold text-[#000000]">
               Understand performance beyond conversations
             </h2>
             <p className="mt-4 text-slate-500">
@@ -550,17 +689,17 @@ export function Features() {
       </section>
 
       {/* ── ENTERPRISE ────────────────────────────────────── */}
-      <section className="py-24  bg-slate-50 border-t border-slate-100">
+      <section className="py-24 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <SectionBadge>Enterprise Controls</SectionBadge>
-              <h2 className="mt-5 text-4xl font-bold text-slate-900 leading-tight">
+              <h2 className="mt-5 text-4xl font-bold text-black/90 leading-tight">
                 Built for reliability,
                 <br />
                 governance, and scale
               </h2>
-              <p className="mt-5 text-slate-500 leading-relaxed">
+              <p className="mt-5 text-black/50 leading-relaxed">
                 ScopeAIChat supports multi-tenant operations with strong admin
                 controls, visibility, and platform-level reporting.
               </p>
@@ -572,7 +711,7 @@ export function Features() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-3 text-sm text-slate-700"
+                    className="flex items-center gap-3 text-sm text-black/50"
                   >
                     <div className="w-5 h-5 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
                       <Check size={11} className="text-indigo-600" />
@@ -584,7 +723,7 @@ export function Features() {
             </div>
 
             <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-8 flex-col sm:flex-row gap-4">
                 <h3 className="text-xl font-bold text-black/90">
                   Platform Snapshot
                 </h3>
