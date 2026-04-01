@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { Eye, EyeOff, Sparkles, ShieldCheck } from "lucide-react";
 import { useAuthStore } from "@/store/auth-store";
 import { Button } from "@/components/ui/Button";
@@ -17,6 +18,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const passwordRef = useRef<HTMLInputElement>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [formErrors, setFormErrors] = useState({
     email: "",
@@ -122,25 +130,18 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#5856d6] shadow-xl dark:bg-[#635BDF] dark:shadow-[0_0_30px_rgba(99,91,223,0.35)] shrink-0">
-                  <Image
-                    src="/icon-white.svg"
-                    alt="icon"
-                    width={34}
-                    height={34}
-                  />
-                </div>
-
-                <div>
-                  <h1 className="text-4xl xl:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    ScopeAIChat Admin
-                  </h1>
-                  <p className="mt-2 text-base text-gray-600 dark:text-slate-400">
-                    Securely manage tenants, users, subscriptions, and
-                    analytics.
-                  </p>
-                </div>
+              <div>
+                <Image
+                  src={
+                    mounted && resolvedTheme === "dark"
+                      ? "/Login_Logo_Dark.svg"
+                      : "/Login_Logo.svg"
+                  }
+                  alt="icon"
+                  width={100}
+                  height={100}
+                  className="w-100"
+                />
               </div>
 
               <div className="mt-4 grid gap-4">
@@ -185,6 +186,9 @@ export default function LoginPage() {
         {/* Right side form */}
         <div className="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
           <div className="w-full max-w-md">
+            {/* ✅ Back button — flush left, tight above the card */}
+            {/* ✅ Back to Home — branded navigation link */}
+
             {/* Mobile logo */}
             <div className="mb-6 text-center lg:hidden">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[#5856d6] shadow-xl dark:bg-[#635BDF] dark:shadow-[0_0_24px_rgba(99,91,223,0.3)]">
@@ -196,7 +200,6 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-
             {/* Login card */}
             <div className="rounded-[28px] border border-gray-200 bg-white/85 p-6 sm:p-8 shadow-xl backdrop-blur-2xl dark:border-white/[0.06] dark:bg-[#0F172A]/80 dark:shadow-[0_10px_50px_rgba(0,0,0,0.35)] transition-colors">
               {/* Header */}
@@ -301,6 +304,28 @@ export default function LoginPage() {
                 >
                   {isLoading ? "Signing in..." : "Sign in"}
                 </Button>
+                <div className="mb-2 ">
+                  <Link
+                    href="https://scopethinkers.ai/"
+                    className="group w-fit mx-auto flex items-center gap-2 rounded-full border border-[#5856d6]/20 bg-[#5856d6]/05 px-3.5 py-1.5 text-sm font-medium text-[#5856d6] transition-all hover:bg-[#5856d6]/10 hover:border-[#5856d6]/40 dark:border-violet-500/20 dark:bg-violet-500/[0.07] dark:text-violet-400 dark:hover:bg-violet-500/[0.14] dark:hover:border-violet-500/40 cursor-pointer"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform group-hover:-translate-x-0.5"
+                    >
+                      <path d="M19 12H5M12 5l-7 7 7 7" />
+                    </svg>
+                    Back to ScopeAIChat
+                  </Link>
+                </div>
               </form>
             </div>
           </div>

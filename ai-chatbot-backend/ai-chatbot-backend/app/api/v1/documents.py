@@ -809,11 +809,38 @@ async def view_document(
     if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
         raise NotFoundError("Document not found")
  
-    if not os.path.exists(doc.file_path):
-        raise NotFoundError("File not found on server")
+    import logging
+    from pathlib import Path
+    
+    logger = logging.getLogger(__name__)
+    actual_path = doc.file_path
+    
+    if not os.path.exists(actual_path):
+        # Handle backslashes on Linux
+        alt_path = doc.file_path.replace("\\", "/")
+        filename = alt_path.split("/")[-1]
+        
+        # Possible locations to check
+        paths_to_check = [
+            Path(alt_path),
+            Path(settings.UPLOAD_DIR) / "documents" / f"tenant_{doc.tenant_id}" / filename,
+            Path(settings.UPLOAD_DIR) / "documents" / filename,
+            Path(settings.UPLOAD_DIR) / filename,
+        ]
+        
+        found = False
+        for p in paths_to_check:
+            if p.exists():
+                actual_path = str(p)
+                found = True
+                break
+                
+        if not found:
+            logger.error(f"Cannot find physical file for document {document_id}. Original: {doc.file_path}. Searched paths: {[str(p) for p in paths_to_check]}")
+            raise NotFoundError("File not found on server")
  
     return FileResponse(
-        path=doc.file_path,
+        path=actual_path,
         filename=doc.original_filename,
         media_type=doc.mime_type
     )

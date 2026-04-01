@@ -1107,17 +1107,14 @@ async def get_usage_metrics(
     ), params)
     chat_sessions = r.scalar() or 0
 
-    # Active participants (unique users + unique public sessions) in the period
+    # Active users (sessions currently active)
     try:
         r = await db.execute(text(
-            "SELECT ( "
-            "  (SELECT COUNT(DISTINCT user_id) FROM chat_sessions WHERE user_id IS NOT NULL AND started_at >= DATE_SUB(NOW(), INTERVAL :days DAY)" + tid_filter + ") + "
-            "  (SELECT COUNT(*) FROM chat_sessions WHERE user_id IS NULL AND started_at >= DATE_SUB(NOW(), INTERVAL :days DAY)" + tid_filter + ") "
-            ") as active_participants"
+            f"SELECT COUNT(*) FROM chat_sessions WHERE status = 'active' AND started_at >= DATE_SUB(NOW(), INTERVAL :days DAY){tid_filter}"
         ), params)
         active_users = r.scalar() or 0
     except Exception as e:
-        logger.error(f"Error fetching active participants: {e}")
+        logger.error(f"Error fetching active users: {e}")
         active_users = 0
 
     # API requests over time
