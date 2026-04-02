@@ -1038,6 +1038,49 @@ async def get_system_health(
         return {"success": True, "data": data}
 
 
+@router.get("/storage/verify")
+async def verify_storage(
+    current_user: CurrentUser = Depends(require_super_admin()),
+):
+    """Diagnostic endpoint to see what's actually on the server disk."""
+    import os
+    from app.core.config import settings
+
+    upload_path = settings.UPLOAD_DIR
+    
+    # Check if directory exists
+    exists = os.path.exists(upload_path)
+    
+    # List files up to 3 levels deep
+    files = []
+    if exists:
+        try:
+            for root, dirs, filenames in os.walk(upload_path):
+                # Calculate depth
+                depth = root.replace(upload_path, '').count(os.path.sep)
+                if depth < 3:
+                    for f in filenames:
+                        full_path = os.path.join(root, f)
+                        rel_path = os.path.relpath(full_path, upload_path)
+                        files.append({
+                            "path": rel_path,
+                            "size": os.path.getsize(full_path)
+                        })
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    return {
+        "success": True,
+        "data": {
+            "upload_dir_setting": upload_path,
+            "exists_on_disk": exists,
+            "absolute_path": os.path.abspath(upload_path),
+            "file_count": len(files),
+            "files": files
+        }
+    }
+
+
 @router.get("/usage/metrics")
 async def get_usage_metrics(
     period: str = Query("30d"),
