@@ -204,7 +204,7 @@ async def detailed_health():
 app.include_router(api_router)
 
 # -- Mount Static Files --
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+app.mount("/uploads", StaticFiles(directory=str(settings.upload_dir_path)), name="uploads")
 
 # -- Mount Socket.IO (ASGI) --
 socket_app = socketio.ASGIApp(sio, app)

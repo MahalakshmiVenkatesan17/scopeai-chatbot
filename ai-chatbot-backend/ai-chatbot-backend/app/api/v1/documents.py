@@ -91,35 +91,24 @@ async def upload_document(
  
             # Save file to disk
             stored_filename = f"doc_{uuid.uuid4().hex[:6]}_{f.filename}"
-            upload_dir = Path(settings.UPLOAD_DIR) / "documents" / f"tenant_{current_user.tenant_id}"
+            # Use absolute path to ensure we are writing to the correct volume mount
+            base_upload_dir = settings.upload_dir_path
+            upload_dir = base_upload_dir / "documents" / f"tenant_{current_user.tenant_id}"
+            
             try:
                 upload_dir.mkdir(parents=True, exist_ok=True)
-            except PermissionError:
-                # Fallback to temp dir if configured upload dir is not writable
-                upload_dir = Path(tempfile.gettempdir()) / "ai_chatbot_uploads" / f"tenant_{current_user.tenant_id}"
-                try:
-                    upload_dir.mkdir(parents=True, exist_ok=True)
-                except Exception as e:
-                    logger.error(f"Failed to create fallback upload directory {upload_dir}: {e}")
-                    if len(file) == 1:
-                        raise BadRequestError(
-                            message="Upload directory is not writable. Check server permissions.",
-                            code="UPLOAD_DIR_NOT_WRITABLE"
-                        )
-                    results.append({
-                        "filename": f.filename,
-                        "status": "failed",
-                        "message": "Upload directory is not writable",
-                    })
-                    continue
+                logger.debug(f"Target upload directory: {upload_dir}")
             except Exception as e:
-                logger.error(f"Failed to create upload directory {upload_dir}: {e}")
+                logger.error(f"Failed to create upload subdirectory {upload_dir}: {e}. Check RAILWAY_VOLUME_MOUNT_PATH permissions.")
                 if len(file) == 1:
-                    raise BadRequestError("Could not prepare upload directory")
+                    raise BadRequestError(
+                        message=f"Upload directory is not writable: {str(e)}",
+                        code="UPLOAD_DIR_NOT_WRITABLE"
+                    )
                 results.append({
                     "filename": f.filename,
                     "status": "failed",
-                    "message": "Could not prepare upload directory",
+                    "message": f"Upload directory is not writable: {str(e)}",
                 })
                 continue
 
@@ -127,26 +116,14 @@ async def upload_document(
             try:
                 with open(file_path, "wb") as w:
                     w.write(content)
-            except PermissionError as e:
-                if len(file) == 1:
-                    raise BadRequestError(
-                        message="Upload directory is not writable. Check server permissions.",
-                        code="UPLOAD_DIR_NOT_WRITABLE"
-                    )
-                results.append({
-                    "filename": f.filename,
-                    "status": "failed",
-                    "message": "Upload directory is not writable",
-                })
-                continue
             except Exception as e:
                 logger.error(f"Failed writing upload file {file_path}: {e}")
                 if len(file) == 1:
-                    raise BadRequestError("Could not save uploaded file")
+                    raise BadRequestError(f"Could not save uploaded file: {str(e)}")
                 results.append({
                     "filename": f.filename,
                     "status": "failed",
-                    "message": "Could not save uploaded file",
+                    "message": f"Could not save uploaded file: {str(e)}",
                 })
                 continue
  
@@ -820,12 +797,12 @@ async def view_document(
         alt_path = doc.file_path.replace("\\", "/")
         filename = alt_path.split("/")[-1]
         
-        # Possible locations to check
+        base_upload_dir = settings.upload_dir_path
         paths_to_check = [
             Path(alt_path),
-            Path(settings.UPLOAD_DIR) / "documents" / f"tenant_{doc.tenant_id}" / filename,
-            Path(settings.UPLOAD_DIR) / "documents" / filename,
-            Path(settings.UPLOAD_DIR) / filename,
+            base_upload_dir / "documents" / f"tenant_{doc.tenant_id}" / filename,
+            base_upload_dir / "documents" / filename,
+            base_upload_dir / filename,
         ]
         
         found = False

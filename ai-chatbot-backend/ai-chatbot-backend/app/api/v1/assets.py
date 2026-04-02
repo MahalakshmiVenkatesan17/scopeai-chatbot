@@ -24,7 +24,7 @@ async def upload_asset(
 
     # 2. Prepare directory
     relative_dir = Path("assets") / f"tenant_{current_user.tenant_id}"
-    upload_dir = Path(settings.UPLOAD_DIR) / relative_dir
+    upload_dir = settings.upload_dir_path / relative_dir
     upload_dir.mkdir(parents=True, exist_ok=True)
 
     # 3. Save file with unique name

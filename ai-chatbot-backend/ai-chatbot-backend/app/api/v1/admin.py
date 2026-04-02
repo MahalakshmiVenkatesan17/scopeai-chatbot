@@ -1038,39 +1038,6 @@ async def get_system_health(
         return {"success": True, "data": data}
 
 
-@router.get("/storage/verify")
-async def verify_storage(
-    request: Request,
-    db: AsyncSession = Depends(get_db),
-):
-    """Diagnostic endpoint with dual authentication (Token or Secret Key)."""
-    from app.core.config import settings
-    import os
-
-    # 1. Try to get user via Token first
-    is_authorized = False
-    try:
-        # We manually call the dependency logic or just check for the key
-        from app.middleware.tenant_context import get_current_user
-        # This part is complex to mock, so we'll prioritize the Secret Key for this diag tool
-    except:
-        pass
-
-    # 2. Fallback to Secret Key from Environment
-    provided_key = request.query_params.get("key")
-    server_key = os.getenv("ADMIN_DIAGNOSTIC_KEY")
-    
-    if provided_key and server_key and provided_key == server_key:
-        is_authorized = True
-    
-    # If still not authorized, we try the normal admin dependency
-    if not is_authorized:
-        # Re-apply the strict check if no valid key was provided
-        # (This will trigger the login error if accessed directly in browser)
-        pass 
-
-    # ... rest of the listing logic ...
-
 
 @router.get("/usage/metrics")
 async def get_usage_metrics(

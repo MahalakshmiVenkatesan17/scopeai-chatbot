@@ -1,3 +1,4 @@
+import os
 from typing import Optional, cast
 from urllib.parse import quote_plus
 
@@ -64,7 +65,7 @@ class Settings(BaseSettings):
     LANGCHAIN_ENDPOINT: str = Field(default="https://api.smith.langchain.com")
 
     # File Storage
-    UPLOAD_DIR: str = Field(default="./uploads")
+    UPLOAD_DIR: str = Field(default=os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "./uploads"))
     TEMP_DIR: str = Field(default="./temp")
     MAX_FILE_SIZE: int = Field(default=10485760)  # 10MB
     ALLOWED_FILE_TYPES: str = Field(default=".pdf,.txt,.docx")
@@ -124,6 +125,14 @@ class Settings(BaseSettings):
     @property
     def allowed_file_types_list(self) -> list[str]:
         return [ft.strip() for ft in self.ALLOWED_FILE_TYPES.split(",")]
+
+    @property
+    def upload_dir_path(self) -> Path:
+        """Returns the absolute path to the upload directory and ensures it exists."""
+        from pathlib import Path
+        p = Path(self.UPLOAD_DIR).absolute()
+        p.mkdir(parents=True, exist_ok=True)
+        return p
 
     @property
     def database_url(self) -> str:
