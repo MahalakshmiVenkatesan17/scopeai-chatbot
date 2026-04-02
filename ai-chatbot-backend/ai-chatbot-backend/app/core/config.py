@@ -1,5 +1,3 @@
-import os
-from pathlib import Path
 from typing import Optional, cast
 from urllib.parse import quote_plus
 
@@ -54,8 +52,6 @@ class Settings(BaseSettings):
     # Weaviate
     WEAVIATE_URL: str = Field(default="http://localhost:8080")
     WEAVIATE_API_KEY: Optional[str] = Field(default=None)
-    # Optional gRPC overrides for cloud/Railway where gRPC is on a separate
-    # host/port or not exposed at all. Leave unset to use the HTTP host.
     WEAVIATE_GRPC_HOST: Optional[str] = Field(default=None)
     WEAVIATE_GRPC_PORT: Optional[int] = Field(default=None)
 
@@ -66,7 +62,9 @@ class Settings(BaseSettings):
     LANGCHAIN_ENDPOINT: str = Field(default="https://api.smith.langchain.com")
 
     # File Storage
-    UPLOAD_DIR: str = Field(default=os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "./uploads"))
+    # Default is /app/uploads to match the Railway volume mount path.
+    # For local development, override in your .env file: UPLOAD_DIR=./uploads
+    UPLOAD_DIR: str = Field(default="/app/uploads")
     TEMP_DIR: str = Field(default="./temp")
     MAX_FILE_SIZE: int = Field(default=10485760)  # 10MB
     ALLOWED_FILE_TYPES: str = Field(default=".pdf,.txt,.docx")
@@ -128,14 +126,8 @@ class Settings(BaseSettings):
         return [ft.strip() for ft in self.ALLOWED_FILE_TYPES.split(",")]
 
     @property
-    def upload_dir_path(self) -> Path:
-        """Returns the absolute path to the upload directory helper."""
-        return Path(self.UPLOAD_DIR).absolute()
-
-    @property
     def database_url(self) -> str:
         if self.DATABASE_URL:
-            # We cast to str because self.DATABASE_URL is Optional[str] but we know it's not None here
             return cast(str, self.DATABASE_URL)
         password = quote_plus(self.DB_PASSWORD)
         return (
@@ -157,7 +149,6 @@ class Settings(BaseSettings):
     @property
     def redis_connection_url(self) -> str:
         if self.REDIS_URL:
-            # We cast to str because self.REDIS_URL is Optional[str] but we know it's not None here
             return cast(str, self.REDIS_URL)
         password_part = f":{self.REDIS_PASSWORD}@" if self.REDIS_PASSWORD else ""
         return f"redis://{password_part}{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"

@@ -3,13 +3,13 @@ AI Chatbot SaaS Backend — FastAPI + Uvicorn + LangGraph + OpenAI + Weaviate + 
 Mirrors Node.js Express server at ai-chatbot-backend-node/src/server.ts
 """
 
+import os
 import time
 from contextlib import asynccontextmanager
 
 import socketio
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-# from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -41,8 +41,6 @@ from app.middleware.cors import DynamicCORSMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown — mirrors Node.js server.ts startup sequence."""
-    # Limit the default thread pool to prevent thread explosion from
-    # asyncio.to_thread() calls (Weaviate sync client, PDF extraction, etc.)
     import asyncio
     import concurrent.futures
     from sqlalchemy import text
@@ -51,30 +49,33 @@ async def lifespan(app: FastAPI):
     loop = asyncio.get_running_loop()
     loop.set_default_executor(concurrent.futures.ThreadPoolExecutor(max_workers=4))
 
-
-
     # Startup
     setup_logging()
     logger.info("Starting AI Chatbot Backend (Python/FastAPI)...")
     logger.info(f"Environment: {settings.APP_ENV}")
     logger.info(f"Port: {settings.APP_PORT}")
 
-    # Ensure upload directory exists
+    # ----------------------------------------------------------------
+    # Ensure upload directory exists on the persistent Railway volume.
+    # UPLOAD_DIR must be set to /app/uploads in Railway env vars so it
+    # resolves to the mounted volume and survives redeployments.
+    # ----------------------------------------------------------------
     try:
-        path = settings.upload_dir_path
-        path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Upload directory verified: {path}")
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+        logger.info(f"Upload directory ready: {settings.UPLOAD_DIR}")
     except Exception as e:
-        logger.error(f"Failed to initialize upload directory: {e}. Check RAILWAY_VOLUME_MOUNT_PATH permissions.")
+        logger.error(
+            f"Failed to create upload directory {settings.UPLOAD_DIR}: {e}. "
+            f"Ensure UPLOAD_DIR=/app/uploads and the Railway volume is mounted at /app/uploads."
+        )
 
     # Initialize database
     try:
         await init_database()
         logger.info("Database initialized")
-        
-        # Ensure chatbot_avatar column exists (NOW it's safe to use SessionLocal)
+
+        # Ensure chatbot_avatar column exists
         try:
-            from sqlalchemy import text
             async with async_session_factory() as db:
                 result = await db.execute(text("SHOW COLUMNS FROM tenant_chatbot_config LIKE 'chatbot_avatar'"))
                 if not result.first():
@@ -106,10 +107,8 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Weaviate not available (non-fatal): {e}")
 
-    # Initialize LangSmith tracing (auto-enabled via env vars)
+    # Initialize LangSmith tracing
     if settings.LANGCHAIN_TRACING_V2 and settings.LANGCHAIN_API_KEY:
-        import os
-
         os.environ["LANGCHAIN_TRACING_V2"] = "true"
         os.environ["LANGCHAIN_API_KEY"] = settings.LANGCHAIN_API_KEY
         os.environ["LANGCHAIN_PROJECT"] = settings.LANGCHAIN_PROJECT
@@ -125,7 +124,6 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down...")
     try:
         from app.services.weaviate_service import WeaviateService
-
         WeaviateService.get_instance().close()
     except Exception:
         pass
@@ -144,7 +142,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# -- Exception handlers (matching Node.js error format) --
+# -- Exception handlers --
 app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
@@ -153,8 +151,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # -- Rate limiter --
 app.state.limiter = limiter
 
-# 1. CORS (mirrors Node.js corsMiddleware)
-# MUST be first to handle preflights correctly before any other logic
+# 1. CORS
 app.add_middleware(DynamicCORSMiddleware)
 
 # 2. Request ID
@@ -167,7 +164,7 @@ app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(TenantContextMiddleware)
 
 
-# -- Health check routes (mirrors Node.js /health, /api/health, /api/health/detailed) --
+# -- Health check routes --
 @app.get("/health", tags=["Health"])
 async def health():
     return {"status": "ok", "timestamp": time.time()}
@@ -183,10 +180,8 @@ async def detailed_health():
     db_health = await check_database_health()
     redis_health = await check_redis_health()
 
-    # Weaviate health
     try:
         from app.services.weaviate_service import WeaviateService
-
         weaviate_health = WeaviateService.get_instance().health_check()
     except Exception:
         weaviate_health = {"status": "unhealthy", "details": {"connected": False}}
@@ -211,8 +206,9 @@ async def detailed_health():
 # -- Mount API routes --
 app.include_router(api_router)
 
-# -- Mount Static Files --
-app.mount("/uploads", StaticFiles(directory=str(settings.upload_dir_path)), name="uploads")
+# -- Mount Static Files (serves uploaded documents) --
+# UPLOAD_DIR resolves to /app/uploads — the persistent Railway volume
+app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # -- Mount Socket.IO (ASGI) --
 socket_app = socketio.ASGIApp(sio, app)

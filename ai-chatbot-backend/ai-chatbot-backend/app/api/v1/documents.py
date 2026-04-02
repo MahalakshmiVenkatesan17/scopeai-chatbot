@@ -1,14 +1,13 @@
 import os
 import hashlib
 import uuid
-import tempfile
 from pathlib import Path
- 
+
 from fastapi import APIRouter, Depends, Query, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.document_service import DocumentProcessingService
- 
+
 from app.api.deps import CurrentUser, get_current_user, require_admin
 from app.core.config import settings
 from app.core.database import get_db
@@ -23,13 +22,13 @@ from app.schemas.document import (
     DocumentUpdateRequest,
     SearchRequest,
 )
- 
+
 from app.repositories.tenant_repo import TenantRepository
- 
- 
+
+
 router = APIRouter(prefix="/documents", tags=["Documents"])
- 
- 
+
+
 @router.post("/upload")
 async def upload_document(
     file: list[UploadFile] = File(...),
@@ -44,7 +43,7 @@ async def upload_document(
     repo = DocumentRepository(db)
     from app.services.document_service import DocumentProcessingService
     processing_service = DocumentProcessingService()
- 
+
     for f in file:
         try:
             # Validate file type
@@ -58,7 +57,7 @@ async def upload_document(
                     "message": f"File type {ext} not allowed"
                 })
                 continue
- 
+
             # Read file content
             content = await f.read()
             if len(content) > settings.MAX_FILE_SIZE:
@@ -70,10 +69,10 @@ async def upload_document(
                     "message": f"File too large (max {settings.MAX_FILE_SIZE / (1024*1024):.0f}MB)"
                 })
                 continue
- 
+
             # Generate file hash for dedup
             file_hash = hashlib.sha256(content).hexdigest()
- 
+
             existing = await repo.get_by_hash(file_hash, current_user.tenant_id)
             if existing:
                 if len(file) == 1:
@@ -88,27 +87,37 @@ async def upload_document(
                     "documentId": existing.id
                 })
                 continue
- 
-            # Save file to disk
+
+            # Save file to persistent volume (settings.UPLOAD_DIR must point to Railway volume)
             stored_filename = f"doc_{uuid.uuid4().hex[:6]}_{f.filename}"
-            # Use absolute path to ensure we are writing to the correct volume mount
-            base_upload_dir = settings.upload_dir_path
-            upload_dir = base_upload_dir / "documents" / f"tenant_{current_user.tenant_id}"
-            
+            upload_dir = Path(settings.UPLOAD_DIR) / "documents" / f"tenant_{current_user.tenant_id}"
+
             try:
                 upload_dir.mkdir(parents=True, exist_ok=True)
-                logger.debug(f"Target upload directory: {upload_dir}")
-            except Exception as e:
-                logger.error(f"Failed to create upload subdirectory {upload_dir}: {e}. Check RAILWAY_VOLUME_MOUNT_PATH permissions.")
+            except PermissionError as e:
+                logger.error(
+                    f"Upload directory {upload_dir} is not writable. "
+                    f"Ensure Railway volume is mounted at {settings.UPLOAD_DIR}. Error: {e}"
+                )
                 if len(file) == 1:
                     raise BadRequestError(
-                        message=f"Upload directory is not writable: {str(e)}",
+                        message="Upload directory is not writable. Check Railway volume mount at /app/uploads.",
                         code="UPLOAD_DIR_NOT_WRITABLE"
                     )
                 results.append({
                     "filename": f.filename,
                     "status": "failed",
-                    "message": f"Upload directory is not writable: {str(e)}",
+                    "message": "Upload directory is not writable",
+                })
+                continue
+            except Exception as e:
+                logger.error(f"Failed to create upload directory {upload_dir}: {e}")
+                if len(file) == 1:
+                    raise BadRequestError("Could not prepare upload directory")
+                results.append({
+                    "filename": f.filename,
+                    "status": "failed",
+                    "message": "Could not prepare upload directory",
                 })
                 continue
 
@@ -116,17 +125,33 @@ async def upload_document(
             try:
                 with open(file_path, "wb") as w:
                     w.write(content)
-            except Exception as e:
-                logger.error(f"Failed writing upload file {file_path}: {e}")
+            except PermissionError as e:
+                logger.error(f"Permission denied writing file {file_path}: {e}")
                 if len(file) == 1:
-                    raise BadRequestError(f"Could not save uploaded file: {str(e)}")
+                    raise BadRequestError(
+                        message="Upload directory is not writable. Check Railway volume mount at /app/uploads.",
+                        code="UPLOAD_DIR_NOT_WRITABLE"
+                    )
                 results.append({
                     "filename": f.filename,
                     "status": "failed",
-                    "message": f"Could not save uploaded file: {str(e)}",
+                    "message": "Upload directory is not writable",
                 })
                 continue
- 
+            except Exception as e:
+                logger.error(f"Failed writing upload file {file_path}: {e}")
+                if len(file) == 1:
+                    raise BadRequestError("Could not save uploaded file")
+                results.append({
+                    "filename": f.filename,
+                    "status": "failed",
+                    "message": "Could not save uploaded file",
+                })
+                continue
+
+            # Store the absolute path so /view can always find the file
+            absolute_file_path = str(file_path.resolve())
+
             # Create document record
             doc = await repo.create({
                 "tenant_id": current_user.tenant_id,
@@ -134,7 +159,7 @@ async def upload_document(
                 "uploaded_by": current_user.id,
                 "original_filename": f.filename or "unknown",
                 "stored_filename": stored_filename,
-                "file_path": str(file_path),
+                "file_path": absolute_file_path,
                 "file_size": len(content),
                 "mime_type": f.content_type,
                 "file_hash": file_hash,
@@ -145,37 +170,36 @@ async def upload_document(
                 "status": "uploading",
                 "processing_status": "pending",
             })
- 
+
             # Trigger background processing
             import asyncio
             asyncio.create_task(
-                processing_service.process_document(doc.id, current_user.tenant_id, str(file_path))
+                processing_service.process_document(doc.id, current_user.tenant_id, absolute_file_path)
             )
- 
+
             # Increment analytics: documents_uploaded
             analytics_repo = AnalyticsRepository(db)
             await analytics_repo.increment_tenant_metric(current_user.tenant_id, "documents_uploaded")
- 
+
             results.append({
                 "documentId": doc.id,
                 "filename": doc.original_filename,
                 "status": "uploaded",
                 "message": "Upload successful, processing started",
             })
- 
+
         except AppException:
-            # Re-raise AppExceptions (like our BadRequestError) to be caught by global handler
             raise
         except Exception as e:
             logger.error(f"Error uploading file {f.filename}: {e}")
             if len(file) == 1:
-                raise # Let it bubble up to unhandled_exception_handler
+                raise
             results.append({
                 "filename": f.filename,
                 "status": "failed",
                 "message": str(e)
             })
- 
+
     return {
         "success": True,
         "data": {
@@ -183,7 +207,8 @@ async def upload_document(
         },
         "message": f"Processed {len(results)} files"
     }
- 
+
+
 @router.post("/search")
 async def search_documents(
     body: SearchRequest,
@@ -193,13 +218,13 @@ async def search_documents(
     from app.services.openai_service import OpenAIService
     from app.services.weaviate_service import SearchOptions, WeaviateService
     import asyncio
- 
+
     openai_svc = OpenAIService()
     weaviate_svc = WeaviateService.get_instance()
- 
+
     # Generate embedding for the query
     emb_result = await openai_svc.generate_embedding(body.query, current_user.tenant_id)
- 
+
     # Search Weaviate
     search_results = await asyncio.to_thread(
         weaviate_svc.search_similar_chunks,
@@ -212,7 +237,7 @@ async def search_documents(
             document_ids=body.document_ids or [],
         ),
     )
- 
+
     return {
         "success": True,
         "data": [
@@ -231,8 +256,8 @@ async def search_documents(
         ],
         "message": "Search completed",
     }
- 
- 
+
+
 @router.get("/categories")
 async def list_categories(
     page: int = Query(1, ge=1),
@@ -242,7 +267,7 @@ async def list_categories(
     db: AsyncSession = Depends(get_db),
 ):
     from sqlalchemy import text
- 
+
     params: dict = {}
     where_clause = ""
     if current_user.role != "super_admin":
@@ -251,17 +276,15 @@ async def list_categories(
     elif tenant_id:
         where_clause = "WHERE dc.tenant_id = :tid "
         params["tid"] = tenant_id
- 
-    # Count total
+
     count_query = text(f"SELECT COUNT(*) FROM document_categories dc {where_clause}")
     total_result = await db.execute(count_query, params)
     total = total_result.scalar() or 0
- 
-    # Data query
+
     offset = (page - 1) * limit
     params["limit"] = limit
     params["offset"] = offset
- 
+
     query = text(f"""
         SELECT dc.*, COUNT(d.id) AS document_count
         FROM document_categories dc
@@ -273,12 +296,12 @@ async def list_categories(
     """)
     result = await db.execute(query, params)
     rows = result.mappings().all()
- 
+
     def fmt_ts(val):
         if val is None:
             return None
         return val.isoformat() + ".000Z" if hasattr(val, "isoformat") else str(val)
- 
+
     categories = [
         {
             "id": r["id"],
@@ -294,7 +317,7 @@ async def list_categories(
         }
         for r in rows
     ]
- 
+
     return {
         "success": True,
         "data": {
@@ -307,8 +330,8 @@ async def list_categories(
             }
         }
     }
- 
- 
+
+
 @router.post("/categories")
 async def create_category(
     body: CategoryCreateRequest,
@@ -317,22 +340,19 @@ async def create_category(
 ):
     repo = CategoryRepository(db)
     tenant_repo = TenantRepository(db)
- 
-    # Determine tenant_id based on role
+
     if current_user.role == "super_admin":
         if not body.tenant_slug:
             raise BadRequestError("tenantSlug is required for super admin")
- 
+
         tenant = await tenant_repo.get_by_slug(body.tenant_slug)
         if not tenant:
             raise NotFoundError("Tenant not found")
- 
+
         tenant_id = tenant.id
- 
     else:
-        # tenant_admin always creates for their own tenant
         tenant_id = current_user.tenant_id
- 
+
     category = await repo.create({
         "tenant_id": tenant_id,
         "name": body.name,
@@ -340,12 +360,12 @@ async def create_category(
         "parent_id": body.parent_id,
         "sort_order": body.sort_order,
     })
- 
+
     def fmt_ts(val):
         if val is None:
             return None
         return val.isoformat() + ".000Z" if hasattr(val, "isoformat") else str(val)
- 
+
     return {
         "success": True,
         "data": {
@@ -363,7 +383,8 @@ async def create_category(
         },
         "message": "Category created",
     }
- 
+
+
 @router.delete("/categories/{category_id}")
 async def delete_category(
     category_id: int,
@@ -371,25 +392,24 @@ async def delete_category(
     db: AsyncSession = Depends(get_db),
 ):
     repo = CategoryRepository(db)
- 
+
     cat = await repo.get_by_id(category_id)
- 
+
     if not cat:
         raise NotFoundError("Category not found")
- 
-    # Super admin can delete any tenant category
+
     if current_user.role != "super_admin":
         if cat.tenant_id != current_user.tenant_id:
             raise NotFoundError("Category not found")
- 
+
     await repo.delete_by_id(category_id)
- 
+
     return {
         "success": True,
         "message": "Category deleted"
     }
- 
- 
+
+
 @router.put("/categories/{category_id}")
 async def update_category(
     category_id: int,
@@ -399,43 +419,40 @@ async def update_category(
 ):
     repo = CategoryRepository(db)
     tenant_repo = TenantRepository(db)
- 
+
     cat = await repo.get_by_id(category_id)
- 
+
     if not cat:
         raise NotFoundError("Category not found")
- 
-    # Determine tenant_id
+
     if current_user.role == "super_admin":
         if not body.tenant_slug:
             raise BadRequestError("tenantSlug is required")
- 
+
         tenant = await tenant_repo.get_by_slug(body.tenant_slug)
- 
+
         if not tenant:
             raise NotFoundError("Tenant not found")
- 
+
         tenant_id = tenant.id
     else:
         tenant_id = current_user.tenant_id
- 
-    # Check tenant ownership
+
     if cat.tenant_id != tenant_id:
         raise NotFoundError("Category not found")
- 
+
     update_data = body.model_dump(exclude_none=True)
-    # Remove tenant_slug because it's not a DB column
     update_data.pop("tenant_slug", None)
- 
+
     await repo.update_by_id(category_id, update_data)
- 
+
     updated_cat = await repo.get_by_id(category_id)
- 
+
     def fmt_ts(val):
         if val is None:
             return None
         return val.isoformat() + ".000Z" if hasattr(val, "isoformat") else str(val)
- 
+
     return {
         "success": True,
         "data": {
@@ -453,8 +470,8 @@ async def update_category(
         },
         "message": "Category updated",
     }
- 
- 
+
+
 @router.get("")
 async def list_documents(
     page: int = Query(1, ge=1),
@@ -466,50 +483,43 @@ async def list_documents(
     db: AsyncSession = Depends(get_db),
 ):
     from sqlalchemy import text
- 
+
     def fmt_ts(val):
         if val is None:
             return None
         return val.isoformat() + ".000Z" if hasattr(val, "isoformat") else str(val)
- 
-    # Base condition
+
     where = "WHERE 1=1"
     params: dict = {}
- 
-    # Apply tenant filter
+
     if current_user.role != "super_admin":
         where += " AND d.tenant_id = :tenant_id"
         params["tenant_id"] = current_user.tenant_id
     elif tenant_id:
-        # Super admin can filter by a specific tenant
         where += " AND d.tenant_id = :tenant_id"
         params["tenant_id"] = tenant_id
- 
-    # Optional filters
+
     if status:
         where += " AND d.status = :status"
         params["status"] = status
- 
+
     if category_id:
         where += " AND d.category_id = :category_id"
         params["category_id"] = category_id
- 
-    # Count total documents
+
     count_query = f"""
         SELECT COUNT(*)
         FROM documents d
         {where}
     """
- 
+
     r = await db.execute(text(count_query), params)
     total = r.scalar() or 0
- 
-    # Pagination
+
     offset = (page - 1) * limit
     params["lim"] = limit
     params["off"] = offset
- 
-    # Main query
+
     query = f"""
         SELECT d.*, dc.name AS category_name
         FROM documents d
@@ -518,10 +528,10 @@ async def list_documents(
         ORDER BY d.created_at DESC
         LIMIT :lim OFFSET :off
     """
- 
+
     result = await db.execute(text(query), params)
     rows = result.mappings().all()
- 
+
     documents = [
         {
             "id": d["id"],
@@ -550,7 +560,7 @@ async def list_documents(
         }
         for d in rows
     ]
- 
+
     return {
         "success": True,
         "data": {
@@ -563,8 +573,8 @@ async def list_documents(
             },
         },
     }
- 
- 
+
+
 @router.post("/{document_id}/reprocess")
 async def reprocess_document(
     document_id: int,
@@ -573,23 +583,22 @@ async def reprocess_document(
 ):
     import asyncio
     from app.services.document_service import DocumentProcessingService
- 
+
     repo = DocumentRepository(db)
     doc = await repo.get_by_id(document_id)
     if not doc:
         raise NotFoundError("Document not found")
-   
-    # Allow super_admin to reprocess any tenant's document
+
     if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
         raise NotFoundError("Document not found")
- 
+
     processing_service = DocumentProcessingService()
     asyncio.create_task(
         processing_service.reprocess_document(document_id, current_user.tenant_id)
     )
     return {"success": True, "data": {"message": "Document reprocessing started"}}
- 
- 
+
+
 @router.get("/{document_id}/chunks")
 async def get_document_chunks(
     document_id: int,
@@ -600,8 +609,7 @@ async def get_document_chunks(
     doc = await repo.get_by_id(document_id)
     if not doc:
         raise NotFoundError("Document not found")
-   
-    # Allow super_admin to get chunks for any tenant's document
+
     if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
         raise NotFoundError("Document not found")
     chunk_repo = ChunkRepository(db)
@@ -618,8 +626,63 @@ async def get_document_chunks(
             for c in chunks
         ],
     }
- 
- 
+
+
+@router.get("/{document_id}/view")
+async def view_document(
+    document_id: int,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = DocumentRepository(db)
+    doc = await repo.get_by_id(document_id)
+    if not doc:
+        raise NotFoundError("Document not found")
+
+    if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
+        raise NotFoundError("Document not found")
+
+    # Primary: use the stored absolute path
+    actual_path = doc.file_path
+
+    if not os.path.exists(actual_path):
+        # Normalise backslashes (Windows-uploaded paths on Linux)
+        alt_path = doc.file_path.replace("\\", "/")
+        filename = Path(alt_path).name
+
+        # Fallback search order — all within the persistent volume
+        paths_to_check = [
+            Path(alt_path),
+            Path(settings.UPLOAD_DIR) / "documents" / f"tenant_{doc.tenant_id}" / filename,
+            Path(settings.UPLOAD_DIR) / "documents" / filename,
+            Path(settings.UPLOAD_DIR) / filename,
+        ]
+
+        found = False
+        for p in paths_to_check:
+            if p.exists():
+                actual_path = str(p)
+                # Heal the DB record so future requests hit the primary path
+                await repo.update_by_id(document_id, {"file_path": actual_path})
+                logger.info(f"Healed file_path for document {document_id}: {actual_path}")
+                found = True
+                break
+
+        if not found:
+            logger.error(
+                f"Cannot find physical file for document {document_id}. "
+                f"Stored path: {doc.file_path}. "
+                f"Searched: {[str(p) for p in paths_to_check]}"
+            )
+            raise NotFoundError("File not found on server")
+
+    return FileResponse(
+        path=actual_path,
+        filename=doc.original_filename,
+        media_type=doc.mime_type,
+    )
+
+
 @router.get("/{document_id}")
 async def get_document(
     document_id: int,
@@ -630,15 +693,15 @@ async def get_document(
     doc = await repo.get_by_id(document_id)
     if not doc:
         raise NotFoundError("Document not found")
-   
-    # Allow super_admin to get any tenant's document
+
     if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
         raise NotFoundError("Document not found")
+
     def fmt_ts(val):
         if val is None:
             return None
         return val.isoformat() + ".000Z" if hasattr(val, "isoformat") else str(val)
- 
+
     return {
         "success": True,
         "data": {
@@ -663,8 +726,8 @@ async def get_document(
             }
         },
     }
- 
- 
+
+
 @router.put("/{document_id}")
 async def update_document(
     document_id: int,
@@ -676,23 +739,21 @@ async def update_document(
     doc = await repo.get_by_id(document_id)
     if not doc:
         raise NotFoundError("Document not found")
-   
-    # Allow super_admin to update any tenant's document
+
     if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
         raise NotFoundError("Document not found")
-    update_data = body.model_dump(exclude_none=True,exclude={"tenant_slug"})
+
+    update_data = body.model_dump(exclude_none=True, exclude={"tenant_slug"})
     await repo.update_by_id(document_id, update_data)
- 
-    # Refetch updated document with category name if needed
+
     updated_doc = await repo.get_by_id(document_id)
-    
-    # Sync metadata to Weaviate
+
     from app.services.document_service import DocumentProcessingService
     from app.repositories.category_repo import CategoryRepository
-    
+
     processing_service = DocumentProcessingService()
     category_repo = CategoryRepository(db)
-    
+
     category_name = None
     if updated_doc.category_id:
         cat = await category_repo.get_by_id(updated_doc.category_id)
@@ -710,7 +771,7 @@ async def update_document(
         if val is None:
             return None
         return val.isoformat() + ".000Z" if hasattr(val, "isoformat") else str(val)
- 
+
     return {
         "success": True,
         "data": {
@@ -735,8 +796,8 @@ async def update_document(
             }
         },
     }
- 
- 
+
+
 @router.delete("/{document_id}")
 async def delete_document(
     document_id: int,
@@ -747,78 +808,21 @@ async def delete_document(
     doc = await repo.get_by_id(document_id)
     if not doc:
         raise NotFoundError("Document not found")
-   
-    # Role-based access control: only super_admin and tenant_admin can delete
+
     if current_user.role not in ["super_admin", "tenant_admin"]:
         from app.core.exceptions import ForbiddenError
         raise ForbiddenError("Only admins can delete documents")
 
-    # Allow super_admin to delete any tenant's document, 
-    # but regular tenant_admins must match the document's tenant_id
     if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
         raise NotFoundError("Document not found")
- 
-    # Unified deletion logic
+
     from app.services.document_service import DocumentProcessingService
     processing_service = DocumentProcessingService()
-    
-    # CRITICAL: We pass the DOCUMENT'S own tenant_id to the service, 
-    # so that the DB and Weaviate queries find the correct records.
+
     success = await processing_service.delete_document(document_id, doc.tenant_id)
-    
+
     if not success:
         from app.core.exceptions import InternalError
         raise InternalError("Failed to delete document fully")
 
     return {"success": True, "message": "Document deleted"}
-@router.get("/{document_id}/view")
-async def view_document(
-    document_id: int,
-    current_user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    repo = DocumentRepository(db)
-    doc = await repo.get_by_id(document_id)
-    if not doc:
-        raise NotFoundError("Document not found")
-   
-    # Allow super_admin to view any tenant's document
-    if current_user.role != "super_admin" and doc.tenant_id != current_user.tenant_id:
-        raise NotFoundError("Document not found")
- 
-    import logging
-    from pathlib import Path
-    
-    logger = logging.getLogger(__name__)
-    actual_path = doc.file_path
-    
-    if not os.path.exists(actual_path):
-        # Handle backslashes on Linux
-        alt_path = doc.file_path.replace("\\", "/")
-        filename = alt_path.split("/")[-1]
-        
-        base_upload_dir = settings.upload_dir_path
-        paths_to_check = [
-            Path(alt_path),
-            base_upload_dir / "documents" / f"tenant_{doc.tenant_id}" / filename,
-            base_upload_dir / "documents" / filename,
-            base_upload_dir / filename,
-        ]
-        
-        found = False
-        for p in paths_to_check:
-            if p.exists():
-                actual_path = str(p)
-                found = True
-                break
-                
-        if not found:
-            logger.error(f"Cannot find physical file for document {document_id}. Original: {doc.file_path}. Searched paths: {[str(p) for p in paths_to_check]}")
-            raise NotFoundError("File not found on server")
- 
-    return FileResponse(
-        path=actual_path,
-        filename=doc.original_filename,
-        media_type=doc.mime_type
-    )
- 
