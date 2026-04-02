@@ -59,6 +59,14 @@ async def lifespan(app: FastAPI):
     logger.info(f"Environment: {settings.APP_ENV}")
     logger.info(f"Port: {settings.APP_PORT}")
 
+    # Ensure upload directory exists
+    try:
+        path = settings.upload_dir_path
+        path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Upload directory verified: {path}")
+    except Exception as e:
+        logger.error(f"Failed to initialize upload directory: {e}. Check RAILWAY_VOLUME_MOUNT_PATH permissions.")
+
     # Initialize database
     try:
         await init_database()

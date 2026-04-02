@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Optional, cast
 from urllib.parse import quote_plus
 
@@ -128,11 +129,8 @@ class Settings(BaseSettings):
 
     @property
     def upload_dir_path(self) -> Path:
-        """Returns the absolute path to the upload directory and ensures it exists."""
-        from pathlib import Path
-        p = Path(self.UPLOAD_DIR).absolute()
-        p.mkdir(parents=True, exist_ok=True)
-        return p
+        """Returns the absolute path to the upload directory helper."""
+        return Path(self.UPLOAD_DIR).absolute()
 
     @property
     def database_url(self) -> str:
