@@ -207,7 +207,10 @@ async def detailed_health():
 app.include_router(api_router)
 
 # -- Mount Static Files (serves uploaded documents) --
-# UPLOAD_DIR resolves to /app/uploads — the persistent Railway volume
+# makedirs here guards against a fresh Railway deployment where the volume
+# directory may not yet exist at module load time (before lifespan runs).
+# UPLOAD_DIR resolves to /app/uploads — the persistent Railway volume.
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # -- Mount Socket.IO (ASGI) --
