@@ -250,7 +250,7 @@ export default function DashboardPage() {
                   </h1>
                   <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
                     Welcome back! Here&apos;s an overview of your ScopeAIChat
-                    platform.
+                    platforms
                   </p>
                 </div>
               </div>
