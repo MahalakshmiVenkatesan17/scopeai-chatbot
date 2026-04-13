@@ -177,27 +177,22 @@ export function useVoiceRecorder({
           setVolume(rms);
           if (rms > maxVolumeRef.current) maxVolumeRef.current = rms;
 
-          // 2. Frequency Band VAD Check
+          // 2. Frequency Band VAD Check (Human range: 300Hz to 3400Hz)
           const freqData = new Uint8Array(analyserRef.current.frequencyBinCount);
           analyserRef.current.getByteFrequencyData(freqData);
 
           let voiceEnergy = 0;
           let noiseEnergy = 0;
 
-          // At 16kHz, Nyquist is 8000Hz. 128 bins = ~62.5Hz per bin.
-          // Human voice range: ~300Hz to 3400Hz -> bins 5 to 54.
-          for (let i = 5; i <= 54; i++) {
-            voiceEnergy += freqData[i];
-          }
-          // Noise range: >3400Hz -> bins 55 to 127.
-          for (let i = 55; i < freqData.length; i++) {
-            noiseEnergy += freqData[i];
-          }
+          // Bin calculation: 16kHz context / 128 bins = ~62.5Hz per bin
+          // Voice: Bins 5 to 54 (~312Hz - 3375Hz)
+          for (let i = 5; i <= 54; i++) voiceEnergy += freqData[i];
+          for (let i = 55; i < freqData.length; i++) noiseEnergy += freqData[i];
 
-          voiceEnergy = voiceEnergy / 50; 
+          voiceEnergy = voiceEnergy / 50;
           noiseEnergy = noiseEnergy / (freqData.length - 55);
 
-          // True speech has targeted energy in the voice band, clearly above static noise.
+          // If targeted voice energy is present and stands out from noise
           if (voiceEnergy > 25 && voiceEnergy > noiseEnergy * 1.2) {
             speechFramesRef.current++;
           }
@@ -240,9 +235,9 @@ export function useVoiceRecorder({
       // 2. Encode to WAV
       const wavBlob = encodeWAV(flattened, audioCtxRef.current!.sampleRate);
 
-      // 3. Volume and VAD validation
-      // Require at least 3 speech frames (~300ms of actual voice activity)
-      if (maxVolumeRef.current < 0.02 || speechFramesRef.current < 3) {
+      // 3. Validation (Both RMS and VAD speech frames)
+      // Require at least 5 frames of human-range speech energy
+      if (maxVolumeRef.current < 0.01 || speechFramesRef.current < 5) {
         setError('We couldn’t hear you clearly. Please stay closer to the microphone and try again.');
         cleanup();
         setState('idle');

@@ -180,16 +180,10 @@ const handleError = useCallback((err: unknown) => {
     setError(null);
 
     try {
-      const mimeType = audioBlob.type || 'audio/webm';
-      const ext = mimeType.includes('mp4') ? 'mp4'
-        : mimeType.includes('ogg') ? 'ogg'
-        : mimeType.includes('wav') ? 'wav'
-        : 'webm';
-
       const result = await chatbotAPI.sendVoiceMessage(
         sessionRef.current.sessionToken,
         audioBlob,
-        `audio.${ext}`
+        'recording.wav'
       );
 
       // Append transcribed user bubble + AI reply
@@ -217,16 +211,10 @@ const handleError = useCallback((err: unknown) => {
     setError(null);
 
     try {
-      const mimeType = audioBlob.type || 'audio/webm';
-      const ext = mimeType.includes('mp4') ? 'mp4'
-        : mimeType.includes('ogg') ? 'ogg'
-        : mimeType.includes('wav') ? 'wav'
-        : 'webm';
-
       const result = await chatbotAPI.transcribeVoice(
         sessionRef.current.sessionToken,
         audioBlob,
-        `audio.${ext}`
+        'recording.wav'
       );
 
       return result;

@@ -245,7 +245,7 @@ async def send_public_message(
     audio_file_path = body.get("audio_file_path")
     is_voice_message = body.get("is_voice_message", False)
 
-    logger.info(
+    logger.debug(
         f"[ChatAPI] Incoming Message: session={session_id}, "
         f"is_voice={is_voice_message}, path={audio_file_path}, keys={list(body.keys())}"
     )
@@ -484,11 +484,10 @@ async def send_public_voice_message(
     analytics_repo = AnalyticsRepository(db)
     await analytics_repo.increment_tenant_metric(tenant_id, "messages_sent")
 
-    logger.info(
+    logger.debug(
         f"[Voice] Public voice message processed: session={session_id}, "
         f"chars={len(transcribed_text)}, time={processing_time}ms"
     )
-
     return {
         "success": True,
         "data": {
