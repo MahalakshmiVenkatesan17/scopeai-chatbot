@@ -163,7 +163,7 @@ class LangGraphService:
             )
             return {"query_embedding": result.embedding}
         except Exception as e:
-            logger.warning("Failed to embed query", error=str(e))
+            logger.warning("Failed to embed query: %s", str(e))
             return {"query_embedding": [], "error": f"Embedding failed: {e}"}
 
     def _should_retrieve(self, state: RAGState) -> str:
@@ -211,16 +211,15 @@ class LangGraphService:
                     "has_relevant_context": False,
                 }
 
-            # NEW: Lower threshold to 0.20 to allow fuzzy matching for typographical errors and misspelled names
-            RELEVANCE_THRESHOLD = 0.20  # tune as needed (0.0–1.0 cosine similarity)
+            RELEVANCE_THRESHOLD = 0.20
             top_score = search_results[0].score if search_results else 0.0
 
             if top_score < RELEVANCE_THRESHOLD:
-                logger.info(
-                    "Retrieved chunks below relevance threshold",
-                    top_score=top_score,
-                    threshold=RELEVANCE_THRESHOLD,
-                    tenant_id=state["tenant_id"],
+                # Downgraded from logger.info — fires on every low-score query
+                logger.debug(
+                    "Retrieved chunks below relevance threshold: top_score=%.3f threshold=%.2f",
+                    top_score,
+                    RELEVANCE_THRESHOLD,
                 )
                 return {
                     "context_chunks": [],
@@ -252,7 +251,7 @@ class LangGraphService:
             }
 
         except Exception as e:
-            logger.warning("Failed to retrieve context", error=str(e))
+            logger.warning("Failed to retrieve context: %s", str(e))
             return {
                 "context_chunks": [],
                 "context_text": "",
@@ -272,7 +271,6 @@ class LangGraphService:
             system_prompt = state.get("system_prompt", "You are a helpful AI assistant.")
 
             if state.get("has_relevant_context") and state.get("context_text"):
-                # ✅ Has relevant docs — use them
                 system_prompt += (
                     "\n\nContext Information:\n"
                     "--------------------------------\n"
@@ -286,7 +284,6 @@ class LangGraphService:
                     "- ENSURE YOUR RESPONSE IS NOT EMPTY."
                 )
             else:
-                # ✅ No relevant docs found
                 system_prompt += (
                     "\n\nYou do not have information to answer this query. "
                     "If the user simply says a greeting ('hi', 'hello'), politely greet them and skip the refusal rule completely. "
@@ -321,7 +318,7 @@ class LangGraphService:
             }
 
         except Exception as e:
-            logger.error("Failed to generate AI response", error=str(e))
+            logger.error("Failed to generate AI response: %s", str(e))
             return {
                 "ai_response": f"I'm sorry, I encountered an error: {str(e)}. Please share this with the developer.",
                 "token_count": 0,
@@ -330,6 +327,7 @@ class LangGraphService:
                 "cost": 0.0,
                 "error": str(e),
             }
+
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
@@ -337,7 +335,6 @@ class LangGraphService:
         """Load tenant chatbot config and build system prompt."""
         tenant_name = "our company"
         try:
-            # Get tenant name for the refusal message
             tenant_result = await db.execute(
                 text("SELECT name FROM tenants WHERE id = :tid"),
                 {"tid": tenant_id},
@@ -375,7 +372,7 @@ class LangGraphService:
                 )
                 return prompt
         except Exception as e:
-            logger.warning("Failed to load tenant chatbot config", tenant_id=tenant_id, error=str(e))
+            logger.warning("Failed to load tenant chatbot config: tenant_id=%s error=%s", tenant_id, str(e))
 
         return (
             "You are a helpful AI assistant. Answer clearly based on context without mentioning 'context' or 'documents'. "
@@ -400,14 +397,13 @@ class LangGraphService:
             rows = result.mappings().all()
             return [
                 {
-                    # ✅ Map message_type → OpenAI role format
                     "role": "assistant" if str(r["message_type"]) == "assistant" else "user",
                     "content": str(r["content"])
                 }
                 for r in rows
             ]
         except Exception as e:
-            logger.warning("Failed to load conversation history", session_id=session_id, error=str(e))
+            logger.warning("Failed to load conversation history: session_id=%s error=%s", session_id, str(e))
             return []
 
 

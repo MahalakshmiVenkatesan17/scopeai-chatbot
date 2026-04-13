@@ -47,7 +47,7 @@ CHAT_PRICING: dict[str, dict[str, float]] = {
     "gpt-3.5-turbo-16k": {"input": 0.003, "output": 0.004},
     "gpt-4o": {"input": 0.005, "output": 0.015},
     "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
-    "gpt-4o-transcribe": {"input": 0.005, "output": 0.015}, # Purpose-built STT
+    "gpt-4o-transcribe": {"input": 0.005, "output": 0.015},
 }
 
 EMBEDDING_PRICING: dict[str, float] = {
@@ -62,7 +62,6 @@ class OpenAIService:
         self._default_client = AsyncOpenAI(api_key=settings.DEFAULT_OPENAI_API_KEY)
         self.default_model = settings.OPENAI_MODEL
         self.embedding_model = settings.OPENAI_EMBEDDING_MODEL
-        # Cache tenant-specific clients to avoid re-creating per request
         self._tenant_clients: dict[int, tuple[AsyncOpenAI, float]] = {}
         self._client_cache_ttl = 300  # 5 minutes
 
@@ -93,14 +92,11 @@ class OpenAIService:
             completion_tokens = response.usage.completion_tokens if response.usage else 0
             cost = self._calculate_chat_cost(model, prompt_tokens, completion_tokens)
 
+            # Downgraded from logger.info — fires on every single message
             duration = int((time.time() - start) * 1000)
-            logger.info(
-                "OpenAI chat completion",
-                tenant_id=request.tenant_id,
-                model=model,
-                tokens_used=tokens_used,
-                cost=cost,
-                duration_ms=duration,
+            logger.debug(
+                "OpenAI chat completion: tenant=%s model=%s tokens=%s cost=%.6f duration_ms=%s",
+                request.tenant_id, model, tokens_used, cost, duration,
             )
 
             return ChatCompletionResponse(
@@ -121,10 +117,8 @@ class OpenAIService:
 
         except APIError as e:
             logger.error(
-                "OpenAI API error",
-                tenant_id=request.tenant_id,
-                status=e.status_code,
-                message=str(e),
+                "OpenAI API error: tenant=%s status=%s message=%s",
+                request.tenant_id, e.status_code, str(e),
             )
             if e.status_code == 429:
                 raise RuntimeError("OpenAI rate limit exceeded") from e
@@ -160,7 +154,7 @@ class OpenAIService:
             delta = chunk.choices[0].delta if chunk.choices else None
             if delta and delta.content:
                 full_content += delta.content
-                yield delta.content  # stream chunk
+                yield delta.content
 
             if chunk.usage:
                 tokens_used = chunk.usage.total_tokens
@@ -169,7 +163,6 @@ class OpenAIService:
 
         cost = self._calculate_chat_cost(model, prompt_tokens, completion_tokens)
 
-        # Yield final summary as the last item
         yield ChatCompletionResponse(
             content=full_content,
             tokens_used=tokens_used,
@@ -194,11 +187,10 @@ class OpenAIService:
     ) -> EmbeddingResponse:
         start = time.time()
         try:
-            # Check cache
             cache_key = f"embedding:{self._hash_text(text)}"
             cached = await CacheService.get(cache_key)
             if cached:
-                logger.debug("Embedding served from cache", tenant_id=tenant_id)
+                # Removed logger.debug cache hit log — fires on every cached embedding
                 return EmbeddingResponse(**cached)
 
             client = await self.get_client(tenant_id)
@@ -230,25 +222,19 @@ class OpenAIService:
                 86400,
             )
 
+            # Downgraded from logger.info — fires on every message (embed query + retrieval)
             duration = int((time.time() - start) * 1000)
-            logger.info(
-                "OpenAI embedding generated",
-                tenant_id=tenant_id,
-                model=self.embedding_model,
-                tokens_used=tokens_used,
-                cost=cost,
-                text_length=len(text),
-                duration_ms=duration,
+            logger.debug(
+                "OpenAI embedding: tenant=%s tokens=%s duration_ms=%s",
+                tenant_id, tokens_used, duration,
             )
 
             return result
 
         except APIError as e:
             logger.error(
-                "OpenAI embedding API error",
-                tenant_id=tenant_id,
-                status=e.status_code,
-                message=str(e),
+                "OpenAI embedding API error: tenant=%s status=%s message=%s",
+                tenant_id, e.status_code, str(e),
             )
             if e.status_code == 429:
                 raise RuntimeError("OpenAI rate limit exceeded") from e
@@ -269,7 +255,6 @@ class OpenAIService:
             )
             results.extend(batch_results)
 
-            # Delay between batches to avoid rate limits
             if i + batch_size < len(texts):
                 await asyncio.sleep(1.0)
 
@@ -340,7 +325,7 @@ class OpenAIService:
             }
 
         except Exception as e:
-            logger.error("Error getting OpenAI usage stats", tenant_id=tenant_id, error=str(e))
+            logger.error("Error getting OpenAI usage stats: tenant=%s error=%s", tenant_id, str(e))
             return {
                 "totalTokens": 0,
                 "totalCost": 0,
@@ -354,13 +339,11 @@ class OpenAIService:
     # ------------------------------------------------------------------
     async def get_client(self, tenant_id: int) -> AsyncOpenAI:
         """Return tenant-specific OpenAI client (cached), or default."""
-        # Check cache first to avoid DB round-trip + client creation per request
         now = time.time()
         if tenant_id in self._tenant_clients:
             client, expires_at = self._tenant_clients[tenant_id]
             if now < expires_at:
                 return client
-            # Expired — remove stale entry
             del self._tenant_clients[tenant_id]
 
         from app.core.database import async_session_factory
@@ -385,9 +368,8 @@ class OpenAIService:
                     return client
         except Exception as e:
             logger.warning(
-                "Failed to get tenant API key, using default",
-                tenant_id=tenant_id,
-                error=str(e),
+                "Failed to get tenant API key, using default: tenant=%s error=%s",
+                tenant_id, str(e),
             )
 
         return self._default_client

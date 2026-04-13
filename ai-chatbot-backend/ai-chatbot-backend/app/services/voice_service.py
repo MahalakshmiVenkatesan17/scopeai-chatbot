@@ -39,7 +39,6 @@ VOICE_UPLOAD_DIR = Path(settings.UPLOAD_DIR) / "voice"
 
 # ---------------------------------------------------------------------------
 # Common English filler words that should never appear in the STT vocab list.
-# Whisper uses trailing CSV as token-probability hints — common words confuse it.
 # ---------------------------------------------------------------------------
 _COMMON_WORDS = frozenset({
     "the", "and", "for", "are", "but", "not", "you", "all", "can", "had",
@@ -59,7 +58,6 @@ _COMMON_WORDS = frozenset({
     "net", "oil", "pan", "pet", "pie", "pig", "pin", "pot", "raw", "ray",
     "row", "sad", "sea", "sky", "sun", "tax", "tea", "tip", "toe", "ton",
     "toy", "tub", "van", "war", "web", "wet", "win", "wit", "yes", "zoo",
-    # Very common verbs/adjectives that slip through extraction
     "able", "also", "back", "base", "been", "both", "call", "case", "come",
     "data", "does", "done", "down", "each", "else", "even", "ever", "fact",
     "feel", "find", "five", "from", "full", "give", "good", "hand", "have",
@@ -110,26 +108,13 @@ class VoiceService:
         """
         Persist the audio file, transcribe via Whisper, correct domain terms,
         and return (corrected_text, saved_file_path).
-
-        Parameters
-        ----------
-        audio_bytes:       Raw bytes of the audio recording.
-        session_id:        Chat session ID — used to organise files on disk.
-        tenant_id:         Tenant ID — used to fetch vocab, language, correction.
-        original_filename: Original filename from the upload (picks extension).
-        language:          Optional BCP-47 override (e.g. "en", "ta", "hi").
-                           If None, fetched from tenant_configurations.
-
-        Returns
-        -------
-        (corrected_transcribed_text, relative_file_path)
         """
         ext = self._get_extension(original_filename)
-        
-        # 1. Silence check (prevent processing of silent/noisy submissions)
+
+        # 1. Silence check
         silence_result = self._is_audio_silent(audio_bytes)
         if silence_result:
-            logger.info(f"[VoiceService] Audio submission is too quiet (RMS check), skipping.")
+            logger.debug("[VoiceService] Audio submission too quiet (size check), skipping.")
             return "", ""
 
         file_path = await self._save_audio(audio_bytes, session_id, ext)
@@ -143,38 +128,36 @@ class VoiceService:
         # Build Whisper prompt: assistant history + context-aware keywords
         dynamic_prompt, targeted_keywords = await self._build_dynamic_prompt(session_id, tenant_id)
 
-        # Transcribe (GPT-4o Multimodal Intelligence)
+        # Transcribe
         raw_text = await self._call_gpt4o_audio(file_path, tenant_id, dynamic_prompt, language)
 
         # Hallucination Guards
         raw_clean = raw_text.strip().lower()
         if raw_clean in _WHISPER_HALLUCINATIONS:
-            logger.warning(f"[VoiceService] Known Whisper hallucination detected: '{raw_text}'")
+            logger.warning("[VoiceService] Known Whisper hallucination detected, discarding.")
             return "", str(file_path.relative_to(settings.UPLOAD_DIR))
-        
+
         if dynamic_prompt and raw_clean:
             dp_clean = dynamic_prompt.lower()
             if len(raw_clean) > 15 and (raw_clean in dp_clean or dp_clean in raw_clean):
-                 logger.warning("[VoiceService] Transcript hallucinated the vocab prompt.")
-                 return "", str(file_path.relative_to(settings.UPLOAD_DIR))
-            
+                logger.warning("[VoiceService] Transcript hallucinated the vocab prompt.")
+                return "", str(file_path.relative_to(settings.UPLOAD_DIR))
+
             parts = [p.strip() for p in raw_clean.split(",") if p.strip()]
             if len(parts) > 3:
                 overlap = sum(1 for p in parts if any(p in kw.lower() for kw in targeted_keywords))
                 if (overlap / len(parts)) > 0.7:
-                     logger.warning("[VoiceService] Transcript is a comma-separated list of keywords. Hallucination.")
-                     return "", str(file_path.relative_to(settings.UPLOAD_DIR))
+                    logger.warning("[VoiceService] Transcript is a comma-separated keyword list. Hallucination.")
+                    return "", str(file_path.relative_to(settings.UPLOAD_DIR))
 
         if not raw_text.strip():
             return "", str(file_path.relative_to(settings.UPLOAD_DIR))
 
-        # Post-correction: fix domain-term spelling using the targeted keywords
+        # Post-correction: fix domain-term spelling
         corrected_text = await self._correct_transcript(raw_text, tenant_id, targeted_keywords)
 
         if corrected_text != raw_text:
-            logger.info(
-                f"[VoiceService] Transcript corrected for session={session_id}"
-            )
+            logger.debug("[VoiceService] Transcript corrected for session=%s", session_id)
 
         return corrected_text, str(file_path.relative_to(settings.UPLOAD_DIR))
 
@@ -214,7 +197,7 @@ class VoiceService:
                 if row and row["config_value"]:
                     return str(row["config_value"]).strip()
         except Exception as e:
-            logger.warning(f"[VoiceService] Failed to fetch tenant config {key}: {e}")
+            logger.warning("[VoiceService] Failed to fetch tenant config %s: %s", key, str(e))
         return None
 
     async def _get_tenant_language(self, tenant_id: int) -> str | None:
@@ -229,7 +212,7 @@ class VoiceService:
         """
         recent_chat = ""
         targeted_keywords = []
-        
+
         # 0. Global Tenant Vocab (highest priority for bias)
         global_vocab_str = await self._get_tenant_config(tenant_id, "whisper_vocab")
         if global_vocab_str:
@@ -240,7 +223,11 @@ class VoiceService:
             async with async_session_factory() as session:
                 # 1. Fetch temporal context (last 3 ASSISTANT chat messages only)
                 res_chat = await session.execute(
-                    text("SELECT content, message_type FROM chat_messages WHERE session_id = :sid AND message_type = 'assistant' ORDER BY created_at DESC LIMIT 3"),
+                    text(
+                        "SELECT content, message_type FROM chat_messages "
+                        "WHERE session_id = :sid AND message_type = 'assistant' "
+                        "ORDER BY created_at DESC LIMIT 3"
+                    ),
                     {"sid": session_id}
                 )
                 chat_rows = res_chat.mappings().all()
@@ -252,26 +239,21 @@ class VoiceService:
             if recent_chat:
                 openai_svc = OpenAIService()
                 weaviate_svc = WeaviateService.get_instance()
-                
-                # Embed the conversation context
+
                 emb_res = await openai_svc.generate_embedding(recent_chat, tenant_id)
-                
-                # Search for top 5 relevant chunks
+
                 results = await asyncio.to_thread(
                     weaviate_svc.search_similar_chunks,
                     emb_res.embedding,
                     SearchOptions(tenant_id=tenant_id, limit=5)
                 )
-                
-                # Aggregate keywords from results (stored in SearchResult.keywords)
+
                 all_kws = []
                 for res in results:
                     if res.keywords:
-                        # Split by comma and clean
                         kws = [k.strip() for k in res.keywords.split(",") if k.strip()]
                         all_kws.extend(kws)
-                
-                # Deduplicate and filter common words
+
                 if all_kws:
                     seen = set()
                     for kw in all_kws:
@@ -279,27 +261,20 @@ class VoiceService:
                         if kw_lower not in seen and kw_lower not in _COMMON_WORDS:
                             targeted_keywords.append(kw)
                             seen.add(kw_lower)
-                    # Limit to top 20 keywords to stay within Whisper prompt limits
                     targeted_keywords = targeted_keywords[:20]
 
         except Exception as e:
-            logger.warning(f"[VoiceService] Failed to fetch dynamic context: {e}")
+            logger.warning("[VoiceService] Failed to fetch dynamic context: %s", str(e))
 
-        # Ensure we don't duplicate global vocab items
-        seen = set(k.lower() for k in targeted_keywords)
-        # Limit to top 15 keywords to stay within Whisper prompt limits
         targeted_keywords = targeted_keywords[:15]
 
-        # Final Prompt Engineering - Minimalist hints (Whisper-style)
-        # Just a list of words separated by commas is the most effective hint format.
         vocab_str = ", ".join(targeted_keywords)
-        
+
         if vocab_str:
             final_prompt = vocab_str
         else:
             final_prompt = ""
 
-        # Add conversation context sparingly
         if recent_chat and len(final_prompt) < 200:
             final_prompt += f" Topic: {recent_chat}."
 
@@ -307,48 +282,48 @@ class VoiceService:
 
     async def _call_gpt4o_audio(self, file_path: Path, tenant_id: int, dynamic_prompt: str, language: str) -> str:
         """
-        Use gpt-4o-transcribe via the Audio API (Whisper replacement).
-        This model is purpose-built for high-fidelity transcription.
+        Use gpt-4o-transcribe via the Audio API.
         """
         try:
-            # Using OpenAIService to handle tenant-specific API keys
             openai_svc = OpenAIService()
             client = await openai_svc.get_client(tenant_id)
 
-            # We use the standard Audio Transcriptions endpoint for this model
             with open(file_path, "rb") as f:
-                logger.info(f"[VoiceService] Requesting GPT-4o Transcription (model=gpt-4o-transcribe, file={file_path.name}, lang={language})")
-                
-                # The SDK handle the multi-part form data
+                # Downgraded from logger.info — fires on every voice message
+                logger.debug(
+                    "[VoiceService] GPT-4o transcription: file=%s lang=%s",
+                    file_path.name, language,
+                )
+
                 transcript = await client.audio.transcriptions.create(
                     model="gpt-4o-transcribe",
                     file=(file_path.name, f, self._mime_for(file_path.suffix)),
                     response_format="text",
                     temperature=0.0,
-                    prompt=dynamic_prompt, # Inject Jargon/Context as a phonetic hint
+                    prompt=dynamic_prompt,
                     language=language,
                 )
 
             text = transcript if isinstance(transcript, str) else str(transcript)
             text = text.strip()
-            
-            logger.info(f"[VoiceService] GPT-4o Transcript Result: '{text}'")
+
+            # Downgraded from logger.info — logged full transcript content in production
+            logger.debug("[VoiceService] Transcript: %d chars", len(text))
             return text
 
         except Exception as exc:
-            logger.error("[VoiceService] GPT-4o transcription failed: {}", exc)
+            logger.error("[VoiceService] GPT-4o transcription failed: %s", str(exc))
             raise RuntimeError(f"GPT-4o Transcription failed: {exc}") from exc
 
     async def _correct_transcript(self, transcript: str, tenant_id: int, keywords: list[str]) -> str:
         """
         Lightweight post-correction pass using GPT-4o-mini.
-        Uses the provided targeted keywords to fix domain-term spelling.
         """
         if not transcript or len(transcript.strip()) < 5:
             return transcript
 
         if not keywords:
-            return transcript  # No keywords → no correction possible/needed
+            return transcript
 
         vocab_str = ", ".join(keywords)
 
@@ -389,24 +364,20 @@ class VoiceService:
             )
 
             corrected = response.content.strip()
-            # Safety check: if the model returned nothing or something wildly different,
-            # fall back to the original transcript
             if not corrected:
                 return transcript
-            # Sanity check: corrected should be roughly the same length
             if len(corrected) > len(transcript) * 2:
                 logger.warning(
-                    f"[VoiceService] Correction output suspiciously long "
-                    f"(original={len(transcript)}, corrected={len(corrected)}), "
-                    "falling back to raw transcript"
+                    "[VoiceService] Correction output suspiciously long (original=%d corrected=%d), falling back.",
+                    len(transcript), len(corrected),
                 )
                 return transcript
 
             return corrected
 
         except Exception as e:
-            logger.warning(f"[VoiceService] Transcript correction failed, using raw: {e}")
-            return transcript  # always fall back — never lose the transcript
+            logger.warning("[VoiceService] Transcript correction failed, using raw: %s", str(e))
+            return transcript
 
     @staticmethod
     def _mime_for(ext: str) -> str:
@@ -425,9 +396,8 @@ class VoiceService:
     @staticmethod
     def _is_audio_silent(audio_bytes: bytes) -> bool:
         """
-        Check if the provided audio bytes are 'silent'
+        Check if the provided audio bytes are 'silent'.
         For container formats (webm, ogg, mp4), we check if the byte size is abnormally small.
-        The frontend handles the actual RMS silence validation before dispatching.
         """
         if len(audio_bytes) < 1000:
             return True
