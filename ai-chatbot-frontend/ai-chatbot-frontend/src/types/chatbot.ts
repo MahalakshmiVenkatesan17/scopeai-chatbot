@@ -33,6 +33,8 @@ export interface ChatMessage {
   createdAt: string;
   tokenCount?: number;
   cost?: number;
+  audioFilePath?: string;
+  isVoiceMessage?: boolean;
 }
 
 export interface VisitorInfo {
@@ -44,6 +46,8 @@ export interface VisitorInfo {
 export interface SendMessageRequest {
   message: string;
   visitorInfo?: VisitorInfo;
+  audioFilePath?: string;
+  isVoiceMessage?: boolean;
 }
 
 export interface SendMessageResponse {

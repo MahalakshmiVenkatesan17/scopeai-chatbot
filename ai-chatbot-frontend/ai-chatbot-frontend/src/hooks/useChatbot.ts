@@ -26,10 +26,18 @@ interface UseChatbotReturn {
   messages: ChatMessage[];
   isMinimized: boolean;
   isTyping: boolean;
+  isTranscribing: boolean;
 
   // Actions
   initialize: (visitorInfo?: VisitorInfo) => Promise<void>;
-  sendMessage: (message: string, visitorInfo?: VisitorInfo) => Promise<void>;
+  sendMessage: (
+    message: string, 
+    visitorInfo?: VisitorInfo,
+    audioFilePath?: string,
+    isVoiceMessage?: boolean
+  ) => Promise<void>;
+  sendVoiceMessage: (audioBlob: Blob) => Promise<{ transcribedText: string; visitorMessage: ChatMessage; assistantMessage: ChatMessage; }>;
+  transcribeVoice: (audioBlob: Blob) => Promise<{ text: string, audioFilePath: string }>;
   endSession: () => Promise<void>;
   toggleMinimized: () => void;
   clearError: () => void;
@@ -52,6 +60,7 @@ export function useChatbot({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isMinimized, setIsMinimized] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
   // Refs
   const sessionRef = useRef<ChatSession | null>(null);
@@ -125,7 +134,12 @@ const handleError = useCallback((err: unknown) => {
   }, [tenantSlug, isInitialized, handleError]);
 
   // Send message
-  const sendMessage = useCallback(async (message: string, visitorInfo?: VisitorInfo) => {
+  const sendMessage = useCallback(async (
+    message: string, 
+    visitorInfo?: VisitorInfo,
+    audioFilePath?: string,
+    isVoiceMessage?: boolean
+  ) => {
     if (!sessionRef.current) {
       throw new Error('Chat session not initialized');
     }
@@ -139,7 +153,9 @@ const handleError = useCallback((err: unknown) => {
       const response = await chatbotAPI.sendMessage(
         sessionRef.current.sessionToken,
         message,
-        visitorInfo
+        visitorInfo,
+        audioFilePath,
+        isVoiceMessage
       );
 
       // Add messages to state
@@ -153,6 +169,74 @@ const handleError = useCallback((err: unknown) => {
       setIsTyping(false);
     }
   }, [handleError, onMessage]);
+
+  // Send voice message (record → transcribe → RAG)
+  const sendVoiceMessage = useCallback(async (audioBlob: Blob) => {
+    if (!sessionRef.current) {
+      throw new Error('Chat session not initialized');
+    }
+
+    setIsTyping(true);
+    setError(null);
+
+    try {
+      const mimeType = audioBlob.type || 'audio/webm';
+      const ext = mimeType.includes('mp4') ? 'mp4'
+        : mimeType.includes('ogg') ? 'ogg'
+        : mimeType.includes('wav') ? 'wav'
+        : 'webm';
+
+      const result = await chatbotAPI.sendVoiceMessage(
+        sessionRef.current.sessionToken,
+        audioBlob,
+        `audio.${ext}`
+      );
+
+      // Append transcribed user bubble + AI reply
+      setMessages(prev => [...prev, result.visitorMessage, result.assistantMessage]);
+
+      onMessage?.(result.transcribedText, result as any);
+      
+      // Return the result so UI can synchronize (e.g. populate input field)
+      return result;
+    } catch (err) {
+      handleError(err);
+      throw err; // Re-throw to allow component-level handling
+    } finally {
+      setIsTyping(false);
+    }
+  }, [handleError, onMessage]);
+
+  // Transcribe voice to text (Speech-to-Text ONLY)
+  const transcribeVoice = useCallback(async (audioBlob: Blob) => {
+    if (!sessionRef.current) {
+      throw new Error('Chat session not initialized');
+    }
+
+    setIsTranscribing(true);
+    setError(null);
+
+    try {
+      const mimeType = audioBlob.type || 'audio/webm';
+      const ext = mimeType.includes('mp4') ? 'mp4'
+        : mimeType.includes('ogg') ? 'ogg'
+        : mimeType.includes('wav') ? 'wav'
+        : 'webm';
+
+      const result = await chatbotAPI.transcribeVoice(
+        sessionRef.current.sessionToken,
+        audioBlob,
+        `audio.${ext}`
+      );
+
+      return result;
+    } catch (err) {
+      handleError(err);
+      throw err;
+    } finally {
+      setIsTranscribing(false);
+    }
+  }, [handleError]);
 
   // Load messages
   const loadMessages = useCallback(async () => {
@@ -226,10 +310,13 @@ const handleError = useCallback((err: unknown) => {
     messages,
     isMinimized,
     isTyping,
+    isTranscribing,
 
     // Actions
     initialize,
     sendMessage,
+    sendVoiceMessage,
+    transcribeVoice,
     endSession,
     toggleMinimized,
     clearError,

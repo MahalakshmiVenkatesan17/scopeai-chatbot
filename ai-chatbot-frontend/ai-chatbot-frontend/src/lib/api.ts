@@ -38,7 +38,7 @@ class ChatbotAPI {
     this.baseURL = baseURL || this.getDefaultApiUrl();
     this.client = axios.create({
       baseURL: this.baseURL,
-      timeout: 30000,
+      timeout: 90000, // extended for Whisper transcription latency
       headers: {
         'Content-Type': 'application/json',
       },
@@ -101,13 +101,17 @@ class ChatbotAPI {
   async sendMessage(
     sessionToken: string,
     message: string,
-    visitorInfo?: VisitorInfo
+    visitorInfo?: VisitorInfo,
+    audioFilePath?: string,
+    isVoiceMessage?: boolean
   ): Promise<SendMessageResponse> {
     const response = await this.client.post<ApiResponse<SendMessageResponse>>(
       `public/chat/session/${sessionToken}/message`,
       {
         message,
         visitorInfo,
+        audio_file_path: audioFilePath,
+        is_voice_message: isVoiceMessage,
       }
     );
 
@@ -166,6 +170,71 @@ class ChatbotAPI {
   updateBaseURL(newBaseURL: string) {
     this.baseURL = newBaseURL;
     this.client.defaults.baseURL = newBaseURL;
+  }
+
+  /** Expose baseURL for callers that need to build raw fetch URLs */
+  getBaseURL(): string {
+    return this.baseURL;
+  }
+
+  /**
+   * Send an audio blob to the voice endpoint.
+   * The backend transcribes it and runs the RAG pipeline.
+   */
+  async sendVoiceMessage(
+    sessionToken: string,
+    audioBlob: Blob,
+    filename = 'audio.webm'
+  ): Promise<{ transcribedText: string; visitorMessage: ChatMessage; assistantMessage: ChatMessage }> {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, filename);
+
+    const response = await this.client.post<
+      ApiResponse<{ transcribedText: string; visitorMessage: ChatMessage; assistantMessage: ChatMessage }>
+    >(
+      `public/chat/session/${sessionToken}/voice`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 90000,
+      }
+    );
+
+    if (!response.data.success || !response.data.data) {
+      throw new Error(response.data.error?.message || 'Voice transcription failed');
+    }
+
+    return response.data.data;
+  }
+
+  /**
+   * Transcribe audio to text WITHOUT sending a message or running RAG.
+   */
+  async transcribeVoice(
+    sessionToken: string,
+    audioBlob: Blob,
+    filename = 'audio.webm'
+  ): Promise<{ text: string, audioFilePath: string }> {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, filename);
+
+    const response = await this.client.post<ApiResponse<{ text: string }>>(
+      `public/chat/session/${sessionToken}/transcribe`,
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 60000,
+      }
+    );
+
+    if (!response.data.success || !response.data.data) {
+      throw new Error(response.data.error?.message || 'Voice transcription failed');
+    }
+
+    return {
+      text: response.data.data.text,
+      audioFilePath: (response.data.data as any).file_path || ''
+    };
   }
 }
 

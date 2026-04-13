@@ -3,9 +3,11 @@
 import React, { useState, useRef, KeyboardEvent } from 'react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/solid';
 import clsx from 'clsx';
+import { VoiceButton } from './VoiceButton';
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
+  onVoiceMessage?: (blob: Blob) => Promise<void>;
   placeholder?: string;
   maxLength?: number;
   disabled?: boolean;
@@ -16,6 +18,7 @@ interface MessageInputProps {
 
 export function MessageInput({
   onSendMessage,
+  onVoiceMessage,
   placeholder = 'Type your message here...',
   maxLength = 2000,
   disabled = false,
@@ -63,10 +66,10 @@ export function MessageInput({
 
   return (
     <div className="p-4 border-t border-gray-100/50 bg-linear-to-t from-gray-50/30 to-white backdrop-blur-sm">
-      <div className="flex gap-3 items-end">
+      <div className="flex gap-2 items-end">
         {/* Text input container */}
         <div className="flex-1 relative">
-          {/* Floating label */}
+          {/* Floating placeholder */}
           {!message && !disabled && (
             <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm font-medium pointer-events-none transition-all duration-200">
               {placeholder}
@@ -101,7 +104,7 @@ export function MessageInput({
               }}
             />
 
-            {/* Input border gradient effect */}
+            {/* Input border gradient overlay */}
             {message && !disabled && (
               <div
                 className="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-200"
@@ -127,6 +130,15 @@ export function MessageInput({
           )}
         </div>
 
+        {/* Voice button */}
+        {onVoiceMessage && (
+          <VoiceButton
+            onAudioReady={onVoiceMessage}
+            disabled={disabled}
+            primaryColor={primaryColor}
+          />
+        )}
+
         {/* Send button */}
         <button
           onClick={handleSend}
@@ -144,14 +156,14 @@ export function MessageInput({
             boxShadow: `0 4px 14px ${primaryColor}40`
           } : {}}
         >
-          {/* Button background animation */}
+          {/* Shimmer hover effect */}
           {!(disabled || !message.trim() || characterCount > maxLength) && (
             <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           )}
 
           <PaperAirplaneIcon className="w-5 h-5 relative z-10 transform group-hover:rotate-12 transition-transform duration-200" />
 
-          {/* Send ripple effect */}
+          {/* Send ripple */}
           {message.trim() && !disabled && (
             <div className="absolute inset-0 rounded-xl opacity-0 group-active:opacity-100 group-active:animate-ping transition-opacity duration-150"
                  style={{ backgroundColor: primaryColor + '40' }} />
@@ -159,7 +171,7 @@ export function MessageInput({
         </button>
       </div>
 
-      {/* Input suggestions or quick actions could go here */}
+      {/* Quick suggestions */}
       {!message && !disabled && (
         <div className="flex gap-2 mt-3 animate-fadeIn" style={{ animationDelay: '0.3s' }}>
           {['Hello!', 'How can I help?', 'Tell me more'].map((suggestion, index) => (

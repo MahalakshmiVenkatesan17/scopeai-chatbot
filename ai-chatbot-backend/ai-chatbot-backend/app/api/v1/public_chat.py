@@ -2,8 +2,9 @@ import secrets
 import uuid
 from datetime import datetime, timezone
  
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, File, Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+
  
 from app.core.database import get_db
 from app.core.exceptions import BadRequestError, NotFoundError
@@ -239,6 +240,15 @@ async def send_public_message(
     from app.services.langgraph_service import get_langgraph_service
 
     message_repo = MessageRepository(db)
+    
+    # Extract voice metadata if available
+    audio_file_path = body.get("audio_file_path")
+    is_voice_message = body.get("is_voice_message", False)
+
+    logger.info(
+        f"[ChatAPI] Incoming Message: session={session_id}, "
+        f"is_voice={is_voice_message}, path={audio_file_path}, keys={list(body.keys())}"
+    )
 
     # Save user message
     user_msg = await message_repo.create({
@@ -246,6 +256,8 @@ async def send_public_message(
         "tenant_id": tenant_id,
         "message_type": "user",
         "content": content,
+        "audio_file_path": audio_file_path,
+        "is_voice_message": is_voice_message,
     })
 
     # Run LangGraph RAG pipeline (singleton)
@@ -376,3 +388,176 @@ async def clear_public_memory(
     await db.commit()
  
     return {"success": True, "message": "Conversation memory cleared"}
+
+
+@router.post("/session/{session_token}/voice")
+async def send_public_voice_message(
+    session_token: str,
+    request: Request,
+    audio: UploadFile = File(..., description="Audio recording (webm/mp4/wav/ogg/mp3)"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Accept a voice recording from a public widget session.
+    1. Validate session token.
+    2. Save audio file to disk.
+    3. Transcribe via OpenAI Whisper.
+    4. Run the RAG pipeline on the transcribed text.
+    5. Persist both user and assistant messages with voice metadata.
+    6. Return transcript + message pair.
+    """
+    import json
+    import time
+
+    from app.services.langgraph_service import get_langgraph_service
+    from app.services.voice_service import get_voice_service
+
+    # ── 1. Validate session ──────────────────────────────────────────────────
+    session_data = await _validate_session_token(session_token)
+    session_id = session_data["sessionId"]
+    tenant_id = session_data["tenantId"]
+    request.state.tenant_id = tenant_id
+
+    # ── 2. Read & validate audio payload ────────────────────────────────────
+    audio_bytes = await audio.read()
+    if not audio_bytes:
+        raise BadRequestError("Audio file is empty")
+    if len(audio_bytes) > 25 * 1024 * 1024:  # 25 MB hard cap (Whisper limit)
+        raise BadRequestError("Audio file exceeds 25 MB limit")
+
+    # ── 3. Transcribe ────────────────────────────────────────────────────────
+    voice_svc = get_voice_service()
+    try:
+        transcribed_text, audio_file_path = await voice_svc.transcribe(
+            audio_bytes=audio_bytes,
+            session_id=session_id,
+            tenant_id=tenant_id,
+            original_filename=audio.filename or "audio.webm",
+        )
+    except RuntimeError as exc:
+        raise BadRequestError(f"Transcription failed: {exc}")
+
+    if not transcribed_text.strip():
+        raise BadRequestError("Could not transcribe audio — please try again")
+
+    # ── 4. Persist user (voice) message ─────────────────────────────────────
+    message_repo = MessageRepository(db)
+    user_msg = await message_repo.create({
+        "session_id": session_id,
+        "tenant_id": tenant_id,
+        "message_type": "user",
+        "content": transcribed_text,
+        "audio_file_path": audio_file_path,
+        "is_voice_message": True,
+    })
+
+    # ── 5. RAG pipeline ──────────────────────────────────────────────────────
+    langgraph = get_langgraph_service()
+    start_time = time.time()
+    ai_result = await langgraph.generate_response(
+        message=transcribed_text,
+        tenant_id=tenant_id,
+        db=db,
+        session_id=session_id,
+        use_documents=True,
+    )
+    processing_time = int((time.time() - start_time) * 1000)
+
+    # ── 6. Persist assistant message ─────────────────────────────────────────
+    context_json = json.dumps(ai_result.context_chunks) if ai_result.context_chunks else None
+    assistant_msg = await message_repo.create({
+        "session_id": session_id,
+        "tenant_id": tenant_id,
+        "message_type": "assistant",
+        "content": ai_result.content,
+        "token_count": ai_result.token_count,
+        "model_used": ai_result.model or "gpt-4o-mini",
+        "processing_time_ms": processing_time,
+        "cost_estimate": ai_result.cost,
+        "context_chunks": context_json,
+    })
+
+    # ── 7. Housekeeping ──────────────────────────────────────────────────────
+    session_repo = ChatSessionRepository(db)
+    await session_repo.update_last_activity(session_id)
+
+    analytics_repo = AnalyticsRepository(db)
+    await analytics_repo.increment_tenant_metric(tenant_id, "messages_sent")
+
+    logger.info(
+        f"[Voice] Public voice message processed: session={session_id}, "
+        f"chars={len(transcribed_text)}, time={processing_time}ms"
+    )
+
+    return {
+        "success": True,
+        "data": {
+            "transcribedText": transcribed_text,
+            "visitorMessage": {
+                "id": user_msg.id,
+                "content": user_msg.content,
+                "role": "visitor",
+                "isVoiceMessage": True,
+                "createdAt": user_msg.created_at.isoformat().replace("+00:00", "Z")
+                if user_msg.created_at else None,
+            },
+            "assistantMessage": {
+                "id": assistant_msg.id,
+                "content": assistant_msg.content,
+                "role": "assistant",
+                "createdAt": assistant_msg.created_at.isoformat().replace("+00:00", "Z")
+                if assistant_msg.created_at else None,
+            },
+        },
+    }
+
+
+@router.post("/session/{session_token}/transcribe")
+async def transcribe_only(
+    session_token: str,
+    request: Request,
+    audio: UploadFile = File(..., description="Audio recording (webm/mp4/wav/ogg/mp3)"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Accept a voice recording and return ONLY the transcribed text.
+    1. Validate session token.
+    2. Transcribe via OpenAI Whisper (context-aware).
+    3. Return transcription for UI population.
+    """
+    from app.services.voice_service import get_voice_service
+
+    # 1. Validate session
+    session_data = await _validate_session_token(session_token)
+    session_id = session_data["sessionId"]
+    tenant_id = session_data["tenantId"]
+    request.state.tenant_id = tenant_id
+
+    # 2. Read & validate audio payload
+    audio_bytes = await audio.read()
+    if not audio_bytes:
+        raise BadRequestError("Audio file is empty")
+    if len(audio_bytes) > 25 * 1024 * 1024:
+        raise BadRequestError("Audio file exceeds 25 MB limit")
+
+    # 3. Transcribe (Context-Aware)
+    voice_svc = get_voice_service()
+    try:
+        transcribed_text, _ = await voice_svc.transcribe(
+            audio_bytes=audio_bytes,
+            session_id=session_id,
+            tenant_id=tenant_id,
+            original_filename=audio.filename or "audio.webm",
+        )
+    except RuntimeError as exc:
+        raise BadRequestError(f"Transcription failed: {exc}")
+
+    if not transcribed_text.strip():
+        raise BadRequestError("Could not transcribe audio — please try again")
+
+    return {
+        "success": True,
+        "data": {
+            "text": transcribed_text
+        }
+    }

@@ -58,6 +58,8 @@ class DocumentProcessingService:
             if not chunks:
                 raise ValueError("Failed to create text chunks from document")
 
+            # Keywords are now extracted per-chunk during the embedding phase for better STT context.
+
             # Insert chunks into DB
             chunk_ids = await self._insert_chunks(document_id, tenant_id, chunks)
 
@@ -94,6 +96,100 @@ class DocumentProcessingService:
                 embeddings_created=0,
                 error=error_msg,
             )
+
+    async def _extract_chunk_keywords(self, tenant_id: int, content: str) -> str:
+        """Extract 5-10 technical keywords from a single chunk for STT context."""
+        try:
+            prompt = (
+                "Extract 5-10 technical keywords, proper nouns, or jargon from the text below. "
+                "These will be used to prime a Speech-to-Text engine. "
+                "Return ONLY a comma-separated list. No prose.\n\n"
+                f"TEXT:\n{content[:2000]}"
+            )
+            
+            from app.services.openai_service import ChatCompletionRequest
+            response = await self.openai_service.generate_chat_completion(
+                ChatCompletionRequest(
+                    messages=[{"role": "user", "content": prompt}],
+                    tenant_id=tenant_id,
+                    model="gpt-4o-mini",
+                    max_tokens=50,
+                    temperature=0.0,
+                )
+            )
+            return response.content.strip().strip(",")
+        except Exception as e:
+            logger.warning(f"Failed to extract keywords for chunk: {e}")
+            return ""
+
+    async def _update_tenant_whisper_vocab(self, tenant_id: int, new_keywords: list[str]) -> None:
+        """Aggregate and upsert unique technical keywords into tenant's STT vocabulary."""
+        try:
+            async with async_session_factory() as session:
+                # 1. Fetch current vocab
+                res = await session.execute(
+                    text("SELECT config_value FROM tenant_configurations WHERE tenant_id = :tid AND config_key = 'whisper_vocab'"),
+                    {"tid": tenant_id}
+                )
+                row = res.mappings().first()
+                current_vocab = str(row["config_value"]) if row and row["config_value"] else ""
+                
+                # 2. Merge and deduplicate
+                vocab_set = set(k.strip().lower() for k in current_vocab.split(",") if k.strip())
+                added_any = False
+                for kw in new_keywords:
+                    k_clean = kw.strip().lower()
+                    if k_clean and k_clean not in vocab_set:
+                        vocab_set.add(k_clean)
+                        added_any = True
+                
+                if not added_any:
+                    return
+
+                # 3. Save back (Upsert)
+                new_vocab_str = ", ".join(sorted(vocab_set))
+                await session.execute(
+                    text("""
+                        INSERT INTO tenant_configurations (tenant_id, config_key, config_value)
+                        VALUES (:tid, 'whisper_vocab', :v)
+                        ON DUPLICATE KEY UPDATE config_value = :v, updated_at = NOW()
+                    """),
+                    {"tid": tenant_id, "v": new_vocab_str}
+                )
+                await session.commit()
+                logger.info(f"Updated STT vocabulary for tenant {tenant_id} with {len(new_keywords)} new terms")
+        except Exception as e:
+            logger.error(f"Failed to update tenant STT vocabulary: {e}")
+
+    async def refresh_tenant_stt_vocab(self, tenant_id: int) -> None:
+        """
+        Full rebuild of the tenant's transcription vocabulary by querying Weaviate.
+        Ensures the list only contains terms from active documents.
+        """
+        try:
+            # 1. Fetch all unique keywords from Weaviate
+            keywords = await asyncio.to_thread(self.weaviate_service.get_all_tenant_keywords, tenant_id)
+            
+            if not keywords:
+                # If no keywords remain, optionally clear or set to empty
+                new_vocab_str = ""
+            else:
+                new_vocab_str = ", ".join(keywords)
+
+            # 2. Update config
+            async with async_session_factory() as session:
+                await session.execute(
+                    text("""
+                        INSERT INTO tenant_configurations (tenant_id, config_key, config_value)
+                        VALUES (:tid, 'whisper_vocab', :v)
+                        ON DUPLICATE KEY UPDATE config_value = :v, updated_at = NOW()
+                    """),
+                    {"tid": tenant_id, "v": new_vocab_str}
+                )
+                await session.commit()
+                logger.info(f"Refreshed STT vocabulary for tenant {tenant_id}. Total terms: {len(keywords)}")
+        except Exception as e:
+            logger.error(f"Failed to refresh tenant STT vocabulary: {e}")
 
     # ------------------------------------------------------------------
     # Reprocess
@@ -142,6 +238,10 @@ class DocumentProcessingService:
                 await session.commit()
 
             logger.info(f"Document {document_id} deleted successfully from all areas")
+            
+            # Sync STT vocabulary (remove stale jargon)
+            await self.refresh_tenant_stt_vocab(tenant_id)
+            
             return True
 
         except Exception as e:
@@ -246,6 +346,7 @@ class DocumentProcessingService:
     ) -> None:
         """Generate embeddings for all chunks in batches and store in Weaviate."""
         try:
+            document_all_keywords = []
             # Fetch document metadata for embedding chunks
             doc_title = ""
             doc_filename = ""
@@ -300,8 +401,11 @@ class DocumentProcessingService:
 
                         content = str(chunk_row["content"])
 
-                        # Generate embedding
-                        emb_response = await self.openai_service.generate_embedding(content, tenant_id)
+                        # Generate embedding and keywords in parallel
+                        emb_task = self.openai_service.generate_embedding(content, tenant_id)
+                        kw_task = self._extract_chunk_keywords(tenant_id, content)
+                        
+                        emb_response, keywords = await asyncio.gather(emb_task, kw_task)
 
                         # Store in Weaviate (sync call via thread)
                         weaviate_id = await asyncio.to_thread(
@@ -316,8 +420,14 @@ class DocumentProcessingService:
                             doc_filename,    # document_filename
                             category_name,   # category_name
                             int(chunk_row["token_count"] or 0),
-                            None,
+                            keywords,        # keywords
+                            None,            # metadata
                         )
+
+                        # Collect keywords for global vocab
+                        if keywords:
+                            kws = [k.strip() for k in keywords.split(",") if k.strip()]
+                            document_all_keywords.extend(kws)
 
                         # Update chunk with weaviate_id
                         async with async_session_factory() as session:
@@ -378,6 +488,10 @@ class DocumentProcessingService:
                     {"cnt": completed_count, "did": document_id},
                 )
                 await session.commit()
+
+            # Final step: Update tenant-level STT vocabulary with all keywords from this document
+            if document_all_keywords:
+                await self._update_tenant_whisper_vocab(tenant_id, document_all_keywords)
 
         except Exception as e:
             logger.error("Embedding generation process failed", error=str(e))

@@ -47,7 +47,7 @@ CHAT_PRICING: dict[str, dict[str, float]] = {
     "gpt-3.5-turbo-16k": {"input": 0.003, "output": 0.004},
     "gpt-4o": {"input": 0.005, "output": 0.015},
     "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
-    "gpt-5-mini": {"input": 0.0001, "output": 0.0004},
+    "gpt-4o-transcribe": {"input": 0.005, "output": 0.015}, # Purpose-built STT
 }
 
 EMBEDDING_PRICING: dict[str, float] = {
@@ -74,7 +74,7 @@ class OpenAIService:
     ) -> ChatCompletionResponse:
         start = time.time()
         try:
-            client = await self._get_client(request.tenant_id)
+            client = await self.get_client(request.tenant_id)
             model = request.model or self.default_model
 
             response = await client.chat.completions.create(
@@ -139,13 +139,13 @@ class OpenAIService:
         self, request: ChatCompletionRequest
     ):
         """Async generator yielding content chunks, then a final ChatCompletionResponse."""
-        client = await self._get_client(request.tenant_id)
+        client = await self.get_client(request.tenant_id)
         model = request.model or self.default_model
 
         stream = await client.chat.completions.create(
             model=model,
             messages=request.messages,  # type: ignore[arg-type]
-            max_tokens=request.max_tokens or settings.OPENAI_MAX_TOKENS,
+            max_completion_tokens=request.max_tokens or settings.OPENAI_MAX_TOKENS,
             temperature=request.temperature if request.temperature is not None else settings.OPENAI_TEMPERATURE,
             stream=True,
             stream_options={"include_usage": True},
@@ -201,7 +201,7 @@ class OpenAIService:
                 logger.debug("Embedding served from cache", tenant_id=tenant_id)
                 return EmbeddingResponse(**cached)
 
-            client = await self._get_client(tenant_id)
+            client = await self.get_client(tenant_id)
 
             response = await client.embeddings.create(
                 model=self.embedding_model,
@@ -352,7 +352,7 @@ class OpenAIService:
     # ------------------------------------------------------------------
     # Private helpers
     # ------------------------------------------------------------------
-    async def _get_client(self, tenant_id: int) -> AsyncOpenAI:
+    async def get_client(self, tenant_id: int) -> AsyncOpenAI:
         """Return tenant-specific OpenAI client (cached), or default."""
         # Check cache first to avoid DB round-trip + client creation per request
         now = time.time()

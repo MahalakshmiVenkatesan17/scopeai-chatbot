@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, Query, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+
 
 from app.api.deps import CurrentUser, get_current_user
 from app.core.database import get_db
@@ -373,5 +374,125 @@ async def export_session(
                 for m in messages
             ],
             "exportedAt": datetime.now(timezone.utc).isoformat(),
+        },
+    }
+
+
+@router.post("/sessions/{session_id}/voice")
+async def send_voice_message(
+    session_id: str,
+    audio: UploadFile = File(..., description="Audio recording (webm/mp4/wav/ogg/mp3)"),
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Authenticated voice message endpoint.
+    Accepts a multipart audio file, transcribes it with Whisper,
+    runs the RAG pipeline, saves both messages, and returns the pair.
+    """
+    import json
+    import time
+
+    from app.services.langgraph_service import get_langgraph_service
+    from app.services.voice_service import get_voice_service
+    from app.core.exceptions import BadRequestError
+
+    # Validate session belongs to user
+    session_repo = ChatSessionRepository(db)
+    session = await session_repo.get_by_id(session_id)
+    if not session or session.tenant_id != current_user.tenant_id:
+        raise NotFoundError("Session not found")
+
+    # Read & validate audio
+    audio_bytes = await audio.read()
+    if not audio_bytes:
+        raise BadRequestError("Audio file is empty")
+    if len(audio_bytes) > 25 * 1024 * 1024:
+        raise BadRequestError("Audio file exceeds 25 MB limit")
+
+    # Transcribe
+    voice_svc = get_voice_service()
+    try:
+        transcribed_text, audio_file_path = await voice_svc.transcribe(
+            audio_bytes=audio_bytes,
+            session_id=session_id,
+            tenant_id=current_user.tenant_id,
+            original_filename=audio.filename or "audio.webm",
+        )
+    except RuntimeError as exc:
+        raise BadRequestError(f"Transcription failed: {exc}")
+
+    if not transcribed_text.strip():
+        raise BadRequestError("Could not transcribe audio — please try again")
+
+    message_repo = MessageRepository(db)
+
+    # Save user (voice) message
+    user_msg = await message_repo.create({
+        "session_id": session_id,
+        "tenant_id": current_user.tenant_id,
+        "message_type": "user",
+        "content": transcribed_text,
+        "audio_file_path": audio_file_path,
+        "is_voice_message": True,
+    })
+
+    # RAG pipeline
+    langgraph = get_langgraph_service()
+    start_time = time.time()
+    ai_result = await langgraph.generate_response(
+        message=transcribed_text,
+        tenant_id=current_user.tenant_id,
+        db=db,
+        session_id=session_id,
+        use_documents=True,
+    )
+    processing_time = int((time.time() - start_time) * 1000)
+
+    # Save assistant message
+    context_json = json.dumps(ai_result.context_chunks) if ai_result.context_chunks else None
+    assistant_msg = await message_repo.create({
+        "session_id": session_id,
+        "tenant_id": current_user.tenant_id,
+        "message_type": "assistant",
+        "content": ai_result.content,
+        "token_count": ai_result.token_count,
+        "processing_time_ms": processing_time,
+        "model_used": ai_result.model or "gpt-5-mini",
+        "cost_estimate": ai_result.cost,
+        "context_chunks": context_json,
+    })
+
+    await session_repo.update_last_activity(session_id)
+
+    analytics_repo = AnalyticsRepository(db)
+    await analytics_repo.increment_tenant_metric(current_user.tenant_id, "messages_sent")
+
+    logger.info(
+        f"[Voice] Auth voice message: session={session_id}, "
+        f"chars={len(transcribed_text)}, time={processing_time}ms"
+    )
+
+    return {
+        "success": True,
+        "data": {
+            "transcribedText": transcribed_text,
+            "userMessage": {
+                "id": user_msg.id,
+                "content": user_msg.content,
+                "messageType": "user",
+                "isVoiceMessage": True,
+                "createdAt": user_msg.created_at.isoformat() if user_msg.created_at else None,
+            },
+            "assistantMessage": {
+                "id": assistant_msg.id,
+                "content": assistant_msg.content,
+                "messageType": "assistant",
+                "tokenCount": assistant_msg.token_count,
+                "modelUsed": assistant_msg.model_used,
+                "processingTimeMs": assistant_msg.processing_time_ms,
+                "costEstimate": float(assistant_msg.cost_estimate) if assistant_msg.cost_estimate else None,
+                "createdAt": assistant_msg.created_at.isoformat() if assistant_msg.created_at else None,
+            },
         },
     }

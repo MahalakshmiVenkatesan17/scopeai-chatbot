@@ -76,3 +76,14 @@ class ChatExportResponse(BaseModel):
     exported_at: datetime = Field(alias="exportedAt")
 
     model_config = {"populate_by_name": True, "by_alias": True}
+
+
+class VoiceMessageResponse(BaseModel):
+    """Response returned by the voice transcription + chat endpoints."""
+    transcribed_text: str = Field(alias="transcribedText")
+    # Visitor / user message that was stored
+    visitor_message: dict = Field(alias="visitorMessage")
+    # LLM assistant reply
+    assistant_message: dict = Field(alias="assistantMessage")
+
+    model_config = {"populate_by_name": True, "by_alias": True}

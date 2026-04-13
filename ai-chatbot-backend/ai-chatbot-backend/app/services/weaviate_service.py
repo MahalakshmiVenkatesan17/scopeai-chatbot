@@ -25,6 +25,7 @@ class SearchResult:
     document_filename: str = ""
     category_name: str = ""
     token_count: int = 0
+    keywords: str = ""
 
 
 @dataclass
@@ -137,7 +138,15 @@ class WeaviateService:
         client = self._get_client()
 
         if client.collections.exists(COLLECTION_NAME):
-            logger.info("Weaviate schema already exists")
+            logger.info("Weaviate schema check: checking properties")
+            collection = client.collections.get(COLLECTION_NAME)
+            config = collection.config.get()
+            props = [p.name for p in config.properties]
+            if "keywords" not in props:
+                logger.info("Adding 'keywords' property to Weaviate collection")
+                collection.config.add_property(
+                    Property(name="keywords", data_type=DataType.TEXT, description="Extracted jargon/keywords for STT")
+                )
             self._schema_initialized = True
             return
 
@@ -155,6 +164,7 @@ class WeaviateService:
                 Property(name="documentFilename", data_type=DataType.TEXT, description="Original filename"),
                 Property(name="categoryId", data_type=DataType.INT, description="Category ID"),
                 Property(name="categoryName", data_type=DataType.TEXT, description="Category name"),
+                Property(name="keywords", data_type=DataType.TEXT, description="Extracted jargon/keywords for STT"),
                 Property(name="isPublic", data_type=DataType.BOOL, description="Public access flag"),
                 Property(name="tokenCount", data_type=DataType.INT, description="Token count"),
                 Property(name="createdAt", data_type=DataType.DATE, description="Creation timestamp"),
@@ -180,6 +190,7 @@ class WeaviateService:
         document_filename: str = "",
         category_name: str = "",
         token_count: int = 0,
+        keywords: str = "",
         metadata: dict | None = None,
     ) -> str:
         client = self._get_client()
@@ -197,6 +208,7 @@ class WeaviateService:
             "documentFilename": document_filename,
             "categoryId": 0,
             "categoryName": category_name,
+            "keywords": keywords,
             "isPublic": False,
             "tokenCount": token_count,
             "createdAt": datetime.now(timezone.utc).isoformat(),
@@ -283,6 +295,7 @@ class WeaviateService:
                     document_filename=props.get("documentFilename", ""),
                     category_name=props.get("categoryName", ""),
                     token_count=props.get("tokenCount", 0),
+                    keywords=props.get("keywords", ""),
                 )
             )
 
@@ -432,6 +445,31 @@ class WeaviateService:
             "tenantObjects": tenant_objects,
             "schemaClasses": schema_classes,
         }
+
+    def get_all_tenant_keywords(self, tenant_id: int) -> list[str]:
+        """Fetch all unique technical keywords for a tenant across all active documents."""
+        client = self._get_client()
+        collection = client.collections.get(COLLECTION_NAME)
+
+        try:
+            # Query only the 'keywords' property for all chunks of the tenant
+            response = collection.query.fetch_objects(
+                filters=Filter.by_property("tenantId").equal(tenant_id),
+                return_properties=["keywords"],
+                limit=1000, # Adjust if tenant has > 1000 chunks (though keywords are redundant)
+            )
+
+            all_keywords = set()
+            for obj in response.objects:
+                kws_str = obj.properties.get("keywords")
+                if kws_str and isinstance(kws_str, str):
+                    kws = [k.strip().lower() for k in kws_str.split(",") if k.strip()]
+                    all_keywords.update(kws)
+            
+            return sorted(list(all_keywords))
+        except Exception as e:
+            logger.error("Failed to fetch tenant keywords from Weaviate", tenant_id=tenant_id, error=str(e))
+            return []
 
     # ------------------------------------------------------------------
     # Health

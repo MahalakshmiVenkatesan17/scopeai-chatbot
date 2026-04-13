@@ -200,7 +200,7 @@ class LangGraphService:
                 options=SearchOptions(
                     tenant_id=state["tenant_id"],
                     limit=10,
-                    threshold=0.5,
+                    threshold=0.20,
                 ),
             )
 
@@ -211,8 +211,8 @@ class LangGraphService:
                     "has_relevant_context": False,
                 }
 
-            # NEW: Only treat context as relevant if best score clears the bar
-            RELEVANCE_THRESHOLD = 0.50  # tune as needed (0.0–1.0 cosine similarity)
+            # NEW: Lower threshold to 0.20 to allow fuzzy matching for typographical errors and misspelled names
+            RELEVANCE_THRESHOLD = 0.20  # tune as needed (0.0–1.0 cosine similarity)
             top_score = search_results[0].score if search_results else 0.0
 
             if top_score < RELEVANCE_THRESHOLD:
@@ -289,7 +289,8 @@ class LangGraphService:
                 # ✅ No relevant docs found
                 system_prompt += (
                     "\n\nYou do not have information to answer this query. "
-                    "Analyze the user's query and strictly apply Refusal Rule 3a (if it's a general/unrelated topic) OR Refusal Rule 3b (if it's about the domain but you lack info). "
+                    "If the user simply says a greeting ('hi', 'hello'), politely greet them and skip the refusal rule completely. "
+                    "Otherwise, analyze the user's query and strictly apply Refusal Rule 3a (if it's a general/unrelated topic) OR Refusal Rule 3b (if it's about the domain but you lack info). "
                     "DO NOT mention documents."
                 )
 
@@ -322,7 +323,7 @@ class LangGraphService:
         except Exception as e:
             logger.error("Failed to generate AI response", error=str(e))
             return {
-                "ai_response": "I'm sorry, I encountered an error generating a response. Please try again.",
+                "ai_response": f"I'm sorry, I encountered an error: {str(e)}. Please share this with the developer.",
                 "token_count": 0,
                 "model": "error",
                 "usage": {"promptTokens": 0, "completionTokens": 0, "totalTokens": 0},
@@ -361,13 +362,14 @@ class LangGraphService:
                     f"You are {name}, an intelligent AI assistant. "
                     "Your primary responsibility is to provide professional and accurate answers based on the allowed context.\n"
                     "Guidelines:\n"
-                    "1. Be helpful and flexible. Understand the user's intent even if there are typos or alternative phrasing.\n"
+                    "1. Be incredibly helpful and flexible. Users frequently make typos, misspell names (e.g. 'Arun Rai' instead of 'Arun Roy'), or use poor grammar. Proactively match their intended meaning to the provided context and gently offer the correct information.\n"
                     "2. Base your factual answers solely on the context provided to you. Do NOT hallucinate data.\n"
                     "3. Refusal Rules. You MUST adhere to these exact responses when you cannot answer:\n"
                     f"   a) For general, emotional, personal, or conversational questions completely outside the scope of {tenant_name}, use this EXACT message:\n"
                     f"      \"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\"\n"
                     f"   b) For questions related to {tenant_name} where the provided context does not contain the answer, use this EXACT message:\n"
                     f"      \"I don't have that information. Is there something else about {tenant_name} I can help with?\"\n"
+                    f"   c) EXCEPTION: If the user simply says a greeting (like 'hi', 'hello', 'hey', 'welcome'), greet them back politely and ask how you can help them with {tenant_name}.\n"
                     "4. CRITICAL: NEVER use words like 'documents', 'provided context', 'uploaded files', or 'knowledge base'. The user does not know about the backend system. Answer generically.\n"
                     "5. Never return an empty response string. Always say something helpful."
                 )
@@ -377,6 +379,7 @@ class LangGraphService:
 
         return (
             "You are a helpful AI assistant. Answer clearly based on context without mentioning 'context' or 'documents'. "
+            f"If the user says a basic greeting (e.g. 'hi', 'hello'), politely greet them and ask how you can help with {tenant_name}.\n"
             f"If you receive a general, emotional, personal, or conversational query, use this exact refusal message: "
             f"\"I'm an AI assistant focused exclusively on {tenant_name} related queries. I don't have information on general topics outside this scope. Please direct your questions about {tenant_name} to me, and I'll be happy to help.\"\n"
             f"If you receive a query about the domain but lack information, use this exact refusal message: "

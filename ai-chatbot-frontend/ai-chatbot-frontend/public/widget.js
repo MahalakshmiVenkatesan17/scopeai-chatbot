@@ -478,6 +478,49 @@
         @media(max-width:480px){
           #aicw-window-v1{width:calc(100vw - 20px)!important;height:78vh!important;max-height:90vh!important;}
         }
+
+        /* ── Voice button ── */
+        .aicw-mic-btn-v1{
+          width:36px!important;height:36px!important;border-radius:50%!important;
+          border:none!important;cursor:pointer!important;flex-shrink:0!important;
+          display:flex!important;align-items:center!important;justify-content:center!important;
+          transition:all .25s ease!important;position:relative!important;overflow:hidden!important;
+          background:linear-gradient(135deg,${p},${pDark})!important;
+          color:white!important;box-shadow:0 2px 8px ${p}50!important;
+        }
+        .aicw-mic-btn-v1:hover:not(:disabled){transform:scale(1.08)!important;opacity:.9!important;}
+        .aicw-mic-btn-v1.aicw-mic-recording-v1{
+          background:#ef4444!important;box-shadow:0 2px 10px #ef444460!important;
+          transform:scale(1.05)!important;
+        }
+        .aicw-mic-btn-v1.aicw-mic-processing-v1{
+          background:#9ca3af!important;cursor:not-allowed!important;
+        }
+        .aicw-mic-pulse-v1{
+          position:absolute!important;inset:0!important;border-radius:50%!important;
+          background:#ef444460!important;animation:aicw-mic-pulse 1.2s infinite!important;
+        }
+        @keyframes aicw-mic-pulse{
+          0%{transform:scale(1);opacity:.7}
+          70%{transform:scale(1.5);opacity:0}
+          100%{transform:scale(1.5);opacity:0}
+        }
+        .aicw-mic-elapsed-v1{
+          font-size:10px!important;color:#ef4444!important;font-weight:700!important;
+          margin-right:4px!important;min-width:28px!important;text-align:center!important;
+          font-family:'Inter',monospace!important;
+        }
+        .aicw-transcribing-v1 {
+          animation: aicw-pulse-ring-v1 2s infinite !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 4px !important;
+        }
+        @keyframes aicw-pulse-ring-v1 {
+          0% { opacity: 0.6; }
+          50% { opacity: 1; }
+          100% { opacity: 0.6; }
+        }
       `;
       document.head.appendChild(style);
     }
@@ -500,7 +543,7 @@
               ${avatarHtml}
               <div>
                 <div class="aicw-name-v1">${this.config.chatbotName}</div>
-                <div class="aicw-status-v1">
+                <div class="aicw-status-v1" id="aicw-status-v1">
                   <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block;"></span>
                   Online
                 </div>
@@ -602,12 +645,27 @@
     }
 
     buildChatInterface() {
+      const micSupported =
+        typeof MediaRecorder !== 'undefined' &&
+        !!navigator?.mediaDevices?.getUserMedia;
+
+      const micBtn = micSupported
+        ? `<span class="aicw-mic-elapsed-v1" id="aicw-mic-elapsed-v1" style="display:none;">0:00</span>
+           <button class="aicw-mic-btn-v1" id="aicw-mic-btn-v1" title="Voice message">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+               <path d="M12 1a4 4 0 014 4v6a4 4 0 01-8 0V5a4 4 0 014-4z"/>
+               <path d="M19 10a1 1 0 10-2 0 5 5 0 01-10 0 1 1 0 10-2 0 7 7 0 006 6.93V19H9a1 1 0 000 2h6a1 1 0 000-2h-2v-2.07A7 7 0 0019 10z"/>
+             </svg>
+           </button>`
+        : '';
+
       return `
         <div class="aicw-messages-v1" id="aicw-messages-v1"></div>
         <div class="aicw-input-container-v1">
           <input type="text" class="aicw-input-v1" id="aicw-input-v1"
                  placeholder="${this.config.placeholderText}"
                  maxlength="${this.config.maxMessageLength}" />
+          ${micBtn}
           <button class="aicw-send-btn-v1" id="aicw-send-btn-v1">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
@@ -693,6 +751,17 @@
       return id;
     }
 
+    updateStatus(text, isTranscribing = false) {
+      const statusEl = this.container.querySelector("#aicw-status-v1");
+      if (!statusEl) return;
+
+      if (isTranscribing) {
+        statusEl.innerHTML = `<span class="aicw-transcribing-v1">🎙️ ${text}</span>`;
+      } else {
+        statusEl.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block;"></span> ${text}`;
+      }
+    }
+
     /* ──────────────────────── EVENT LISTENERS ────────────────────────────── */
     attachEventListeners() {
       const toggleBtn = this.container.querySelector("#aicw-toggle-btn-v1");
@@ -735,6 +804,9 @@
         if (e.key === "Enter") this.sendMessage();
       });
       input.focus();
+
+      // Wire up voice button if present
+      this.initVoiceRecorder();
     }
 
     /* ──────────────────────── CHAT OPEN / CLOSE ──────────────────────────── */
@@ -877,13 +949,13 @@
       const typing = document.createElement("div");
       typing.className = "aicw-message-row-v1";
       typing.id = "aicw-typing-container-v1";
-      
+
       const typingAvatar = this.config.showAgentAvatar
         ? `<div class="aicw-msg-avatar-v1" style="transform:translateY(10px)">
              ${this.config.chatbotAvatar ? `<img src="${this.config.chatbotAvatar}" style="width:100%;height:100%;object-fit:cover;" />` : "AI"}
            </div>`
         : "";
-        
+
       typing.innerHTML = `${typingAvatar}<div class="aicw-typing-v1"><span></span><span></span><span></span></div>`;
       msgDiv.appendChild(typing);
       msgDiv.scrollTop = msgDiv.scrollHeight;
@@ -906,12 +978,329 @@
       }
     }
 
-    appendUserBubble(text, scroll = true) {
+    /* ─────────────────── VOICE RECORDER ─────────────────────────────────── */
+
+    _chooseMimeType() {
+      const candidates = [
+        'audio/webm;codecs=opus', 'audio/webm',
+        'audio/ogg;codecs=opus', 'audio/ogg', 'audio/mp4'
+      ];
+      for (const t of candidates) {
+        if (MediaRecorder.isTypeSupported(t)) return t;
+      }
+      return 'audio/webm';
+    }
+
+    initVoiceRecorder() {
+      const micBtn = this.container.querySelector('#aicw-mic-btn-v1');
+      if (!micBtn) return;
+
+      this._voiceState = 'idle'; // idle | recording | processing
+      this._mediaRecorder = null;
+      this._audioChunks = [];
+      this._currentVoicePath = null;
+      this._micStream = null;
+      this._elapsedTimer = null;
+      
+      this._audioCtx = null;
+      this._analyser = null;
+      this._scriptProcessor = null;
+      this._pcmData = [];
+      this._maxVolume = 0;
+      this._speechFrames = 0;
+
+      micBtn.addEventListener('click', () => this.handleVoiceTap());
+    }
+
+    _encodeWAV(samples, sampleRate) {
+      const buffer = new ArrayBuffer(44 + samples.length * 2);
+      const view = new DataView(buffer);
+      const writeString = (view, offset, string) => {
+        for (let i = 0; i < string.length; i++) {
+          view.setUint8(offset + i, string.charCodeAt(i));
+        }
+      };
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 32 + samples.length * 2, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, samples.length * 2, true);
+      let offset = 44;
+      for (let i = 0; i < samples.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      return new Blob([view], { type: 'audio/wav' });
+    }
+
+    async handleVoiceTap() {
+      if (this._voiceState === 'recording') {
+        await this._stopVoiceRecording();
+      } else if (this._voiceState === 'idle') {
+        await this._startVoiceRecording();
+      }
+    }
+
+    async _startVoiceRecording() {
+      const micBtn = this.container.querySelector('#aicw-mic-btn-v1');
+      const elapsedEl = this.container.querySelector('#aicw-mic-elapsed-v1');
+      const input = this.container.querySelector('#aicw-input-v1');
+      const sendBtn = this.container.querySelector('#aicw-send-btn-v1');
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            channelCount: 1,
+            sampleRate: 16000,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          } 
+        });
+        this._micStream = stream;
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this._audioCtx = new AudioCtx({ sampleRate: 16000 });
+        const source = this._audioCtx.createMediaStreamSource(stream);
+
+        // PCM Capture
+        this._scriptProcessor = this._audioCtx.createScriptProcessor(4096, 1, 1);
+        this._pcmData = [];
+        
+        this._scriptProcessor.onaudioprocess = (e) => {
+          if (this._voiceState !== 'recording') return;
+          const inputData = e.inputBuffer.getChannelData(0);
+          this._pcmData.push(new Float32Array(inputData));
+        };
+
+        this._analyser = this._audioCtx.createAnalyser();
+        this._analyser.fftSize = 256;
+        source.connect(this._analyser);
+        this._maxVolume = 0;
+
+        source.connect(this._scriptProcessor);
+        this._scriptProcessor.connect(this._audioCtx.destination);
+
+        this._voiceState = 'recording';
+
+        // UI: recording state
+        micBtn.classList.add('aicw-mic-recording-v1');
+        micBtn.innerHTML = `<span class="aicw-mic-pulse-v1"></span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>`;
+        if (input) input.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+
+        const dataArray = new Uint8Array(this._analyser.frequencyBinCount);
+
+        // Elapsed & Volume timer
+        const startTs = Date.now();
+        if (elapsedEl) elapsedEl.style.display = 'inline';
+        this._elapsedTimer = setInterval(() => {
+          const secs = Math.floor((Date.now() - startTs) / 1000);
+          const mm = Math.floor(secs / 60);
+          const ss = String(secs % 60).padStart(2, '0');
+          if (elapsedEl) elapsedEl.textContent = `${mm}:${ss}`;
+
+          // Monitor volume & Voice Activity Detection (VAD)
+          if (this._analyser) {
+            // 1. RMS Volume Check
+            this._analyser.getByteTimeDomainData(dataArray);
+            let sumSquares = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+              const normalized = (dataArray[i] - 128) / 128;
+              sumSquares += normalized * normalized;
+            }
+            const rms = Math.sqrt(sumSquares / dataArray.length);
+            if (rms > this._maxVolume) this._maxVolume = rms;
+
+            // 2. Frequency Band VAD Check
+            const freqData = new Uint8Array(this._analyser.frequencyBinCount);
+            this._analyser.getByteFrequencyData(freqData);
+
+            let voiceEnergy = 0;
+            let noiseEnergy = 0;
+
+            // At 16kHz, Nyquist is 8000Hz. 128 bins = ~62.5Hz per bin.
+            // Human voice range: ~300Hz to 3400Hz -> bins 5 to 54.
+            for (let i = 5; i <= 54; i++) {
+              voiceEnergy += freqData[i];
+            }
+            // Noise range: >3400Hz -> bins 55 to 127.
+            for (let i = 55; i < freqData.length; i++) {
+              noiseEnergy += freqData[i];
+            }
+
+            voiceEnergy = voiceEnergy / 50; 
+            noiseEnergy = noiseEnergy / (freqData.length - 55);
+
+            // True speech has targeted energy in the voice band, clearly above static noise.
+            if (voiceEnergy > 25 && voiceEnergy > noiseEnergy * 1.2) {
+              this._speechFrames++;
+            }
+          }
+
+          // Auto-stop at 60 s
+          if (Date.now() - startTs >= 60000) this._stopVoiceRecording();
+        }, 100);
+
+      } catch (err) {
+        const msg = err.name === 'NotAllowedError'
+          ? 'Microphone access denied.'
+          : 'Could not access microphone.';
+        this._showVoiceError(msg);
+      }
+    }
+
+    async _stopVoiceRecording() {
+      if (this._voiceState !== 'recording') return;
+
+      const micBtn = this.container.querySelector('#aicw-mic-btn-v1');
+      const elapsedEl = this.container.querySelector('#aicw-mic-elapsed-v1');
+
+      clearInterval(this._elapsedTimer);
+      this._elapsedTimer = null;
+      this._voiceState = 'processing';
+
+      // Spinner state
+      if (micBtn) {
+        micBtn.classList.remove('aicw-mic-recording-v1');
+        micBtn.classList.add('aicw-mic-processing-v1');
+        micBtn.disabled = true;
+        micBtn.innerHTML = `<svg class="aicw-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="white" stroke-width="4" opacity=".25"/>
+          <path d="M4 12a8 8 0 018-8" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        </svg>`;
+      }
+
+      // 1. Flatten PCM
+      const totalLength = this._pcmData.reduce((acc, chunk) => acc + chunk.length, 0);
+      const flattened = new Float32Array(totalLength);
+      let offset = 0;
+      for (const chunk of this._pcmData) {
+        flattened.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      // 2. Encode to WAV using the ACTUAL sample rate of the AudioContext
+      const wavBlob = this._encodeWAV(flattened, this._audioCtx.sampleRate);
+
+      // Stop stream tracks
+      if (this._micStream) {
+        this._micStream.getTracks().forEach(t => t.stop());
+        this._micStream = null;
+      }
+      if (this._audioCtx) {
+        this._audioCtx.close().catch(() => {});
+        this._audioCtx = null;
+      }
+      this._analyser = null;
+      this._scriptProcessor = null;
+
+      // Hide elapsed
+      if (elapsedEl) { elapsedEl.style.display = 'none'; elapsedEl.textContent = '0:00'; }
+
+      if (wavBlob.size > 0) {
+        // We require at least 3 speech frames (~300ms of actual voice) to pass VAD
+        if (this._maxVolume < 0.01 || this._speechFrames < 3) {
+          this._showVoiceError('We couldn’t hear you clearly. Please check your mic and try again.');
+        } else {
+          await this.sendVoiceToAPI(wavBlob);
+        }
+      }
+
+      this._voiceState = 'idle';
+      if (micBtn) {
+        micBtn.classList.remove('aicw-mic-processing-v1');
+        micBtn.disabled = false;
+        micBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>`;
+      }
+    }
+
+    async sendVoiceToAPI(blob) {
+      if (!this.sessionToken) return;
+
+      const input = this.container.querySelector('#aicw-input-v1');
+      const sendBtn = this.container.querySelector('#aicw-send-btn-v1');
+      const msgDiv = this.container.querySelector('#aicw-messages-v1');
+
+      // Update status to feedback: Transcribing
+      this.updateStatus('Transcribing...', true);
+
+      try {
+        const formData = new FormData();
+        // Since we are now using a custom WAV encoder, the blob is always audio/wav
+        formData.append('audio', blob, 'recording.wav');
+
+        // Point to the dedicated transcription endpoint
+        const url = `${this.config.apiUrl}/public/chat/session/${this.sessionToken}/transcribe`;
+        const resp = await fetch(url, { method: 'POST', body: formData });
+
+        if (!resp.ok) throw new Error(`Voice API error: ${resp.status}`);
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error?.message || 'Voice processing failed');
+
+        const transcribedText = data.data.text;
+
+        // Populate the input field with the transcribed text for review/edit
+        if (input && transcribedText) {
+          input.value = transcribedText;
+          this._currentVoicePath = data.data.file_path; // Store for the final message send
+          
+          // Re-enable and focus for immediately editing
+          input.disabled = false;
+          input.focus();
+        }
+
+      } catch (err) {
+        this._showVoiceError('Voice transcription failed. Please try again.');
+        console.error('[Widget] Voice error:', err);
+      } finally {
+        this.updateStatus('Online', false);
+        if (input) input.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        if (input) input.focus();
+        if (msgDiv) msgDiv.scrollTop = msgDiv.scrollHeight;
+      }
+    }
+
+    _showVoiceError(msg) {
+      const msgDiv = this.container.querySelector('#aicw-messages-v1');
+      if (!msgDiv) return;
+      const err = document.createElement('div');
+      err.className = 'aicw-error-v1';
+      err.textContent = `🎤 ${msg}`;
+      msgDiv.appendChild(err);
+      msgDiv.scrollTop = msgDiv.scrollHeight;
+    }
+
+    appendUserBubble(text, scroll = true, isVoice = false) {
       const msgDiv = this.container.querySelector("#aicw-messages-v1");
       if (!msgDiv) return;
       const row = document.createElement("div");
       row.className = "aicw-message-row-v1 aicw-user-row-v1";
-      row.innerHTML = `<div class="aicw-message-v1 aicw-user-v1">${this.escapeHtml(text)}</div>`;
+
+      const icon = isVoice
+        ? `<span style="margin-right:6px;opacity:.8;display:inline-flex;align-items:center;vertical-align:middle;">
+             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+           </span>`
+        : "";
+
+      row.innerHTML = `<div class="aicw-message-v1 aicw-user-v1">${icon}${this.escapeHtml(text)}</div>`;
       msgDiv.appendChild(row);
       if (scroll) msgDiv.scrollTop = msgDiv.scrollHeight;
     }
@@ -938,8 +1327,14 @@
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, visitorInfo: this.userInfo || {} }),
+        body: JSON.stringify({ 
+          message, 
+          visitorInfo: this.userInfo || {},
+          audio_file_path: this._currentVoicePath || undefined,
+          is_voice_message: !!this._currentVoicePath
+        }),
       });
+      this._currentVoicePath = null; // Clear after sending
 
       if (!response.ok) throw new Error(`API error: ${response.status}`);
       const data = await response.json();

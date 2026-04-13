@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    Boolean,
     DateTime,
     Enum,
     ForeignKey,
@@ -76,6 +77,9 @@ class ChatMessage(Base):
     feedback_rating: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     feedback_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
     message_metadata: Mapped[dict | None] = mapped_column("metadata", JSON, nullable=True)
+    # Voice message fields
+    audio_file_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    is_voice_message: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     # Relationships

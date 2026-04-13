@@ -59,9 +59,8 @@ class InternalError(AppException):
 
 async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
     """Handle AppException — returns Node.js-compatible error format."""
-    logger.error(
-        f"AppException: {exc.code} - {exc.error_message}",
-        extra={"path": str(request.url), "method": request.method},
+    logger.bind(path=str(request.url), method=request.method).error(
+        "AppException: {} - {}", exc.code, exc.error_message
     )
     return JSONResponse(
         status_code=exc.status_code,

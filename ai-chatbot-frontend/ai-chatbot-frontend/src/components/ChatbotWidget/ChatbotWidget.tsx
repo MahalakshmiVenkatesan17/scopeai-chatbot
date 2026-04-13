@@ -40,9 +40,12 @@ export function ChatbotWidget({
     isTyping,
     initialize,
     sendMessage,
+    sendVoiceMessage,
     endSession,
     toggleMinimized,
     clearError,
+    isTranscribing,
+    transcribeVoice,
   } = useChatbot({
     tenantSlug,
     apiUrl,
@@ -51,8 +54,9 @@ export function ChatbotWidget({
     onMessage,
   });
 
-  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
   const [draftMessage, setDraftMessage] = useState("");
+  const [currentVoicePath, setCurrentVoicePath] = useState<string | null>(null);
+  const [showUserInfoForm, setShowUserInfoForm] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
   const [hasAutoOpened, setHasAutoOpened] = useState(false); // Add this line
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -144,9 +148,36 @@ export function ChatbotWidget({
   // Handle message send
   const handleSendMessage = async (message: string) => {
     try {
-      await sendMessage(message);
+      await sendMessage(
+        message, 
+        formData.name ? { name: formData.name, email: formData.email } : undefined,
+        currentVoicePath || undefined,
+        !!currentVoicePath
+      );
+      setDraftMessage("");
+      setCurrentVoicePath(null); // Clear after sending
     } catch (err) {
       console.error("Failed to send message:", err);
+    }
+  };
+
+  // Handle voice message (transcribe -> populate draft)
+  const handleVoiceMessage = async (audioBlob: Blob) => {
+    try {
+      const result = await transcribeVoice(audioBlob);
+      if (result && result.text) {
+        // Populate the input field with the transcribed text for editing
+        setDraftMessage(result.text);
+        setCurrentVoicePath(result.audioFilePath);
+        
+        // Auto-focus the input so the user can immediately edit
+        setTimeout(() => {
+          const textarea = document.querySelector('textarea');
+          if (textarea) (textarea as HTMLTextAreaElement).focus();
+        }, 100);
+      }
+    } catch (err) {
+      console.error("Failed to transcribe voice message:", err);
     }
   };
 
@@ -334,7 +365,11 @@ export function ChatbotWidget({
                     {config?.chatbotName || "AI Assistant"}
                   </h3>
                   <div className="flex items-center gap-1">
-                    {isTyping ? (
+                    {isTranscribing ? (
+                      <div className="flex items-center gap-1 text-xs opacity-90 animate-pulse">
+                        <span>🎙️ Transcribing...</span>
+                      </div>
+                    ) : isTyping ? (
                       <div className="flex items-center gap-1 text-xs opacity-90">
                         <div className="flex gap-0.5">
                           <div
@@ -510,9 +545,10 @@ export function ChatbotWidget({
                 {/* Message input */}
                 <MessageInput
                   onSendMessage={handleSendMessage}
+                  onVoiceMessage={handleVoiceMessage}
                   placeholder={config?.placeholderText}
                   maxLength={config?.maxMessageLength}
-                  disabled={isTyping}
+                  disabled={isTyping || isTranscribing}
                   primaryColor={primaryColor}
                   value={draftMessage}
                   onChange={setDraftMessage}
