@@ -1,11 +1,11 @@
 import secrets
 import uuid
 from datetime import datetime, timezone
- 
+
 from fastapi import APIRouter, Depends, File, Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
- 
+
 from app.core.database import get_db
 from app.core.exceptions import BadRequestError, NotFoundError
 from app.core.logging import logger
@@ -14,10 +14,10 @@ from app.repositories.message_repo import MessageRepository
 from app.repositories.session_repo import ChatSessionRepository
 from app.repositories.analytics_repo import AnalyticsRepository
 from app.repositories.tenant_repo import TenantConfigRepository, TenantRepository
- 
+
 router = APIRouter(prefix="/public/chat", tags=["Public Chat"])
- 
- 
+
+
 @router.get("/config/{tenant_slug}")
 async def get_chatbot_config(
     tenant_slug: str,
@@ -25,16 +25,14 @@ async def get_chatbot_config(
     db: AsyncSession = Depends(get_db)
 ):
     from sqlalchemy import text as sa_text
- 
+
     tenant_repo = TenantRepository(db)
     tenant = await tenant_repo.get_by_slug(tenant_slug)
     if not tenant or tenant.status != "active":
         raise NotFoundError("Tenant not found")
- 
-    # Set state for middleware/logging
+
     request.state.tenant_id = tenant.id
- 
-    # Query tenant_chatbot_config table (same as Node.js)
+
     try:
         result = await db.execute(
             sa_text(
@@ -49,7 +47,7 @@ async def get_chatbot_config(
         row = result.mappings().first()
     except Exception:
         row = None
- 
+
     if row:
         config = {
             "chatbotName": row.get("chatbot_name", "AI Assistant"),
@@ -90,15 +88,15 @@ async def get_chatbot_config(
             "customCss": None,
             "chatbotAvatar": None,
         }
- 
+
     return {
         "success": True,
         "data": {
             "config": config,
         },
     }
- 
- 
+
+
 @router.post("/session")
 async def init_session(
     body: dict | None = None,
@@ -106,31 +104,29 @@ async def init_session(
     db: AsyncSession = Depends(get_db),
 ):
     from sqlalchemy import text as sa_text
- 
+
     body = body or {}
     tenant_slug = body.get("tenantSlug")
     if not tenant_slug:
         raise BadRequestError("tenantSlug is required")
- 
+
     tenant_repo = TenantRepository(db)
     tenant = await tenant_repo.get_by_slug(tenant_slug)
     if not tenant or tenant.status != "active":
         raise NotFoundError("Tenant not found")
- 
-    # Set state for middleware/logging
+
     if request:
         request.state.tenant_id = tenant.id
- 
+
     visitor_id = body.get("visitorId", f"visitor_{secrets.token_hex(12)}")
     session_id = str(uuid.uuid4())
     session_token = f"sess_{secrets.token_hex(24)}"
- 
-    # Extract visitor info and page details
+
     v_info = body.get("visitorInfo") or {}
     v_name = v_info.get("name") or body.get("visitorName")
     v_email = v_info.get("email") or body.get("visitorEmail")
     v_meta = v_info.get("metadata") or body.get("metadata")
- 
+
     session_repo = ChatSessionRepository(db)
     session = await session_repo.create({
         "id": session_id,
@@ -150,20 +146,17 @@ async def init_session(
         "ip_address": request.client.host if request and request.client else None,
         "user_agent": request.headers.get("User-Agent") if request else None,
     })
- 
-    # Increment analytics: chat_sessions
+
     analytics_repo = AnalyticsRepository(db)
     await analytics_repo.increment_tenant_metric(tenant.id, "chat_sessions")
- 
-    # Cache session token mapping
+
     await cache_service.set(f"public_session:{session_token}", {
         "sessionId": session_id,
         "tenantId": tenant.id,
         "tenantSlug": tenant_slug,
         "visitorId": visitor_id,
     }, ttl_seconds=86400)
- 
-    # Get chatbot config for response
+
     try:
         result = await db.execute(
             sa_text(
@@ -175,7 +168,7 @@ async def init_session(
         row = result.mappings().first()
     except Exception:
         row = None
- 
+
     if row:
         config = {
             "chatbotName": row.get("chatbot_name", "AI Assistant"),
@@ -193,7 +186,7 @@ async def init_session(
             "primaryColor": tenant.primary_color or "#007bff",
             "secondaryColor": tenant.secondary_color or "#6c757d",
         }
- 
+
     return {
         "success": True,
         "data": {
@@ -204,16 +197,16 @@ async def init_session(
             "config": config,
         },
     }
- 
- 
+
+
 async def _validate_session_token(session_token: str) -> dict:
     """Validate public session token and return session info."""
     session_data = await cache_service.get(f"public_session:{session_token}")
     if not session_data:
         raise BadRequestError("Invalid or expired session token", code="INVALID_SESSION_TOKEN")
     return session_data
- 
- 
+
+
 @router.post("/session/{session_token}/message")
 async def send_public_message(
     session_token: str,
@@ -221,80 +214,88 @@ async def send_public_message(
     request: Request,
     db: AsyncSession = Depends(get_db),
 ):
+    import json
+    import time
+
+    from app.services.langgraph_service import get_langgraph_service
+
+    # ── 1. Validate session ──────────────────────────────────────────────────
     session_data = await _validate_session_token(session_token)
     session_id = session_data["sessionId"]
     tenant_id = session_data["tenantId"]
- 
-    # Set state for middleware/logging
     request.state.tenant_id = tenant_id
- 
+
+    # ── 2. Validate content ──────────────────────────────────────────────────
     content = body.get("content", "").strip()
     if not content:
         content = body.get("message", "").strip()
     if not content:
         raise BadRequestError("Message content is required")
- 
-    import json
-    import time
- 
-    from app.services.langgraph_service import get_langgraph_service
 
-    message_repo = MessageRepository(db)
-    
-    # Extract voice metadata if available
     audio_file_path = body.get("audio_file_path")
     is_voice_message = body.get("is_voice_message", False)
 
-    logger.debug(
-        f"[ChatAPI] Incoming Message: session={session_id}, "
-        f"is_voice={is_voice_message}, path={audio_file_path}, keys={list(body.keys())}"
-    )
+    # ── 3. Persist user message ──────────────────────────────────────────────
+    message_repo = MessageRepository(db)
+    try:
+        user_msg = await message_repo.create({
+            "session_id": session_id,
+            "tenant_id": tenant_id,
+            "message_type": "user",
+            "content": content,
+            "audio_file_path": audio_file_path,
+            "is_voice_message": is_voice_message,
+        })
+    except Exception as exc:
+        logger.error("[ChatAPI] Failed to save user message: session={} error={}", session_id, str(exc))
+        raise BadRequestError("Failed to save message. Please try again.")
 
-    # Save user message
-    user_msg = await message_repo.create({
-        "session_id": session_id,
-        "tenant_id": tenant_id,
-        "message_type": "user",
-        "content": content,
-        "audio_file_path": audio_file_path,
-        "is_voice_message": is_voice_message,
-    })
+    # ── 4. RAG pipeline ──────────────────────────────────────────────────────
+    # Wrapped in try/except so any internal failure returns a clean 400
+    # instead of leaking a raw 500 to the client.
+    try:
+        langgraph = get_langgraph_service()
+        start_time = time.time()
+        ai_result = await langgraph.generate_response(
+            message=content,
+            tenant_id=tenant_id,
+            db=db,
+            session_id=session_id,
+            use_documents=True,
+        )
+        processing_time = int((time.time() - start_time) * 1000)
+    except Exception as exc:
+        logger.error("[ChatAPI] RAG pipeline failed: session={} error={}", session_id, str(exc))
+        raise BadRequestError("Something went wrong generating a response. Please try again.")
 
-    # Run LangGraph RAG pipeline (singleton)
-    langgraph = get_langgraph_service()
-    start_time = time.time()
-    ai_result = await langgraph.generate_response(
-        message=content,
-        tenant_id=tenant_id,
-        db=db,
-        session_id=session_id,
-        use_documents=True,
-    )
-    processing_time = int((time.time() - start_time) * 1000)
+    # ── 5. Persist assistant message ─────────────────────────────────────────
+    try:
+        context_json = json.dumps(ai_result.context_chunks) if ai_result.context_chunks else None
+        assistant_msg = await message_repo.create({
+            "session_id": session_id,
+            "tenant_id": tenant_id,
+            "message_type": "assistant",
+            "content": ai_result.content,
+            "token_count": ai_result.token_count,
+            "model_used": ai_result.model or "gpt-4",
+            "processing_time_ms": processing_time,
+            "cost_estimate": ai_result.cost,
+            "context_chunks": context_json,
+        })
+    except Exception as exc:
+        logger.error("[ChatAPI] Failed to save assistant message: session={} error={}", session_id, str(exc))
+        raise BadRequestError("Failed to save response. Please try again.")
 
+    # ── 6. Housekeeping ──────────────────────────────────────────────────────
+    try:
+        session_repo = ChatSessionRepository(db)
+        await session_repo.update_last_activity(session_id)
+        analytics_repo = AnalyticsRepository(db)
+        await analytics_repo.increment_tenant_metric(tenant_id, "messages_sent")
+    except Exception as exc:
+        # Non-critical — log but don't fail the request
+        logger.warning("[ChatAPI] Housekeeping failed (non-fatal): session={} error={}", session_id, str(exc))
 
-
-    context_json = json.dumps(ai_result.context_chunks) if ai_result.context_chunks else None
-    assistant_msg = await message_repo.create({
-        "session_id": session_id,
-        "tenant_id": tenant_id,
-        "message_type": "assistant",
-        "content": ai_result.content,
-        "token_count": ai_result.token_count,
-        "model_used": ai_result.model or "gpt-4",
-        "processing_time_ms": processing_time,
-        "cost_estimate": ai_result.cost,
-        "context_chunks": context_json,
-    })
- 
-    # Update session activity
-    session_repo = ChatSessionRepository(db)
-    await session_repo.update_last_activity(session_id)
- 
-    # Increment analytics: messages_sent
-    analytics_repo = AnalyticsRepository(db)
-    await analytics_repo.increment_tenant_metric(tenant_id, "messages_sent")
- 
     return {
         "success": True,
         "data": {
@@ -318,8 +319,8 @@ async def send_public_message(
             "cost": ai_result.cost or 0,
         },
     }
- 
- 
+
+
 @router.get("/session/{session_token}/messages")
 async def get_public_messages(
     session_token: str,
@@ -329,13 +330,11 @@ async def get_public_messages(
     session_data = await _validate_session_token(session_token)
     session_id = session_data["sessionId"]
     tenant_id = session_data["tenantId"]
- 
-    # Set state for middleware/logging
     request.state.tenant_id = tenant_id
- 
+
     message_repo = MessageRepository(db)
     messages = await message_repo.get_by_session(session_id, limit=100)
- 
+
     return {
         "success": True,
         "data": [
@@ -346,8 +345,8 @@ async def get_public_messages(
             for m in messages
         ],
     }
- 
- 
+
+
 @router.post("/session/{session_token}/end")
 async def end_public_session(
     session_token: str,
@@ -357,17 +356,15 @@ async def end_public_session(
     session_data = await _validate_session_token(session_token)
     session_id = session_data["sessionId"]
     tenant_id = session_data["tenantId"]
- 
-    # Set state for middleware/logging
     request.state.tenant_id = tenant_id
- 
+
     session_repo = ChatSessionRepository(db)
     await session_repo.end_session(session_id)
     await cache_service.delete(f"public_session:{session_token}")
- 
+
     return {"success": True, "data": {"message": "Session ended successfully"}}
- 
- 
+
+
 @router.post("/session/{session_token}/clear-memory")
 async def clear_public_memory(
     session_token: str,
@@ -377,16 +374,13 @@ async def clear_public_memory(
     session_data = await _validate_session_token(session_token)
     session_id = session_data["sessionId"]
     tenant_id = session_data["tenantId"]
- 
-    # Set state for middleware/logging
     request.state.tenant_id = tenant_id
- 
-    # Delete all messages in session
+
     from sqlalchemy import delete
     from app.models.chat import ChatMessage
     await db.execute(delete(ChatMessage).where(ChatMessage.session_id == session_id))
     await db.commit()
- 
+
     return {"success": True, "message": "Conversation memory cleared"}
 
 
@@ -397,15 +391,6 @@ async def send_public_voice_message(
     audio: UploadFile = File(..., description="Audio recording (webm/mp4/wav/ogg/mp3)"),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Accept a voice recording from a public widget session.
-    1. Validate session token.
-    2. Save audio file to disk.
-    3. Transcribe via OpenAI Whisper.
-    4. Run the RAG pipeline on the transcribed text.
-    5. Persist both user and assistant messages with voice metadata.
-    6. Return transcript + message pair.
-    """
     import json
     import time
 
@@ -418,11 +403,11 @@ async def send_public_voice_message(
     tenant_id = session_data["tenantId"]
     request.state.tenant_id = tenant_id
 
-    # ── 2. Read & validate audio payload ────────────────────────────────────
+    # ── 2. Read & validate audio ─────────────────────────────────────────────
     audio_bytes = await audio.read()
     if not audio_bytes:
         raise BadRequestError("Audio file is empty")
-    if len(audio_bytes) > 25 * 1024 * 1024:  # 25 MB hard cap (Whisper limit)
+    if len(audio_bytes) > 25 * 1024 * 1024:
         raise BadRequestError("Audio file exceeds 25 MB limit")
 
     # ── 3. Transcribe ────────────────────────────────────────────────────────
@@ -442,52 +427,62 @@ async def send_public_voice_message(
 
     # ── 4. Persist user (voice) message ─────────────────────────────────────
     message_repo = MessageRepository(db)
-    user_msg = await message_repo.create({
-        "session_id": session_id,
-        "tenant_id": tenant_id,
-        "message_type": "user",
-        "content": transcribed_text,
-        "audio_file_path": audio_file_path,
-        "is_voice_message": True,
-    })
+    try:
+        user_msg = await message_repo.create({
+            "session_id": session_id,
+            "tenant_id": tenant_id,
+            "message_type": "user",
+            "content": transcribed_text,
+            "audio_file_path": audio_file_path,
+            "is_voice_message": True,
+        })
+    except Exception as exc:
+        logger.error("[Voice] Failed to save user voice message: session={} error={}", session_id, str(exc))
+        raise BadRequestError("Failed to save voice message. Please try again.")
 
     # ── 5. RAG pipeline ──────────────────────────────────────────────────────
-    langgraph = get_langgraph_service()
-    start_time = time.time()
-    ai_result = await langgraph.generate_response(
-        message=transcribed_text,
-        tenant_id=tenant_id,
-        db=db,
-        session_id=session_id,
-        use_documents=True,
-    )
-    processing_time = int((time.time() - start_time) * 1000)
+    try:
+        langgraph = get_langgraph_service()
+        start_time = time.time()
+        ai_result = await langgraph.generate_response(
+            message=transcribed_text,
+            tenant_id=tenant_id,
+            db=db,
+            session_id=session_id,
+            use_documents=True,
+        )
+        processing_time = int((time.time() - start_time) * 1000)
+    except Exception as exc:
+        logger.error("[Voice] RAG pipeline failed: session={} error={}", session_id, str(exc))
+        raise BadRequestError("Something went wrong generating a response. Please try again.")
 
     # ── 6. Persist assistant message ─────────────────────────────────────────
-    context_json = json.dumps(ai_result.context_chunks) if ai_result.context_chunks else None
-    assistant_msg = await message_repo.create({
-        "session_id": session_id,
-        "tenant_id": tenant_id,
-        "message_type": "assistant",
-        "content": ai_result.content,
-        "token_count": ai_result.token_count,
-        "model_used": ai_result.model or "gpt-4o-mini",
-        "processing_time_ms": processing_time,
-        "cost_estimate": ai_result.cost,
-        "context_chunks": context_json,
-    })
+    try:
+        context_json = json.dumps(ai_result.context_chunks) if ai_result.context_chunks else None
+        assistant_msg = await message_repo.create({
+            "session_id": session_id,
+            "tenant_id": tenant_id,
+            "message_type": "assistant",
+            "content": ai_result.content,
+            "token_count": ai_result.token_count,
+            "model_used": ai_result.model or "gpt-4o-mini",
+            "processing_time_ms": processing_time,
+            "cost_estimate": ai_result.cost,
+            "context_chunks": context_json,
+        })
+    except Exception as exc:
+        logger.error("[Voice] Failed to save assistant message: session={} error={}", session_id, str(exc))
+        raise BadRequestError("Failed to save response. Please try again.")
 
     # ── 7. Housekeeping ──────────────────────────────────────────────────────
-    session_repo = ChatSessionRepository(db)
-    await session_repo.update_last_activity(session_id)
+    try:
+        session_repo = ChatSessionRepository(db)
+        await session_repo.update_last_activity(session_id)
+        analytics_repo = AnalyticsRepository(db)
+        await analytics_repo.increment_tenant_metric(tenant_id, "messages_sent")
+    except Exception as exc:
+        logger.warning("[Voice] Housekeeping failed (non-fatal): session={} error={}", session_id, str(exc))
 
-    analytics_repo = AnalyticsRepository(db)
-    await analytics_repo.increment_tenant_metric(tenant_id, "messages_sent")
-
-    logger.debug(
-        f"[Voice] Public voice message processed: session={session_id}, "
-        f"chars={len(transcribed_text)}, time={processing_time}ms"
-    )
     return {
         "success": True,
         "data": {
@@ -518,28 +513,19 @@ async def transcribe_only(
     audio: UploadFile = File(..., description="Audio recording (webm/mp4/wav/ogg/mp3)"),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Accept a voice recording and return ONLY the transcribed text.
-    1. Validate session token.
-    2. Transcribe via OpenAI Whisper (context-aware).
-    3. Return transcription for UI population.
-    """
     from app.services.voice_service import get_voice_service
 
-    # 1. Validate session
     session_data = await _validate_session_token(session_token)
     session_id = session_data["sessionId"]
     tenant_id = session_data["tenantId"]
     request.state.tenant_id = tenant_id
 
-    # 2. Read & validate audio payload
     audio_bytes = await audio.read()
     if not audio_bytes:
         raise BadRequestError("Audio file is empty")
     if len(audio_bytes) > 25 * 1024 * 1024:
         raise BadRequestError("Audio file exceeds 25 MB limit")
 
-    # 3. Transcribe (Context-Aware)
     voice_svc = get_voice_service()
     try:
         transcribed_text, _ = await voice_svc.transcribe(

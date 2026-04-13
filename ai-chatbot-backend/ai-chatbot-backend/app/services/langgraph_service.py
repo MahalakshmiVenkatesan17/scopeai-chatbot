@@ -75,10 +75,8 @@ class LangGraphService:
     ) -> AIResponse:
         """Run the full RAG pipeline and return an AIResponse."""
 
-        # Load tenant chatbot config
         system_prompt = await self._get_system_prompt(tenant_id, db)
 
-        # Load conversation history from DB
         conversation_history: list[dict[str, str]] = []
         if session_id:
             conversation_history = await self._load_conversation_history(session_id, db)
@@ -102,14 +100,16 @@ class LangGraphService:
             "error": None,
         }
 
-        # Execute the graph
         final_state = await self._graph.ainvoke(initial_state)
 
         if final_state.get("error"):
+            # FIX: loguru uses positional {} placeholders, NOT keyword args.
+            # logger.error("msg", tenant_id=x) silently fails in loguru —
+            # it expects logger.error("msg tenant={} error={}", tenant_id, error)
             logger.error(
-                "RAG pipeline error",
-                tenant_id=tenant_id,
-                error=final_state["error"],
+                "[LangGraph] RAG pipeline error: tenant_id={} error={}",
+                tenant_id,
+                final_state["error"],
             )
 
         return AIResponse(
@@ -163,7 +163,7 @@ class LangGraphService:
             )
             return {"query_embedding": result.embedding}
         except Exception as e:
-            logger.warning("Failed to embed query: %s", str(e))
+            logger.warning("[LangGraph] Failed to embed query: {}", str(e))
             return {"query_embedding": [], "error": f"Embedding failed: {e}"}
 
     def _should_retrieve(self, state: RAGState) -> str:
@@ -177,7 +177,6 @@ class LangGraphService:
     async def _retrieve_context(self, state: RAGState) -> dict:
         """Retrieve relevant document chunks from Weaviate."""
         try:
-            # Check if tenant has processed documents
             from app.core.database import async_session_factory
 
             async with async_session_factory() as session:
@@ -215,9 +214,8 @@ class LangGraphService:
             top_score = search_results[0].score if search_results else 0.0
 
             if top_score < RELEVANCE_THRESHOLD:
-                # Downgraded from logger.info — fires on every low-score query
                 logger.debug(
-                    "Retrieved chunks below relevance threshold: top_score=%.3f threshold=%.2f",
+                    "[LangGraph] Chunks below relevance threshold: top_score={:.3f} threshold={:.2f}",
                     top_score,
                     RELEVANCE_THRESHOLD,
                 )
@@ -251,7 +249,7 @@ class LangGraphService:
             }
 
         except Exception as e:
-            logger.warning("Failed to retrieve context: %s", str(e))
+            logger.warning("[LangGraph] Failed to retrieve context: {}", str(e))
             return {
                 "context_chunks": [],
                 "context_text": "",
@@ -318,9 +316,9 @@ class LangGraphService:
             }
 
         except Exception as e:
-            logger.error("Failed to generate AI response: %s", str(e))
+            logger.error("[LangGraph] Failed to generate AI response: {}", str(e))
             return {
-                "ai_response": f"I'm sorry, I encountered an error: {str(e)}. Please share this with the developer.",
+                "ai_response": "I'm sorry, I encountered an error. Please try again.",
                 "token_count": 0,
                 "model": "error",
                 "usage": {"promptTokens": 0, "completionTokens": 0, "totalTokens": 0},
@@ -354,7 +352,6 @@ class LangGraphService:
 
             if row:
                 name = row.get("chatbot_name") or "AI Assistant"
-                welcome = row.get("welcome_message") or ""
                 prompt = (
                     f"You are {name}, an intelligent AI assistant. "
                     "Your primary responsibility is to provide professional and accurate answers based on the allowed context.\n"
@@ -372,7 +369,11 @@ class LangGraphService:
                 )
                 return prompt
         except Exception as e:
-            logger.warning("Failed to load tenant chatbot config: tenant_id=%s error=%s", tenant_id, str(e))
+            logger.warning(
+                "[LangGraph] Failed to load tenant chatbot config: tenant_id={} error={}",
+                tenant_id,
+                str(e),
+            )
 
         return (
             "You are a helpful AI assistant. Answer clearly based on context without mentioning 'context' or 'documents'. "
@@ -403,12 +404,16 @@ class LangGraphService:
                 for r in rows
             ]
         except Exception as e:
-            logger.warning("Failed to load conversation history: session_id=%s error=%s", session_id, str(e))
+            logger.warning(
+                "[LangGraph] Failed to load conversation history: session_id={} error={}",
+                session_id,
+                str(e),
+            )
             return []
 
 
 # ------------------------------------------------------------------
-# Singleton accessor — avoids re-compiling the graph on every request
+# Singleton accessor
 # ------------------------------------------------------------------
 _langgraph_instance: LangGraphService | None = None
 
