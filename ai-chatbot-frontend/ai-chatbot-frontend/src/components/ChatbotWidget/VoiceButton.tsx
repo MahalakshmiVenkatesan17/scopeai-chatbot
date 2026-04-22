@@ -11,6 +11,7 @@ interface VoiceButtonProps {
   disabled?: boolean;
   primaryColor?: string;
   onError?: (msg: string) => void;
+  onVoiceError?: (msg: string) => void;
 }
 
 /** Format elapsed milliseconds as M:SS */
@@ -26,6 +27,7 @@ export function VoiceButton({
   disabled = false,
   primaryColor = '#007bff',
   onError,
+  onVoiceError
 }: VoiceButtonProps) {
   const {
     isRecording,
@@ -36,7 +38,10 @@ export function VoiceButton({
     startRecording,
     stopRecording,
     cancelRecording,
-  } = useVoiceRecorder({ maxDurationMs: 60_000, onError });
+  } = useVoiceRecorder({ 
+    maxDurationMs: 60_000, 
+    onError: onVoiceError || onError 
+  });
 
   const handleClick = useCallback(async () => {
     if (disabled) return;
@@ -140,8 +145,8 @@ export function VoiceButton({
         )}
       </button>
 
-      {/* Error Tooltip / Badge */}
-      {error && (
+      {/* Error Tooltip / Badge - only shown if no specialized onVoiceError is provided */}
+      {error && !onVoiceError && (
         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-48 p-2 bg-red-600 text-white text-[10px] leading-tight rounded shadow-lg animate-bounce z-50">
           <div className="flex items-center gap-1.5 font-bold uppercase tracking-wide">
             <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={3}>

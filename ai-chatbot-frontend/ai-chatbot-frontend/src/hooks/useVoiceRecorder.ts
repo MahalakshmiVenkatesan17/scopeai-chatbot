@@ -158,15 +158,15 @@ export function useVoiceRecorder({
       processor.connect(audioCtx.destination);
 
       const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
       // Elapsed & Volume timer
       startTimeRef.current = Date.now();
       timerRef.current = setInterval(() => {
-        const elapsed = Date.now() - startTimeRef.current;
+        const now = Date.now();
+        const elapsed = now - startTimeRef.current;
         setElapsedMs(elapsed);
 
         if (analyserRef.current) {
-          // 1. RMS Volume Check
+          // ... (RMS volume calculation)
           analyserRef.current.getByteTimeDomainData(dataArray);
           let sumSquares = 0;
           for (let i = 0; i < dataArray.length; i++) {
@@ -193,7 +193,7 @@ export function useVoiceRecorder({
           noiseEnergy = noiseEnergy / (freqData.length - 55);
 
           // If targeted voice energy is present and stands out from noise
-          if (voiceEnergy > 25 && voiceEnergy > noiseEnergy * 1.2) {
+          if (voiceEnergy > 80 && voiceEnergy > noiseEnergy * 2.5) {
             speechFramesRef.current++;
           }
         }
@@ -205,8 +205,8 @@ export function useVoiceRecorder({
     } catch (err: unknown) {
       const msg =
         err instanceof Error && err.name === 'NotAllowedError'
-          ? 'Microphone permission denied. Please allow microphone access.'
-          : 'Could not start recording. Please check your microphone.';
+          ? 'Microphone access is required. Please allow access and try again.'
+          : 'Could not access microphone. Please check your settings.';
       setError(msg);
       onError?.(msg);
       setState('idle');
@@ -236,9 +236,11 @@ export function useVoiceRecorder({
       const wavBlob = encodeWAV(flattened, audioCtxRef.current!.sampleRate);
 
       // 3. Validation (Both RMS and VAD speech frames)
-      // Require at least 5 frames of human-range speech energy
-      if (maxVolumeRef.current < 0.01 || speechFramesRef.current < 5) {
-        setError('We couldn’t hear you clearly. Please stay closer to the microphone and try again.');
+      // Require at least 10 frames (~1s) of human-range speech energy
+      if (maxVolumeRef.current < 0.05 || speechFramesRef.current < 10) {
+        const msg = "We couldn't hear you clearly. Please try speaking closer to the microphone.";
+        setError(msg);
+        onError?.(msg);
         cleanup();
         setState('idle');
         resolve(null);

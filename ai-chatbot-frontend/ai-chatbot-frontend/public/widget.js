@@ -521,6 +521,42 @@
           50% { opacity: 1; }
           100% { opacity: 0.6; }
         }
+
+        /* ── Toast Notification ── */
+        .aicw-toast-v1 {
+          position: absolute !important;
+          bottom: 110px !important;
+          left: 50% !important;
+          transform: translateX(-50%) translateY(10px) !important;
+          background: rgba(31, 41, 55, 0.98) !important;
+          color: white !important;
+          padding: 10px 20px !important;
+          border-radius: 25px !important;
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          z-index: 999999 !important;
+          white-space: normal !important;
+          word-break: break-word;
+          overflow-wrap: break-word;
+          max-width: 85% !important;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1) !important;
+          opacity: 0 !important;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          pointer-events: none !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 10px !important;
+          width: max-content;
+          min-width: 200px;
+          border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .aicw-toast-v1.aicw-show-v1 {
+          opacity: 1 !important;
+          transform: translateX(-50%) translateY(0) !important;
+        }
+        .aicw-toast-icon-v1 {
+          font-size: 14px !important;
+        }
       `;
       document.head.appendChild(style);
     }
@@ -566,6 +602,8 @@
               <span style="font-weight:600;">scopeaichat.ai</span>
             </a>
           </div>
+          <!-- Voice Toast Container -->
+          <div class="aicw-toast-v1" id="aicw-voice-toast-v1"></div>
         </div>
 
         <!-- Toggle Button -->
@@ -1001,7 +1039,7 @@
       this._currentVoicePath = null;
       this._micStream = null;
       this._elapsedTimer = null;
-      
+
       this._audioCtx = null;
       this._analyser = null;
       this._scriptProcessor = null;
@@ -1056,14 +1094,14 @@
       const sendBtn = this.container.querySelector('#aicw-send-btn-v1');
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             channelCount: 1,
             sampleRate: 16000,
             echoCancellation: true,
             noiseSuppression: true,
             autoGainControl: true
-          } 
+          }
         });
         this._micStream = stream;
 
@@ -1074,7 +1112,7 @@
         // PCM Capture
         this._scriptProcessor = this._audioCtx.createScriptProcessor(4096, 1, 1);
         this._pcmData = [];
-        
+
         this._scriptProcessor.onaudioprocess = (e) => {
           if (this._voiceState !== 'recording') return;
           const inputData = e.inputBuffer.getChannelData(0);
@@ -1090,6 +1128,8 @@
         this._scriptProcessor.connect(this._audioCtx.destination);
 
         this._voiceState = 'recording';
+        this._speechFrames = 0;
+        this._maxVolume = 0;
 
         // UI: recording state
         micBtn.classList.add('aicw-mic-recording-v1');
@@ -1106,7 +1146,8 @@
         const startTs = Date.now();
         if (elapsedEl) elapsedEl.style.display = 'inline';
         this._elapsedTimer = setInterval(() => {
-          const secs = Math.floor((Date.now() - startTs) / 1000);
+          const now = Date.now();
+          const secs = Math.floor((now - startTs) / 1000);
           const mm = Math.floor(secs / 60);
           const ss = String(secs % 60).padStart(2, '0');
           if (elapsedEl) elapsedEl.textContent = `${mm}:${ss}`;
@@ -1140,28 +1181,28 @@
               noiseEnergy += freqData[i];
             }
 
-            voiceEnergy = voiceEnergy / 50; 
+            voiceEnergy = voiceEnergy / 50;
             noiseEnergy = noiseEnergy / (freqData.length - 55);
 
             // True speech has targeted energy in the voice band, clearly above static noise.
-            if (voiceEnergy > 25 && voiceEnergy > noiseEnergy * 1.2) {
+            if (voiceEnergy > 80 && voiceEnergy > noiseEnergy * 2.5) {
               this._speechFrames++;
             }
           }
 
           // Auto-stop at 60 s
-          if (Date.now() - startTs >= 60000) this._stopVoiceRecording();
+          if (now - startTs >= 60000) this._stopVoiceRecording();
         }, 100);
 
       } catch (err) {
         const msg = err.name === 'NotAllowedError'
-          ? 'Microphone access denied.'
-          : 'Could not access microphone.';
-        this._showVoiceError(msg);
+          ? 'Microphone access is required. Please allow access and try again.'
+          : 'Could not access microphone. Please check your settings.';
+        this._showToast(msg);
       }
     }
 
-    async _stopVoiceRecording() {
+    async _stopVoiceRecording(reason = null) {
       if (this._voiceState !== 'recording') return;
 
       const micBtn = this.container.querySelector('#aicw-mic-btn-v1');
@@ -1170,6 +1211,15 @@
       clearInterval(this._elapsedTimer);
       this._elapsedTimer = null;
       this._voiceState = 'processing';
+
+      // Silence timeout handling
+      if (reason === 'silence') {
+        this._showToast("No voice detected. Please try speaking again.");
+        this._voiceState = 'idle';
+        this._resetMicUI();
+        this._cleanupAudio();
+        return;
+      }
 
       // Spinner state
       if (micBtn) {
@@ -1200,7 +1250,7 @@
         this._micStream = null;
       }
       if (this._audioCtx) {
-        this._audioCtx.close().catch(() => {});
+        this._audioCtx.close().catch(() => { });
         this._audioCtx = null;
       }
       this._analyser = null;
@@ -1210,17 +1260,27 @@
       if (elapsedEl) { elapsedEl.style.display = 'none'; elapsedEl.textContent = '0:00'; }
 
       if (wavBlob.size > 0) {
-        // We require at least 3 speech frames (~300ms of actual voice) to pass VAD
-        if (this._maxVolume < 0.01 || this._speechFrames < 3) {
-          this._showVoiceError('We couldn’t hear you clearly. Please check your mic and try again.');
+        // We require at least 10 speech frames (~1s of actual voice) to pass VAD
+        if (this._maxVolume < 0.05 || this._speechFrames < 10) {
+          this._showToast("We couldn't hear you clearly. Please try speaking closer to the microphone.");
         } else {
           await this.sendVoiceToAPI(wavBlob);
         }
       }
 
       this._voiceState = 'idle';
+      this._resetMicUI();
+    }
+
+    _resetMicUI() {
+      const micBtn = this.container.querySelector('#aicw-mic-btn-v1');
+      const elapsedEl = this.container.querySelector('#aicw-mic-elapsed-v1');
+      const input = this.container.querySelector('#aicw-input-v1');
+      const sendBtn = this.container.querySelector('#aicw-send-btn-v1');
+
       if (micBtn) {
         micBtn.classList.remove('aicw-mic-processing-v1');
+        micBtn.classList.remove('aicw-mic-recording-v1');
         micBtn.disabled = false;
         micBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -1229,6 +1289,33 @@
           <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>`;
       }
+      if (elapsedEl) {
+        elapsedEl.style.display = 'none';
+        elapsedEl.textContent = '0:00';
+      }
+
+      // Re-enable input and send button
+      if (input) {
+        input.disabled = false;
+        input.focus();
+      }
+      if (sendBtn) {
+        sendBtn.disabled = false;
+      }
+    }
+
+    _cleanupAudio() {
+      // Stop stream tracks
+      if (this._micStream) {
+        this._micStream.getTracks().forEach(t => t.stop());
+        this._micStream = null;
+      }
+      if (this._audioCtx) {
+        this._audioCtx.close().catch(() => { });
+        this._audioCtx = null;
+      }
+      this._analyser = null;
+      this._scriptProcessor = null;
     }
 
     async sendVoiceToAPI(blob) {
@@ -1260,14 +1347,14 @@
         if (input && transcribedText) {
           input.value = transcribedText;
           this._currentVoicePath = data.data.file_path; // Store for the final message send
-          
+
           // Re-enable and focus for immediately editing
           input.disabled = false;
           input.focus();
         }
 
       } catch (err) {
-        this._showVoiceError('Voice transcription failed. Please try again.');
+        this._showToast("We're sorry, we couldn't process your voice. Please try again.");
         console.error('[Widget] Voice error:', err);
       } finally {
         this.updateStatus('Online', false);
@@ -1286,6 +1373,19 @@
       err.textContent = `🎤 ${msg}`;
       msgDiv.appendChild(err);
       msgDiv.scrollTop = msgDiv.scrollHeight;
+    }
+
+    _showToast(msg) {
+      const toast = this.container.querySelector('#aicw-voice-toast-v1');
+      if (!toast) return;
+
+      toast.innerHTML = `<span class="aicw-toast-icon-v1">🎙️</span> <span>${this.escapeHtml(msg)}</span>`;
+      toast.classList.add('aicw-show-v1');
+
+      if (this._toastTimer) clearTimeout(this._toastTimer);
+      this._toastTimer = setTimeout(() => {
+        toast.classList.remove('aicw-show-v1');
+      }, 5000);
     }
 
     appendUserBubble(text, scroll = true, isVoice = false) {
@@ -1327,8 +1427,8 @@
       const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          message, 
+        body: JSON.stringify({
+          message,
           visitorInfo: this.userInfo || {},
           audio_file_path: this._currentVoicePath || undefined,
           is_voice_message: !!this._currentVoicePath

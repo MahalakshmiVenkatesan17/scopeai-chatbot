@@ -64,6 +64,15 @@ export function ChatbotWidget({
     name: "",
     email: "",
   });
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({
+    message: "",
+    visible: false,
+  });
+
+  const showToast = (message: string) => {
+    setToast({ message, visible: true });
+    setTimeout(() => setToast((prev) => ({ ...prev, visible: false })), 4000);
+  };
 
   // // Auto-open chat on page load
   // useEffect(() => {
@@ -552,11 +561,26 @@ export function ChatbotWidget({
                   primaryColor={primaryColor}
                   value={draftMessage}
                   onChange={setDraftMessage}
+                  onVoiceError={showToast}
                 />
               </>
             )}
           </div>
         )}
+
+        {/* Toast Notification */}
+        <div
+          className={clsx(
+            "absolute bottom-28 left-1/2 -translate-x-1/2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-400 z-[9999] flex items-center gap-3 backdrop-blur-md",
+            "bg-gray-900/95 text-white shadow-2xl border border-white/10",
+            toast.visible
+              ? "opacity-100 translate-y-0 scale-100"
+              : "opacity-0 translate-y-4 scale-95 pointer-events-none"
+          )}
+        >
+          <span className="animate-pulse">🎙️</span>
+          {toast.message}
+        </div>
       </div>
     </>
   );

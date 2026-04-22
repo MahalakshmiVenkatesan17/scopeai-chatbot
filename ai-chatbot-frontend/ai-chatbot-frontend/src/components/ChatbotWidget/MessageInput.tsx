@@ -14,6 +14,7 @@ interface MessageInputProps {
   primaryColor?: string;
   value?: string;
   onChange?: (value: string) => void;
+  onVoiceError?: (msg: string) => void;
 }
 
 export function MessageInput({
@@ -24,7 +25,8 @@ export function MessageInput({
   disabled = false,
   primaryColor = '#007bff',
   value,
-  onChange
+  onChange,
+  onVoiceError
 }: MessageInputProps) {
   const [internalMessage, setInternalMessage] = useState('');
   const message = value !== undefined ? value : internalMessage;
@@ -136,6 +138,7 @@ export function MessageInput({
             onAudioReady={onVoiceMessage}
             disabled={disabled}
             primaryColor={primaryColor}
+            onVoiceError={onVoiceError}
           />
         )}
 
