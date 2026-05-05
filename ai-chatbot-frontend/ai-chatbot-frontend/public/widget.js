@@ -413,7 +413,7 @@
           background:linear-gradient(135deg,${p},${pDark})!important;
           border:none!important;color:white!important;cursor:pointer!important;
           display:flex!important;align-items:center!important;justify-content:center!important;
-          transition:opacity .2s,transform .2s!important;flex-shrink:0!important;
+          transition:opacity .2s,transform .2s!important;flex-shrink:0!important;padding:0px 0px!important;
         }
         .aicw-send-btn-v1:hover:not(:disabled){opacity:.9!important;transform:scale(1.05)!important;}
         .aicw-send-btn-v1:disabled{opacity:.5!important;cursor:not-allowed!important;}
@@ -486,7 +486,7 @@
           display:flex!important;align-items:center!important;justify-content:center!important;
           transition:all .25s ease!important;position:relative!important;overflow:hidden!important;
           background:linear-gradient(135deg,${p},${pDark})!important;
-          color:white!important;box-shadow:0 2px 8px ${p}50!important;
+          color:white!important;box-shadow:0 2px 8px ${p}50!important;padding:0px 0px!important;
         }
         .aicw-mic-btn-v1:hover:not(:disabled){transform:scale(1.08)!important;opacity:.9!important;}
         .aicw-mic-btn-v1.aicw-mic-recording-v1{
